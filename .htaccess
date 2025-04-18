@@ -1,0 +1,10 @@
+SetEnv PHP_VER 5_3
+SetEnv REGISTER_GLOBALS 0
+
+#Redireción para WWW y Forzar HTTPS
+RewriteEngine On 
+RewriteCond %{HTTP_HOST} www.abelsotillos.com [NC]
+RewriteRule ^(.*)$ https://abelsotillos.com/$1 [L,R=301]
+RewriteCond %{HTTP:X-Forwarded-Proto} !https
+RewriteCond %{HTTPS} off
+RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
