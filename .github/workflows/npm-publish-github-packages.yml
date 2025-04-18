@@ -19,3 +19,7 @@ jobs:
             cache: 'npm'
       - run: npm ci 
       - run: npm run build
+      - name: Creando la imágen doker
+        run: docker build -t astro .
+      - name: Levantar el contenedor con docker-compose
+        run: docker compose -f /home/abel/Portafolio/docker-compose.yml up -d --force-recreate
