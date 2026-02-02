@@ -17,8 +17,8 @@ jobs:
         with:
             node-version: 24
             cache: 'npm'
-      - run: npm ci 
-      - run: npm run build
+      - run: pnpm install
+      - run: pnpm run build
       - name: Eliminar la imágen anterior
         run: docker image rm -f astro || echo "La imagen 'astro' no existía o no pudo eliminarse."
       - name: Creando la imágen doker
