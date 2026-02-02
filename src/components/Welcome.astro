@@ -1,17 +1,27 @@
 ---
-import background from '../assets/background.svg';
+import { Minus, Square, User, X } from '@lucide/astro';
+import background from '../assets/zorro-fondo2.png';
 ---
 <div id="container">
 	<img id="background" src={background.src} alt="" fetchpriority="high" />
 	<main>
-		<section id="hero">
-			<h1>
-				Abel Sotillos Cuenca
-			</h1>
-			<section id="links">
-				<p>Work in progress</p>
-			</section>
-		</section>
+		<div id="window">
+			<div id="window-header">
+				<div id="header-text">
+					<User color="hsl(217 91% 60%)" />
+					<span id="text">about_me.txt</span>
+				</div>
+				<div id="header-buttons">
+					<Minus id="window-btn" color="hsl(215 20% 65%)" size={20} />
+					<Square id="window-btn" color="hsl(215 20% 65%)" size={20} />
+					<X id="window-btn-X" color="hsl(0 84% 60%)" size={20} />
+				</div>
+			</div>
+			<div id="window-body">
+				<h1>Abel Sotillos Cuenca</h1>
+				<p>Full Stack Developer</p>
+			</div>
+		</div>
 	</main>
 </div>
 
@@ -22,8 +32,8 @@ import background from '../assets/background.svg';
 		left: 0;
 		width: 100%;
 		height: 100%;
-		z-index: -1;
-		filter: blur(100px);
+		z-index: -1;	
+		object-fit: cover;
 	}
 
 	#container {
@@ -32,153 +42,88 @@ import background from '../assets/background.svg';
 	}
 
 	main {
-		height: 100%;
+		height: 100%; 
 		display: flex;
 		justify-content: center;
+		align-content: center;
+    	flex-wrap: wrap;
 	}
 
-	#hero {
-		display: flex;
-		align-items: start;
-		flex-direction: column;
-		justify-content: center;
-		padding: 16px;
+	#window{
+		border-width: 1px;
+		border-color: hsl(217 33% 25% / .6);
+		background-color: hsl(222 47% 14% / .85);
+		backdrop-filter: blur(40px);
+		border-radius: 0.75rem;
+		opacity: 1;
+		transform: none;
+		max-width: 32rem;
+		width: 100%;
 	}
-
-	h1 {
-		font-size: 22px;
-		margin-top: 0.25em;
-	}
-
-	#links {
-		display: flex;
-		gap: 16px;
-	}
-
-	#links a {
+	#window-header{
+		border-radius: 0.75rem 0.75rem 0rem 0rem  ;
+		padding-top: 0.75rem;
+		padding-bottom: 0.75rem;
+		padding-left: 1rem;
+		padding-right: 1rem;
+		background-color: hsl(217 33% 17% / 0.5);
+		border-color: hsl(217 33% 25% / 0.5);
+		border-bottom-width: 1px;
+		justify-content: space-between;
 		display: flex;
 		align-items: center;
-		padding: 10px 12px;
-		color: #111827;
-		text-decoration: none;
-		transition: color 0.2s;
+		box-sizing: border-box;
+		border-width: 0;
+		border-style: solid;
 	}
-
-	#links a:hover {
-		color: rgb(78, 80, 86);
+	#window-body{
+		padding: 1.5rem;
+		box-sizing: border-box;
+		border-width: 0;
+		border-style: solid;
+		border-color: #e5e7eb;
 	}
-
-	#links a svg {
-		height: 1em;
-		margin-left: 8px;
-	}
-
-	#links a.button {
-		color: white;
-		background: linear-gradient(83.21deg, #3245ff 0%, #bc52ee 100%);
-		box-shadow:
-			inset 0 0 0 1px rgba(255, 255, 255, 0.12),
-			inset 0 -2px 0 rgba(0, 0, 0, 0.24);
-		border-radius: 10px;
-	}
-
-	#links a.button:hover {
-		color: rgb(230, 230, 230);
-		box-shadow: none;
-	}
-
-	pre {
-		font-family:
-			ui-monospace, 'Cascadia Code', 'Source Code Pro', Menlo, Consolas, 'DejaVu Sans Mono',
-			monospace;
-		font-weight: normal;
-		background: linear-gradient(14deg, #d83333 0%, #f041ff 100%);
-		-webkit-background-clip: text;
-		-webkit-text-fill-color: transparent;
-		background-clip: text;
+	h1{
+		color:hsl(210 40% 98%);
+		font-weight: 700;
+		font-size: 1.875rem;
+    	line-height: 2.25rem;
+		text-shadow: 0 0 20px hsl(217 91% 60% / .5);
 		margin: 0;
 	}
-
-	h2 {
-		margin: 0 0 1em;
-		font-weight: normal;
-		color: #111827;
-		font-size: 20px;
-	}
-
-	p {
-		color: #4b5563;
-		font-size: 16px;
-		line-height: 24px;
-		letter-spacing: -0.006em;
+	p{
+		color: hsl(217 91% 60%);
+		font-size: 0.875rem;
+    	line-height: 1.25rem;
 		margin: 0;
 	}
-
-	code {
-		display: inline-block;
-		background:
-			linear-gradient(66.77deg, #f3cddd 0%, #f5cee7 100%) padding-box,
-			linear-gradient(155deg, #d83333 0%, #f041ff 18%, #f5cee7 45%) border-box;
-		border-radius: 8px;
-		border: 1px solid transparent;
-		padding: 6px 8px;
+	#header-text{
+		gap: 0.75rem;
+		align-items: center;
+		display: flex;
 	}
-
-	.box {
-		padding: 16px;
-		background: rgba(255, 255, 255, 1);
-		border-radius: 16px;
-		border: 1px solid white;
+	#header-buttons{
+		gap: 0.5rem;
+		align-items: center;
+		display: flex;
 	}
-
-	#news {
-		position: absolute;
-		bottom: 16px;
-		right: 16px;
-		max-width: 300px;
-		text-decoration: none;
-		transition: background 0.2s;
-		backdrop-filter: blur(50px);
+	#text{
+		color: hsl(210 40% 98% / 0.9);
 	}
-
-	#news:hover {
-		background: rgba(255, 255, 255, 0.55);
+	#window-btn{
+		background-color: hsl(217 33% 17%/ 0.5);
+		border-radius: 9999px;
 	}
-
-	@media screen and (max-height: 368px) {
-		#news {
-			display: none;
-		}
+	#window-btn:hover{
+		background-color: hsla(218, 9%, 23%, 0.5);
+		border-radius: 9999px;
 	}
-
-	@media screen and (max-width: 768px) {
-		#container {
-			display: flex;
-			flex-direction: column;
-		}
-
-		#hero {
-			display: block;
-			padding-top: 10%;
-		}
-
-		#links {
-			flex-wrap: wrap;
-		}
-
-		#links a.button {
-			padding: 14px 18px;
-		}
-
-		#news {
-			right: 16px;
-			left: 16px;
-			bottom: 2.5rem;
-			max-width: 100%;
-		}
-
-		h1 {
-			line-height: 1.5;
-		}
+	#window-btn-X{
+		background-color: hsl(0 84% 60%/ 0.2);
+		border-radius: 9999px;
+	}
+	#window-btn-X:hover{
+		background-color: hsla(0, 79%, 70%, 0.4);
+		border-radius: 9999px;
 	}
 </style>
