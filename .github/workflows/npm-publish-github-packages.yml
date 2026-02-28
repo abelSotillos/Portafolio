@@ -24,5 +24,7 @@ jobs:
         run: docker image rm -f astro || echo "La imagen 'astro' no existía o no pudo eliminarse."
       - name: Creando la imágen doker
         run: docker build -t astro .
+      - name: Veo mi ruta
+        run: pwd
       - name: Levantar el contenedor con docker-compose
         run: docker compose -f /home/abel/Portafolio/docker-compose.yml up -d --force-recreate
