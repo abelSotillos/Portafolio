@@ -23,4 +23,4 @@ jobs:
       - name: Creando la imágen doker
         run: docker build -t astro .
       - name: Levantar el contenedor con docker-compose y elimino las imágenes sobrantes
-        run: bash ./Scripts/start.sh
+        run: bash ../Scripts/start.sh 
