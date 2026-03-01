@@ -1,0 +1,349 @@
+---
+import { Minus, Square, User, X } from '@lucide/astro/icons/index';
+
+interface Props {
+  title?: string;
+  width?: number;
+  height?: number;
+  initialX?: number;
+  initialY?: number;
+  id?: string;
+  icon?: string;
+}
+
+const {
+  title = "Mi Ventana",
+  width = 400,
+  height = 300,
+  initialX = 100,
+  initialY = 100,
+  id = "window-" + Math.random().toString(36).slice(2, 8),
+} = Astro.props;
+---
+
+<div
+  class="win-window"
+  id={id}
+  style={`width:${width}px; height:${height}px; left:${initialX}px; top:${initialY}px;`}
+>
+  <!-- Title bar (zona de arrastre) -->
+  <div class="win-titlebar" data-drag-handle>
+    <div class="win-titlebar-left">
+      <User color="hsl(217 91% 60%)" />
+      <span class="win-title">{title}</span>
+    </div>
+    <div class="win-controls">
+      <button class="win-btn win-minimize" title="Minimizar">
+        <Minus id="window-btn" color="hsl(215 20% 65%)" size={20} />
+      </button>
+      <button class="win-btn win-maximize" title="Maximizar">
+        <Square id="window-btn" color="hsl(215 20% 65%)" size={20} />
+      </button>
+      <button class="win-btn win-close" title="Cerrar">
+        <X id="window-btn-X" color="hsl(0 84% 60%)" size={20} />
+      </button>
+    </div>
+  </div>
+
+  <!-- Content -->
+  <div class="win-content">
+    <slot>
+      <p>Contenido de la ventana</p>
+    </slot>
+  </div>
+
+  <!-- Resize handle -->
+  <div class="win-resize-handle" data-resize-handle></div>
+</div>
+
+<style>
+  .win-window {
+    position: fixed;
+    display: flex;
+    flex-direction: column;
+		background-color: hsl(222 47% 14% / .85);
+    border: 2px solid hsl(217 33% 25% / .6);
+    border-radius: 8px;
+    box-shadow:
+      0 8px 32px rgba(0, 0, 0, 0.25),
+      0 2px 8px rgba(0, 0, 0, 0.15);
+    font-family: "Segoe UI", system-ui, sans-serif;
+    min-width: 200px;
+    min-height: 120px;
+    overflow: hidden;
+    transition: box-shadow 0.15s ease;
+    z-index: 1000;
+    user-select: none;
+  }
+
+  .win-window.is-dragging {
+    box-shadow:
+      0 16px 48px rgba(0, 0, 0, 0.35),
+      0 4px 16px rgba(0, 0, 0, 0.2);
+    opacity: 0.97;
+  }
+
+  .win-window.is-maximized {
+    border-radius: 0 !important;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .win-titlebar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background-color: hsl(217 33% 17% );
+		border-color: hsl(217 33% 25% / 0.5);
+    color: white;
+    padding: 0 0 0 10px;
+    height: 36px;
+    cursor: grab;
+    flex-shrink: 0;
+  }
+
+  .win-titlebar:active {
+    cursor: grabbing;
+  }
+
+  .win-titlebar-left {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    font-weight: 500;
+  }
+
+  .win-icon {
+    font-size: 16px;
+    opacity: 0.9;
+  }
+
+  .win-title {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 200px;
+  }
+
+  .win-controls {
+    display: flex;
+    height: 100%;
+  }
+
+  .win-btn {
+    width: 46px;
+    height: 36px;
+    background: transparent;
+    border: none;
+    color: white;
+    font-size: 13px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.1s;
+  }
+
+  .win-btn:hover {
+    background: rgba(255, 255, 255, 0.15);
+  }
+
+  .win-close:hover {
+    background: #e81123 !important;
+  }
+
+  .win-content {
+    flex: 1;
+    padding: 16px;
+    overflow: auto;
+    background-color: hsl(222 47% 14% );
+    font-size: 14px;
+  }
+
+  .win-resize-handle {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    width: 16px;
+    height: 16px;
+    cursor: se-resize;
+    background: linear-gradient(
+      135deg,
+      transparent 50%,
+      rgba(0, 120, 212, 0.3) 50%
+    );
+  }
+</style>
+
+<script define:vars={{ id }}>
+  (function () {
+    const win = document.getElementById(id);
+    if (!win) return;
+
+    // ── Estado ──────────────────────────────────────────────────────────
+    let isDragging = false;
+    let isResizing = false;
+    let startX = 0,
+      startY = 0;
+    let startLeft = 0,
+      startTop = 0;
+    let startW = 0,
+      startH = 0;
+    let isMaximized = false;
+    let savedState = {};
+
+    const titlebar = win.querySelector("[data-drag-handle]");
+    const resizeHandle = win.querySelector("[data-resize-handle]");
+    const btnMin = win.querySelector(".win-minimize");
+    const btnMax = win.querySelector(".win-maximize");
+    const btnClose = win.querySelector(".win-close");
+
+    // ── Helpers de pantalla ─────────────────────────────────────────────
+    function getScreenSize() {
+      return {
+        w: window.innerWidth,
+        h: window.innerHeight,
+      };
+    }
+
+    function clampPosition(x, y, winW, winH) {
+      const { w, h } = getScreenSize();
+      return {
+        x: Math.max(0, Math.min(x, w - winW)),
+        y: Math.max(0, Math.min(y, h - winH)),
+      };
+    }
+
+    // ── Traer al frente ─────────────────────────────────────────────────
+    function bringToFront() {
+      const allWins = document.querySelectorAll(".win-window");
+      let maxZ = 1000;
+      allWins.forEach((w) => {
+        const z = parseInt(getComputedStyle(w).zIndex) || 1000;
+        if (z > maxZ) maxZ = z;
+      });
+      win.style.zIndex = maxZ + 1;
+    }
+
+    win.addEventListener("mousedown", bringToFront);
+
+    // ── Arrastre (drag) ─────────────────────────────────────────────────
+    titlebar.addEventListener("mousedown", (e) => {
+      if (e.target.closest(".win-controls")) return;
+      if (isMaximized) return;
+
+      isDragging = true;
+      startX = e.clientX;
+      startY = e.clientY;
+      startLeft = win.offsetLeft;
+      startTop = win.offsetTop;
+      win.classList.add("is-dragging");
+      e.preventDefault();
+    });
+
+    document.addEventListener("mousemove", (e) => {
+      if (!isDragging && !isResizing) return;
+
+      if (isDragging) {
+        const dx = e.clientX - startX;
+        const dy = e.clientY - startY;
+        const newX = startLeft + dx;
+        const newY = startTop + dy;
+        const { x, y } = clampPosition(
+          newX,
+          newY,
+          win.offsetWidth,
+          win.offsetHeight
+        );
+        win.style.left = x + "px";
+        win.style.top = y + "px";
+      }
+
+      if (isResizing) {
+        const dx = e.clientX - startX;
+        const dy = e.clientY - startY;
+        const newW = Math.max(200, startW + dx);
+        const newH = Math.max(120, startH + dy);
+        win.style.width = newW + "px";
+        win.style.height = newH + "px";
+      }
+    });
+
+    document.addEventListener("mouseup", () => {
+      isDragging = false;
+      isResizing = false;
+      win.classList.remove("is-dragging");
+    });
+
+    // ── Redimensionar ───────────────────────────────────────────────────
+    resizeHandle.addEventListener("mousedown", (e) => {
+      if (isMaximized) return;
+      isResizing = true;
+      startX = e.clientX;
+      startY = e.clientY;
+      startW = win.offsetWidth;
+      startH = win.offsetHeight;
+      e.preventDefault();
+      e.stopPropagation();
+    });
+
+    // ── Minimizar ───────────────────────────────────────────────────────
+    btnMin.addEventListener("click", () => {
+      win.style.display = "none";
+      // Opcional: disparar evento para la taskbar
+      win.dispatchEvent(new CustomEvent("win-minimize", { bubbles: true }));
+    });
+
+    // ── Maximizar / Restaurar ───────────────────────────────────────────
+    btnMax.addEventListener("click", () => {
+      const { w, h } = getScreenSize();
+      if (!isMaximized) {
+        savedState = {
+          left: win.style.left,
+          top: win.style.top,
+          width: win.style.width,
+          height: win.style.height,
+        };
+        win.style.left = "0px";
+        win.style.top = "0px";
+        win.style.width = w + "px";
+        win.style.height = h + "px";
+        win.classList.add("is-maximized");
+        isMaximized = true;
+      } else {
+        Object.assign(win.style, savedState);
+        win.classList.remove("is-maximized");
+        isMaximized = false;
+      }
+    });
+
+    // ── Cerrar ──────────────────────────────────────────────────────────
+    btnClose.addEventListener("click", () => {
+      win.style.animation = "fadeOut 0.15s ease forwards";
+      setTimeout(() => win.remove(), 150);
+    });
+
+    // ── Doble clic en titlebar para maximizar ───────────────────────────
+    titlebar.addEventListener("dblclick", (e) => {
+      if (!e.target.closest(".win-controls")) btnMax.click();
+    });
+
+    // ── Reajustar al redimensionar la pantalla ──────────────────────────
+    window.addEventListener("resize", () => {
+      if (isMaximized) {
+        const { w, h } = getScreenSize();
+        win.style.width = w + "px";
+        win.style.height = h + "px";
+      } else {
+        const { x, y } = clampPosition(
+          win.offsetLeft,
+          win.offsetTop,
+          win.offsetWidth,
+          win.offsetHeight
+        );
+        win.style.left = x + "px";
+        win.style.top = y + "px";
+      }
+    });
+  })();
+</script>

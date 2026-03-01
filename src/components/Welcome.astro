@@ -1,27 +1,17 @@
 ---
 import { Minus, Square, User, X } from '@lucide/astro';
 import background from '../assets/zorro-fondo2.png';
+import DraggableWindow from './DraggableWindow.astro';
+import NavBar from './NavBar.astro';
 ---
 <div id="container">
 	<img id="background" src={background.src} alt="" fetchpriority="high" />
 	<main>
-		<div id="window">
-			<div id="window-header">
-				<div id="header-text">
-					<User color="hsl(217 91% 60%)" />
-					<span id="text">about_me.txt</span>
-				</div>
-				<div id="header-buttons">
-					<Minus id="window-btn" color="hsl(215 20% 65%)" size={20} />
-					<Square id="window-btn" color="hsl(215 20% 65%)" size={20} />
-					<X id="window-btn-X" color="hsl(0 84% 60%)" size={20} />
-				</div>
-			</div>
-			<div id="window-body">
-				<h1>Abel Sotillos Cuenca</h1>
-				<p>Full Stack Developer</p>
-			</div>
-		</div>
+		<NavBar/>
+		<DraggableWindow title="about_me.txt" width={500} height={350} initialX={150} initialY={100}>
+			<h1>Abel Sotillos Cuenca</h1>
+			<p>Full Stack Developer</p>
+		</DraggableWindow>
 	</main>
 </div>
 
@@ -49,40 +39,6 @@ import background from '../assets/zorro-fondo2.png';
     	flex-wrap: wrap;
 	}
 
-	#window{
-		border-width: 1px;
-		border-color: hsl(217 33% 25% / .6);
-		background-color: hsl(222 47% 14% / .85);
-		backdrop-filter: blur(40px);
-		border-radius: 0.75rem;
-		opacity: 1;
-		transform: none;
-		max-width: 32rem;
-		width: 100%;
-	}
-	#window-header{
-		border-radius: 0.75rem 0.75rem 0rem 0rem  ;
-		padding-top: 0.75rem;
-		padding-bottom: 0.75rem;
-		padding-left: 1rem;
-		padding-right: 1rem;
-		background-color: hsl(217 33% 17% / 0.5);
-		border-color: hsl(217 33% 25% / 0.5);
-		border-bottom-width: 1px;
-		justify-content: space-between;
-		display: flex;
-		align-items: center;
-		box-sizing: border-box;
-		border-width: 0;
-		border-style: solid;
-	}
-	#window-body{
-		padding: 1.5rem;
-		box-sizing: border-box;
-		border-width: 0;
-		border-style: solid;
-		border-color: #e5e7eb;
-	}
 	h1{
 		color:hsl(210 40% 98%);
 		font-weight: 700;
@@ -96,34 +52,5 @@ import background from '../assets/zorro-fondo2.png';
 		font-size: 0.875rem;
     	line-height: 1.25rem;
 		margin: 0;
-	}
-	#header-text{
-		gap: 0.75rem;
-		align-items: center;
-		display: flex;
-	}
-	#header-buttons{
-		gap: 0.5rem;
-		align-items: center;
-		display: flex;
-	}
-	#text{
-		color: hsl(210 40% 98% / 0.9);
-	}
-	#window-btn{
-		background-color: hsl(217 33% 17%/ 0.5);
-		border-radius: 9999px;
-	}
-	#window-btn:hover{
-		background-color: hsla(218, 9%, 23%, 0.5);
-		border-radius: 9999px;
-	}
-	#window-btn-X{
-		background-color: hsl(0 84% 60%/ 0.2);
-		border-radius: 9999px;
-	}
-	#window-btn-X:hover{
-		background-color: hsla(0, 79%, 70%, 0.4);
-		border-radius: 9999px;
 	}
 </style>

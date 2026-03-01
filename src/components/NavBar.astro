@@ -1,0 +1,436 @@
+---
+// NavBar.astro — Barra de tareas estilo Windows
+// Se comunica con DraggableWindow.astro mediante eventos personalizados
+---
+
+<nav id="taskbar" role="navigation" aria-label="Barra de tareas">
+    <!-- Botón inicio -->
+    <button class="tb-start" id="tb-start-btn" title="Inicio" aria-label="Inicio">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z"/>
+      </svg>
+    </button>
+  
+    <div class="tb-divider"></div>
+  
+    <!-- Lista de ventanas abiertas -->
+    <div class="tb-windows" id="tb-windows" role="list" aria-label="Ventanas abiertas">
+      <span class="tb-empty-hint" id="tb-empty-hint">Sin ventanas abiertas</span>
+    </div>
+  
+    <!-- Spacer -->
+    <div class="tb-spacer"></div>
+  
+    <!-- Área del sistema (derecha) -->
+    <div class="tb-system">
+      <!-- Indicador de pantalla -->
+      <div class="tb-screen-info" id="tb-screen-info" title="Tamaño de pantalla">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" opacity="0.7">
+          <path d="M21 2H3c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h7l-2 3v1h8v-1l-2-3h7c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H3V4h18v12z"/>
+        </svg>
+        <span id="tb-resolution">—</span>
+      </div>
+  
+      <div class="tb-divider-v"></div>
+  
+      <!-- Reloj -->
+      <div class="tb-clock" aria-live="polite">
+        <span class="tb-time" id="tb-time">00:00</span>
+        <span class="tb-date" id="tb-date">—</span>
+      </div>
+    </div>
+  </nav>
+  
+  <style>
+    #taskbar {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 44px;
+      background: rgba(15, 15, 20, 0.88);
+      backdrop-filter: blur(20px) saturate(180%);
+      -webkit-backdrop-filter: blur(20px) saturate(180%);
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+      display: flex;
+      align-items: center;
+      padding: 0 6px;
+      gap: 4px;
+      z-index: 9999;
+      box-shadow: 0 -2px 20px rgba(0, 0, 0, 0.4);
+      font-family: "Segoe UI", system-ui, sans-serif;
+    }
+  
+    /* ── Botón inicio ──────────────────────────────── */
+    .tb-start {
+      width: 40px;
+      height: 32px;
+      border: none;
+      background: transparent;
+      color: rgba(255, 255, 255, 0.75);
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: background 0.15s, color 0.15s, transform 0.1s;
+      flex-shrink: 0;
+    }
+  
+    .tb-start:hover {
+      background: rgba(255, 255, 255, 0.12);
+      color: #fff;
+    }
+  
+    .tb-start:active {
+      transform: scale(0.93);
+      background: rgba(0, 120, 212, 0.35);
+    }
+  
+    /* ── Divisores ─────────────────────────────────── */
+    .tb-divider {
+      width: 1px;
+      height: 22px;
+      background: rgba(255, 255, 255, 0.1);
+      flex-shrink: 0;
+      margin: 0 2px;
+    }
+  
+    .tb-divider-v {
+      width: 1px;
+      height: 18px;
+      background: rgba(255, 255, 255, 0.1);
+      margin: 0 4px;
+      flex-shrink: 0;
+    }
+  
+    /* ── Lista de ventanas ─────────────────────────── */
+    .tb-windows {
+      display: flex;
+      align-items: center;
+      gap: 3px;
+      flex: 1;
+      overflow-x: auto;
+      overflow-y: hidden;
+      padding: 0 2px;
+      scrollbar-width: none;
+    }
+  
+    .tb-windows::-webkit-scrollbar {
+      display: none;
+    }
+  
+    .tb-empty-hint {
+      font-size: 11px;
+      color: rgba(255, 255, 255, 0.25);
+      white-space: nowrap;
+      padding: 0 6px;
+      pointer-events: none;
+    }
+  
+    /* ── Botón de ventana ──────────────────────────── */
+    .tb-win-btn {
+      height: 32px;
+      min-width: 40px;
+      max-width: 180px;
+      padding: 0 10px;
+      background: rgba(255, 255, 255, 0.07);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      border-radius: 6px;
+      color: rgba(255, 255, 255, 0.75);
+      font-size: 12px;
+      font-family: inherit;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      transition: background 0.15s, color 0.15s, border-color 0.15s;
+      position: relative;
+      flex-shrink: 0;
+      animation: tb-btn-in 0.2s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+    }
+  
+    @keyframes tb-btn-in {
+      from { opacity: 0; transform: translateY(8px) scale(0.9); }
+      to   { opacity: 1; transform: translateY(0) scale(1); }
+    }
+  
+    .tb-win-btn:hover {
+      background: rgba(255, 255, 255, 0.13);
+      color: #fff;
+      border-color: rgba(255, 255, 255, 0.12);
+    }
+  
+    /* Ventana activa (en primer plano) */
+    .tb-win-btn.is-active {
+      background: rgba(0, 120, 212, 0.3);
+      border-color: rgba(0, 120, 212, 0.6);
+      color: #fff;
+    }
+  
+    .tb-win-btn.is-active::after {
+      content: '';
+      position: absolute;
+      bottom: -1px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 60%;
+      height: 2px;
+      background: #0078d4;
+      border-radius: 2px 2px 0 0;
+    }
+  
+    /* Ventana minimizada */
+    .tb-win-btn.is-minimized {
+      opacity: 0.55;
+      font-style: italic;
+    }
+  
+    .tb-win-btn.is-minimized:hover {
+      opacity: 1;
+    }
+  
+    .tb-win-icon {
+      font-size: 14px;
+      line-height: 1;
+      flex-shrink: 0;
+    }
+  
+    .tb-win-label {
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+  
+    /* ── Spacer ────────────────────────────────────── */
+    .tb-spacer {
+      flex: 0 0 auto;
+      min-width: 4px;
+    }
+  
+    /* ── Área del sistema ──────────────────────────── */
+    .tb-system {
+      display: flex;
+      align-items: center;
+      gap: 0;
+      flex-shrink: 0;
+      padding: 0 4px;
+    }
+  
+    .tb-screen-info {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      padding: 4px 8px;
+      border-radius: 5px;
+      cursor: default;
+      transition: background 0.15s;
+    }
+  
+    .tb-screen-info:hover {
+      background: rgba(255, 255, 255, 0.08);
+    }
+  
+    #tb-resolution {
+      font-size: 11px;
+      color: rgba(255, 255, 255, 0.5);
+      font-variant-numeric: tabular-nums;
+      letter-spacing: 0.02em;
+    }
+  
+    .tb-clock {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      padding: 3px 8px;
+      border-radius: 5px;
+      cursor: default;
+      transition: background 0.15s;
+      min-width: 54px;
+    }
+  
+    .tb-clock:hover {
+      background: rgba(255, 255, 255, 0.08);
+    }
+  
+    .tb-time {
+      font-size: 13px;
+      font-weight: 600;
+      color: rgba(255, 255, 255, 0.9);
+      font-variant-numeric: tabular-nums;
+      letter-spacing: 0.04em;
+      line-height: 1.1;
+    }
+  
+    .tb-date {
+      font-size: 10px;
+      color: rgba(255, 255, 255, 0.45);
+      line-height: 1.2;
+    }
+  </style>
+  
+  <script>
+    (function () {
+      // ── Referencias DOM ──────────────────────────────────────────────────
+      const taskbar    = document.getElementById('taskbar')!;
+      const tbWindows  = document.getElementById('tb-windows')!;
+      const emptyHint  = document.getElementById('tb-empty-hint')!;
+      const tbTime     = document.getElementById('tb-time')!;
+      const tbDate     = document.getElementById('tb-date')!;
+      const tbRes      = document.getElementById('tb-resolution')!;
+  
+      // ── Mapa de ventanas registradas ────────────────────────────────────
+      // id → { title, minimized, active, btn }
+      const windows = new Map<string, {
+        title: string;
+        minimized: boolean;
+        active: boolean;
+        btn: HTMLButtonElement;
+      }>();
+  
+      // ── Reloj ────────────────────────────────────────────────────────────
+      function updateClock() {
+        const now = new Date();
+        tbTime.textContent = now.toLocaleTimeString('es-ES', {
+          hour: '2-digit', minute: '2-digit'
+        });
+        tbDate.textContent = now.toLocaleDateString('es-ES', {
+          day: '2-digit', month: '2-digit', year: '2-digit'
+        });
+      }
+      updateClock();
+      setInterval(updateClock, 10_000);
+  
+      // ── Resolución de pantalla ───────────────────────────────────────────
+      function updateResolution() {
+        tbRes.textContent = `${window.innerWidth}×${window.innerHeight}`;
+      }
+      updateResolution();
+      window.addEventListener('resize', updateResolution);
+  
+      // ── Helpers ──────────────────────────────────────────────────────────
+      function syncEmptyHint() {
+        emptyHint.style.display = windows.size === 0 ? 'inline' : 'none';
+      }
+  
+      function setActive(id: string) {
+        windows.forEach((w, wid) => {
+          w.active = wid === id;
+          w.btn.classList.toggle('is-active', w.active);
+        });
+      }
+  
+      // ── Registrar una ventana nueva ──────────────────────────────────────
+      function registerWindow(id: string, title: string) {
+        if (windows.has(id)) return;
+  
+        const btn = document.createElement('button');
+        btn.className = 'tb-win-btn';
+        btn.setAttribute('role', 'listitem');
+        btn.setAttribute('aria-label', `Ventana: ${title}`);
+        btn.dataset.winId = id;
+  
+        btn.innerHTML = `
+          <span class="tb-win-icon">⊞</span>
+          <span class="tb-win-label">${title}</span>
+        `;
+  
+        btn.addEventListener('click', () => {
+          const win = document.getElementById(id);
+          if (!win) return;
+          const state = windows.get(id)!;
+  
+          if (state.minimized) {
+            // Restaurar
+            win.style.display = 'flex';
+            state.minimized = false;
+            btn.classList.remove('is-minimized');
+            bringWinToFront(id);
+            setActive(id);
+          } else if (state.active) {
+            // Minimizar si ya está activa
+            win.style.display = 'none';
+            state.minimized = true;
+            btn.classList.add('is-minimized');
+            btn.classList.remove('is-active');
+            state.active = false;
+          } else {
+            // Traer al frente
+            bringWinToFront(id);
+            setActive(id);
+          }
+        });
+  
+        tbWindows.appendChild(btn);
+        windows.set(id, { title, minimized: false, active: true, btn });
+        setActive(id);
+        syncEmptyHint();
+      }
+  
+      function bringWinToFront(id: string) {
+        const win = document.getElementById(id);
+        if (!win) return;
+        const allWins = document.querySelectorAll('.win-window');
+        let maxZ = 1000;
+        allWins.forEach(w => {
+          const z = parseInt(getComputedStyle(w).zIndex) || 1000;
+          if (z > maxZ) maxZ = z;
+        });
+        (win as HTMLElement).style.zIndex = String(maxZ + 1);
+      }
+  
+      // ── Escuchar eventos de las ventanas ─────────────────────────────────
+      document.addEventListener('win-register', (e: Event) => {
+        const { id, title } = (e as CustomEvent).detail;
+        registerWindow(id, title);
+      });
+  
+      document.addEventListener('win-minimize', (e: Event) => {
+        const { id } = (e as CustomEvent).detail;
+        const state = windows.get(id);
+        if (!state) return;
+        state.minimized = true;
+        state.active = false;
+        state.btn.classList.add('is-minimized');
+        state.btn.classList.remove('is-active');
+      });
+  
+      document.addEventListener('win-focus', (e: Event) => {
+        const { id } = (e as CustomEvent).detail;
+        if (windows.has(id)) setActive(id);
+      });
+  
+      document.addEventListener('win-close', (e: Event) => {
+        const { id } = (e as CustomEvent).detail;
+        const state = windows.get(id);
+        if (!state) return;
+        state.btn.style.animation = 'tb-btn-out 0.15s ease forwards';
+        state.btn.addEventListener('animationend', () => state.btn.remove(), { once: true });
+        windows.delete(id);
+        syncEmptyHint();
+      });
+  
+      // ── Inicializar ventanas ya presentes en el DOM ─────────────────────
+      // (útil si los componentes cargan antes que el taskbar)
+      document.querySelectorAll<HTMLElement>('.win-window[id]').forEach(win => {
+        const id = win.id;
+        const titleEl = win.querySelector('.win-title');
+        const title = titleEl?.textContent?.trim() ?? id;
+        registerWindow(id, title);
+      });
+  
+      syncEmptyHint();
+  
+      // ── Añadir estilo para animación de salida ───────────────────────────
+      const style = document.createElement('style');
+      style.textContent = `
+        @keyframes tb-btn-out {
+          from { opacity: 1; transform: translateY(0) scale(1); }
+          to   { opacity: 0; transform: translateY(8px) scale(0.85); }
+        }
+      `;
+      document.head.appendChild(style);
+    })();
+  </script>
