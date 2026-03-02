@@ -1,436 +1,612 @@
 ---
-// NavBar.astro — Barra de tareas estilo Windows
-// Se comunica con DraggableWindow.astro mediante eventos personalizados
+// Barra de tareas principal. Importa StartMenu para el menú inicio.
+
+import StartMenu from './Menu.astro';
+import { defaultApps } from './NavBar.types';
+import type { App } from './NavBar.types';
+
+interface Props {
+  apps?: App[];
+}
+
+const { apps = defaultApps } = Astro.props;
 ---
 
+<!-- Barra de tareas -->
 <nav id="taskbar" role="navigation" aria-label="Barra de tareas">
-    <!-- Botón inicio -->
-    <button class="tb-start" id="tb-start-btn" title="Inicio" aria-label="Inicio">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
-        <path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z"/>
+
+  <!-- Botón inicio -->
+  <button
+    id="tb-start-btn"
+    class="tb-start"
+    aria-label="Inicio"
+    aria-haspopup="true"
+    aria-expanded="false"
+  >
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+      <path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z"/>
+    </svg>
+    <span>Inicio</span>
+  </button>
+
+  <div class="tb-divider"></div>
+
+  <!-- Botones de ventanas abiertas -->
+  <div id="tb-windows" class="tb-windows" role="list">
+    <span id="tb-empty-hint" class="tb-empty-hint">Sin ventanas abiertas</span>
+  </div>
+
+  <div class="tb-spacer"></div>
+
+  <!-- Área del sistema: resolución + reloj -->
+  <div class="tb-system">
+    <div class="tb-resolution">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" opacity=".5">
+        <path d="M21 2H3c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h7l-2 3v1h8v-1l-2-3h7c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H3V4h18v12z"/>
       </svg>
-    </button>
-  
-    <div class="tb-divider"></div>
-  
-    <!-- Lista de ventanas abiertas -->
-    <div class="tb-windows" id="tb-windows" role="list" aria-label="Ventanas abiertas">
-      <span class="tb-empty-hint" id="tb-empty-hint">Sin ventanas abiertas</span>
+      <span id="tb-resolution">—</span>
     </div>
-  
-    <!-- Spacer -->
-    <div class="tb-spacer"></div>
-  
-    <!-- Área del sistema (derecha) -->
-    <div class="tb-system">
-      <!-- Indicador de pantalla -->
-      <div class="tb-screen-info" id="tb-screen-info" title="Tamaño de pantalla">
-        <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" opacity="0.7">
-          <path d="M21 2H3c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h7l-2 3v1h8v-1l-2-3h7c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H3V4h18v12z"/>
-        </svg>
-        <span id="tb-resolution">—</span>
-      </div>
-  
-      <div class="tb-divider-v"></div>
-  
-      <!-- Reloj -->
-      <div class="tb-clock" aria-live="polite">
-        <span class="tb-time" id="tb-time">00:00</span>
-        <span class="tb-date" id="tb-date">—</span>
-      </div>
+    <div class="tb-divider-v"></div>
+    <div class="tb-clock">
+      <span id="tb-time" class="tb-time">00:00</span>
+      <span id="tb-date" class="tb-date">—</span>
     </div>
-  </nav>
-  
-  <style>
-    #taskbar {
-      position: fixed;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      height: 44px;
-      background: rgba(15, 15, 20, 0.88);
-      backdrop-filter: blur(20px) saturate(180%);
-      -webkit-backdrop-filter: blur(20px) saturate(180%);
-      border-top: 1px solid rgba(255, 255, 255, 0.08);
-      display: flex;
-      align-items: center;
-      padding: 0 6px;
-      gap: 4px;
-      z-index: 9999;
-      box-shadow: 0 -2px 20px rgba(0, 0, 0, 0.4);
-      font-family: "Segoe UI", system-ui, sans-serif;
+  </div>
+</nav>
+
+<!-- Menú inicio (componente separado) -->
+<StartMenu apps={apps} />
+
+<style>
+  /* ── Taskbar ──────────────────────────────────────────────────── */
+  #taskbar {
+    position: fixed;
+    bottom: 0; left: 0; right: 0;
+    height: 46px;
+    background: hsl(222 47% 8% / .95);
+    backdrop-filter: blur(24px) saturate(180%);
+    -webkit-backdrop-filter: blur(24px) saturate(180%);
+    border-top: 1px solid hsl(217 33% 25% / .4);
+    display: flex;
+    align-items: center;
+    padding: 0 6px;
+    gap: 4px;
+    z-index: 9999;
+    box-shadow: 0 -2px 24px rgba(0,0,0,.5);
+    font-family: "Segoe UI", system-ui, sans-serif;
+  }
+
+  /* Botón inicio */
+  .tb-start {
+    height: 34px;
+    padding: 0 12px;
+    background: transparent;
+    border: 1px solid transparent;
+    color: hsl(215 20% 65%);
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    cursor: pointer;
+    font-size: 12px;
+    font-family: inherit;
+    font-weight: 500;
+    letter-spacing: .02em;
+    transition: background .15s, color .15s, border-color .15s, transform .1s;
+    flex-shrink: 0;
+  }
+  .tb-start:hover  { background: hsl(217 33% 22% / .6); color: #fff; border-color: hsl(217 33% 30% / .5); }
+  .tb-start:active { transform: scale(.94); }
+  .tb-start.is-open {
+    background: hsl(213 90% 45% / .2);
+    color: #fff;
+    border-color: hsl(213 90% 55% / .4);
+  }
+
+  /* Divisores */
+  .tb-divider   { width: 1px; height: 22px; background: hsl(217 33% 25% / .5); flex-shrink: 0; margin: 0 2px; }
+  .tb-divider-v { width: 1px; height: 18px; background: hsl(217 33% 25% / .5); margin: 0 4px; flex-shrink: 0; }
+
+  /* Lista de ventanas */
+  .tb-windows {
+    display: flex;
+    align-items: center;
+    gap: 3px;
+    flex: 1;
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding: 0 2px;
+    scrollbar-width: none;
+  }
+  .tb-windows::-webkit-scrollbar { display: none; }
+
+  .tb-empty-hint {
+    font-size: 11px;
+    color: hsl(215 20% 35%);
+    white-space: nowrap;
+    padding: 0 6px;
+    pointer-events: none;
+  }
+
+  /* Botón de cada ventana */
+  .tb-win-btn {
+    height: 34px;
+    min-width: 44px;
+    max-width: 175px;
+    padding: 0 10px;
+    background: hsl(217 33% 17% / .7);
+    border: 1px solid hsl(217 33% 25% / .4);
+    border-radius: 6px;
+    color: hsl(215 20% 65%);
+    font-size: 12px;
+    font-family: inherit;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    transition: background .15s, color .15s, border-color .15s;
+    position: relative;
+    flex-shrink: 0;
+    animation: tb-btn-in .22s cubic-bezier(.34, 1.56, .64, 1) both;
+  }
+  @keyframes tb-btn-in {
+    from { opacity: 0; transform: translateY(8px) scale(.9); }
+    to   { opacity: 1; transform: translateY(0)  scale(1); }
+  }
+  @keyframes tb-btn-out {
+    from { opacity: 1; transform: translateY(0)  scale(1); }
+    to   { opacity: 0; transform: translateY(8px) scale(.85); }
+  }
+  .tb-win-btn:hover { background: hsl(217 33% 22% / .8); color: #fff; border-color: hsl(217 33% 35% / .6); }
+  .tb-win-btn.is-active {
+    background: hsl(213 90% 45% / .2);
+    border-color: hsl(213 90% 55% / .45);
+    color: #fff;
+  }
+  .tb-win-btn.is-active::after {
+    content: '';
+    position: absolute;
+    bottom: -1px; left: 50%;
+    transform: translateX(-50%);
+    width: 55%; height: 2px;
+    background: hsl(213 90% 60%);
+    border-radius: 2px 2px 0 0;
+  }
+  .tb-win-btn.is-minimized         { opacity: .45; }
+  .tb-win-btn.is-minimized:hover   { opacity: 1; }
+
+  .tb-win-emoji { font-size: 14px; flex-shrink: 0; line-height: 1; }
+  .tb-win-label { overflow: hidden; text-overflow: ellipsis; }
+
+  /* Área del sistema */
+  .tb-spacer   { flex: 0 0 4px; }
+  .tb-system   { display: flex; align-items: center; flex-shrink: 0; padding: 0 4px; }
+
+  .tb-resolution {
+    display: flex; align-items: center; gap: 5px;
+    padding: 4px 8px; border-radius: 5px; cursor: default;
+    transition: background .15s;
+  }
+  .tb-resolution:hover { background: hsl(217 33% 22% / .6); }
+  #tb-resolution { font-size: 11px; color: hsl(215 20% 45%); font-variant-numeric: tabular-nums; }
+
+  .tb-clock {
+    display: flex; flex-direction: column; align-items: flex-end;
+    padding: 3px 8px; border-radius: 5px; cursor: default;
+    transition: background .15s; min-width: 54px;
+  }
+  .tb-clock:hover { background: hsl(217 33% 22% / .6); }
+  .tb-time { font-size: 13px; font-weight: 600; color: hsl(215 20% 80%); font-variant-numeric: tabular-nums; line-height: 1.1; }
+  .tb-date { font-size: 10px; color: hsl(215 20% 45%); line-height: 1.3; }
+</style>
+
+<script>
+  (function () {
+    // ── Refs ─────────────────────────────────────────────────────────────
+    const tbWindows  = document.getElementById('tb-windows');
+    const emptyHint  = document.getElementById('tb-empty-hint');
+    const tbTime     = document.getElementById('tb-time');
+    const tbDate     = document.getElementById('tb-date');
+    const tbRes      = document.getElementById('tb-resolution');
+    const startBtn   = document.getElementById('tb-start-btn');
+    const startMenu  = document.getElementById('start-menu');
+    const overlay    = document.getElementById('start-overlay');
+    const searchInput = document.getElementById('sm-search') as HTMLInputElement | null;
+    const smApps     = document.getElementById('sm-apps');
+    const smShutdown = document.getElementById('sm-shutdown');
+
+    if (!tbWindows || !emptyHint || !startBtn || !startMenu || !overlay) return;
+
+    // ── Registro de ventanas ──────────────────────────────────────────────
+    type WinState = { title: string; emoji: string; minimized: boolean; active: boolean; btn: HTMLButtonElement };
+    const windows: Record<string, WinState> = {};
+
+    // ── Reloj ─────────────────────────────────────────────────────────────
+    function updateClock() {
+      const now = new Date();
+      if (tbTime) tbTime.textContent = now.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
+      if (tbDate) tbDate.textContent = now.toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: '2-digit' });
     }
-  
-    /* ── Botón inicio ──────────────────────────────── */
-    .tb-start {
-      width: 40px;
-      height: 32px;
-      border: none;
-      background: transparent;
-      color: rgba(255, 255, 255, 0.75);
-      border-radius: 6px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      transition: background 0.15s, color 0.15s, transform 0.1s;
-      flex-shrink: 0;
+    updateClock();
+    setInterval(updateClock, 10_000);
+
+    // ── Resolución ────────────────────────────────────────────────────────
+    function updateRes() {
+      if (tbRes) tbRes.textContent = `${window.innerWidth}×${window.innerHeight}`;
     }
-  
-    .tb-start:hover {
-      background: rgba(255, 255, 255, 0.12);
-      color: #fff;
+    updateRes();
+    window.addEventListener('resize', updateRes);
+
+    // ── Hint "sin ventanas" ───────────────────────────────────────────────
+    function syncHint() {
+      emptyHint!.style.display = Object.keys(windows).length === 0 ? 'inline' : 'none';
     }
-  
-    .tb-start:active {
-      transform: scale(0.93);
-      background: rgba(0, 120, 212, 0.35);
-    }
-  
-    /* ── Divisores ─────────────────────────────────── */
-    .tb-divider {
-      width: 1px;
-      height: 22px;
-      background: rgba(255, 255, 255, 0.1);
-      flex-shrink: 0;
-      margin: 0 2px;
-    }
-  
-    .tb-divider-v {
-      width: 1px;
-      height: 18px;
-      background: rgba(255, 255, 255, 0.1);
-      margin: 0 4px;
-      flex-shrink: 0;
-    }
-  
-    /* ── Lista de ventanas ─────────────────────────── */
-    .tb-windows {
-      display: flex;
-      align-items: center;
-      gap: 3px;
-      flex: 1;
-      overflow-x: auto;
-      overflow-y: hidden;
-      padding: 0 2px;
-      scrollbar-width: none;
-    }
-  
-    .tb-windows::-webkit-scrollbar {
-      display: none;
-    }
-  
-    .tb-empty-hint {
-      font-size: 11px;
-      color: rgba(255, 255, 255, 0.25);
-      white-space: nowrap;
-      padding: 0 6px;
-      pointer-events: none;
-    }
-  
-    /* ── Botón de ventana ──────────────────────────── */
-    .tb-win-btn {
-      height: 32px;
-      min-width: 40px;
-      max-width: 180px;
-      padding: 0 10px;
-      background: rgba(255, 255, 255, 0.07);
-      border: 1px solid rgba(255, 255, 255, 0.06);
-      border-radius: 6px;
-      color: rgba(255, 255, 255, 0.75);
-      font-size: 12px;
-      font-family: inherit;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      gap: 7px;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      transition: background 0.15s, color 0.15s, border-color 0.15s;
-      position: relative;
-      flex-shrink: 0;
-      animation: tb-btn-in 0.2s cubic-bezier(0.34, 1.56, 0.64, 1) both;
-    }
-  
-    @keyframes tb-btn-in {
-      from { opacity: 0; transform: translateY(8px) scale(0.9); }
-      to   { opacity: 1; transform: translateY(0) scale(1); }
-    }
-  
-    .tb-win-btn:hover {
-      background: rgba(255, 255, 255, 0.13);
-      color: #fff;
-      border-color: rgba(255, 255, 255, 0.12);
-    }
-  
-    /* Ventana activa (en primer plano) */
-    .tb-win-btn.is-active {
-      background: rgba(0, 120, 212, 0.3);
-      border-color: rgba(0, 120, 212, 0.6);
-      color: #fff;
-    }
-  
-    .tb-win-btn.is-active::after {
-      content: '';
-      position: absolute;
-      bottom: -1px;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 60%;
-      height: 2px;
-      background: #0078d4;
-      border-radius: 2px 2px 0 0;
-    }
-  
-    /* Ventana minimizada */
-    .tb-win-btn.is-minimized {
-      opacity: 0.55;
-      font-style: italic;
-    }
-  
-    .tb-win-btn.is-minimized:hover {
-      opacity: 1;
-    }
-  
-    .tb-win-icon {
-      font-size: 14px;
-      line-height: 1;
-      flex-shrink: 0;
-    }
-  
-    .tb-win-label {
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-  
-    /* ── Spacer ────────────────────────────────────── */
-    .tb-spacer {
-      flex: 0 0 auto;
-      min-width: 4px;
-    }
-  
-    /* ── Área del sistema ──────────────────────────── */
-    .tb-system {
-      display: flex;
-      align-items: center;
-      gap: 0;
-      flex-shrink: 0;
-      padding: 0 4px;
-    }
-  
-    .tb-screen-info {
-      display: flex;
-      align-items: center;
-      gap: 5px;
-      padding: 4px 8px;
-      border-radius: 5px;
-      cursor: default;
-      transition: background 0.15s;
-    }
-  
-    .tb-screen-info:hover {
-      background: rgba(255, 255, 255, 0.08);
-    }
-  
-    #tb-resolution {
-      font-size: 11px;
-      color: rgba(255, 255, 255, 0.5);
-      font-variant-numeric: tabular-nums;
-      letter-spacing: 0.02em;
-    }
-  
-    .tb-clock {
-      display: flex;
-      flex-direction: column;
-      align-items: flex-end;
-      padding: 3px 8px;
-      border-radius: 5px;
-      cursor: default;
-      transition: background 0.15s;
-      min-width: 54px;
-    }
-  
-    .tb-clock:hover {
-      background: rgba(255, 255, 255, 0.08);
-    }
-  
-    .tb-time {
-      font-size: 13px;
-      font-weight: 600;
-      color: rgba(255, 255, 255, 0.9);
-      font-variant-numeric: tabular-nums;
-      letter-spacing: 0.04em;
-      line-height: 1.1;
-    }
-  
-    .tb-date {
-      font-size: 10px;
-      color: rgba(255, 255, 255, 0.45);
-      line-height: 1.2;
-    }
-  </style>
-  
-  <script>
-    (function () {
-      // ── Referencias DOM ──────────────────────────────────────────────────
-      const taskbar    = document.getElementById('taskbar')!;
-      const tbWindows  = document.getElementById('tb-windows')!;
-      const emptyHint  = document.getElementById('tb-empty-hint')!;
-      const tbTime     = document.getElementById('tb-time')!;
-      const tbDate     = document.getElementById('tb-date')!;
-      const tbRes      = document.getElementById('tb-resolution')!;
-  
-      // ── Mapa de ventanas registradas ────────────────────────────────────
-      // id → { title, minimized, active, btn }
-      const windows = new Map<string, {
-        title: string;
-        minimized: boolean;
-        active: boolean;
-        btn: HTMLButtonElement;
-      }>();
-  
-      // ── Reloj ────────────────────────────────────────────────────────────
-      function updateClock() {
-        const now = new Date();
-        tbTime.textContent = now.toLocaleTimeString('es-ES', {
-          hour: '2-digit', minute: '2-digit'
-        });
-        tbDate.textContent = now.toLocaleDateString('es-ES', {
-          day: '2-digit', month: '2-digit', year: '2-digit'
-        });
-      }
-      updateClock();
-      setInterval(updateClock, 10_000);
-  
-      // ── Resolución de pantalla ───────────────────────────────────────────
-      function updateResolution() {
-        tbRes.textContent = `${window.innerWidth}×${window.innerHeight}`;
-      }
-      updateResolution();
-      window.addEventListener('resize', updateResolution);
-  
-      // ── Helpers ──────────────────────────────────────────────────────────
-      function syncEmptyHint() {
-        emptyHint.style.display = windows.size === 0 ? 'inline' : 'none';
-      }
-  
-      function setActive(id: string) {
-        windows.forEach((w, wid) => {
-          w.active = wid === id;
-          w.btn.classList.toggle('is-active', w.active);
-        });
-      }
-  
-      // ── Registrar una ventana nueva ──────────────────────────────────────
-      function registerWindow(id: string, title: string) {
-        if (windows.has(id)) return;
-  
-        const btn = document.createElement('button');
-        btn.className = 'tb-win-btn';
-        btn.setAttribute('role', 'listitem');
-        btn.setAttribute('aria-label', `Ventana: ${title}`);
-        btn.dataset.winId = id;
-  
-        btn.innerHTML = `
-          <span class="tb-win-icon">⊞</span>
-          <span class="tb-win-label">${title}</span>
-        `;
-  
-        btn.addEventListener('click', () => {
-          const win = document.getElementById(id);
-          if (!win) return;
-          const state = windows.get(id)!;
-  
-          if (state.minimized) {
-            // Restaurar
-            win.style.display = 'flex';
-            state.minimized = false;
-            btn.classList.remove('is-minimized');
-            bringWinToFront(id);
-            setActive(id);
-          } else if (state.active) {
-            // Minimizar si ya está activa
-            win.style.display = 'none';
-            state.minimized = true;
-            btn.classList.add('is-minimized');
-            btn.classList.remove('is-active');
-            state.active = false;
-          } else {
-            // Traer al frente
-            bringWinToFront(id);
-            setActive(id);
-          }
-        });
-  
-        tbWindows.appendChild(btn);
-        windows.set(id, { title, minimized: false, active: true, btn });
-        setActive(id);
-        syncEmptyHint();
-      }
-  
-      function bringWinToFront(id: string) {
-        const win = document.getElementById(id);
-        if (!win) return;
-        const allWins = document.querySelectorAll('.win-window');
-        let maxZ = 1000;
-        allWins.forEach(w => {
-          const z = parseInt(getComputedStyle(w).zIndex) || 1000;
-          if (z > maxZ) maxZ = z;
-        });
-        (win as HTMLElement).style.zIndex = String(maxZ + 1);
-      }
-  
-      // ── Escuchar eventos de las ventanas ─────────────────────────────────
-      document.addEventListener('win-register', (e: Event) => {
-        const { id, title } = (e as CustomEvent).detail;
-        registerWindow(id, title);
+
+    // ── Marcar ventana activa ─────────────────────────────────────────────
+    function setActive(activeId: string) {
+      Object.keys(windows).forEach((wid) => {
+        const s = windows[wid];
+        s.active = wid === activeId;
+        s.btn.classList.toggle('is-active', s.active);
       });
-  
-      document.addEventListener('win-minimize', (e: Event) => {
-        const { id } = (e as CustomEvent).detail;
-        const state = windows.get(id);
-        if (!state) return;
-        state.minimized = true;
-        state.active = false;
-        state.btn.classList.add('is-minimized');
-        state.btn.classList.remove('is-active');
-      });
-  
-      document.addEventListener('win-focus', (e: Event) => {
-        const { id } = (e as CustomEvent).detail;
-        if (windows.has(id)) setActive(id);
-      });
-  
-      document.addEventListener('win-close', (e: Event) => {
-        const { id } = (e as CustomEvent).detail;
-        const state = windows.get(id);
-        if (!state) return;
-        state.btn.style.animation = 'tb-btn-out 0.15s ease forwards';
-        state.btn.addEventListener('animationend', () => state.btn.remove(), { once: true });
-        windows.delete(id);
-        syncEmptyHint();
-      });
-  
-      // ── Inicializar ventanas ya presentes en el DOM ─────────────────────
-      // (útil si los componentes cargan antes que el taskbar)
-      document.querySelectorAll<HTMLElement>('.win-window[id]').forEach(win => {
-        const id = win.id;
-        const titleEl = win.querySelector('.win-title');
-        const title = titleEl?.textContent?.trim() ?? id;
-        registerWindow(id, title);
-      });
-  
-      syncEmptyHint();
-  
-      // ── Añadir estilo para animación de salida ───────────────────────────
-      const style = document.createElement('style');
-      style.textContent = `
-        @keyframes tb-btn-out {
-          from { opacity: 1; transform: translateY(0) scale(1); }
-          to   { opacity: 0; transform: translateY(8px) scale(0.85); }
+    }
+
+    // ── Traer ventana al frente ───────────────────────────────────────────
+    function bringWinToFront(id: string) {
+      const win = document.getElementById(id) as HTMLElement | null;
+      if (!win) return;
+      const all = document.querySelectorAll<HTMLElement>('.win-window');
+      let maxZ = 1000;
+      all.forEach((w) => { const z = parseInt(getComputedStyle(w).zIndex) || 1000; if (z > maxZ) maxZ = z; });
+      win.style.zIndex = String(maxZ + 1);
+      all.forEach((w) => w.classList.remove('is-focused'));
+      win.classList.add('is-focused');
+    }
+
+    // ── Registrar ventana en la taskbar ───────────────────────────────────
+    function registerWindow(id: string, title: string, emoji: string) {
+      if (windows[id]) return;
+
+      const btn = document.createElement('button');
+      btn.className = 'tb-win-btn';
+      btn.setAttribute('role', 'listitem');
+      btn.setAttribute('aria-label', `Ventana: ${title}`);
+      btn.innerHTML =
+        `<span class="tb-win-emoji">${emoji}</span>` +
+        `<span class="tb-win-label">${title}</span>`;
+
+      btn.addEventListener('click', () => {
+        const win = document.getElementById(id) as HTMLElement | null;
+        const state = windows[id];
+        if (!win || !state) return;
+
+        if (state.minimized) {
+          win.style.display = 'flex';
+          state.minimized = false;
+          btn.classList.remove('is-minimized');
+          bringWinToFront(id);
+          setActive(id);
+        } else if (state.active) {
+          // Minimizar si ya está en primer plano
+          win.style.display = 'none';
+          state.minimized = true;
+          state.active = false;
+          btn.classList.add('is-minimized');
+          btn.classList.remove('is-active');
+        } else {
+          bringWinToFront(id);
+          setActive(id);
         }
-      `;
-      document.head.appendChild(style);
-    })();
-  </script>
+      });
+
+      tbWindows!.appendChild(btn);
+      windows[id] = { title, emoji, minimized: false, active: true, btn };
+      setActive(id);
+      syncHint();
+    }
+
+    // ── Eliminar ventana de la taskbar ────────────────────────────────────
+    function removeWindow(id: string) {
+      const state = windows[id];
+      if (!state) return;
+      state.btn.style.animation = 'tb-btn-out .15s ease forwards';
+      state.btn.addEventListener('animationend', () => {
+        state.btn.parentNode?.removeChild(state.btn);
+      }, { once: true });
+      delete windows[id];
+      syncHint();
+    }
+
+    // ── Eventos de ventanas ───────────────────────────────────────────────
+    document.addEventListener('win-register', (e: Event) => {
+      const { id, title, emoji } = (e as CustomEvent).detail;
+      registerWindow(id, title, emoji);
+    });
+
+    document.addEventListener('win-focus', (e: Event) => {
+      const { id } = (e as CustomEvent).detail;
+      if (windows[id]) setActive(id);
+    });
+
+    document.addEventListener('win-minimize', (e: Event) => {
+      const { id } = (e as CustomEvent).detail;
+      const state = windows[id];
+      if (!state) return;
+      state.minimized = true;
+      state.active = false;
+      state.btn.classList.add('is-minimized');
+      state.btn.classList.remove('is-active');
+    });
+
+    document.addEventListener('win-close', (e: Event) => {
+      const { id } = (e as CustomEvent).detail;
+      removeWindow(id);
+    });
+
+    // ── Registrar ventanas ya presentes en el DOM al cargar ───────────────
+    document.querySelectorAll<HTMLElement>('.win-window[id]').forEach((win) => {
+      const id    = win.id;
+      const title = win.querySelector('.win-title')?.textContent?.trim() ?? id;
+      const emoji = win.dataset.winEmoji ?? '🪟';
+      registerWindow(id, title, emoji);
+    });
+
+    syncHint();
+
+    // ────────────────────────────────────────────────────────────────────
+    // MENÚ INICIO
+    // ────────────────────────────────────────────────────────────────────
+
+    function openMenu() {
+      startMenu!.classList.add('is-open');
+      overlay!.classList.add('is-open');
+      startBtn!.classList.add('is-open');
+      startBtn!.setAttribute('aria-expanded', 'true');
+      if (searchInput) {
+        searchInput.value = '';
+        filterApps('');
+        requestAnimationFrame(() => searchInput!.focus());
+      }
+    }
+
+    function closeMenu() {
+      startMenu!.classList.remove('is-open');
+      overlay!.classList.remove('is-open');
+      startBtn!.classList.remove('is-open');
+      startBtn!.setAttribute('aria-expanded', 'false');
+    }
+
+    startBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      startMenu!.classList.contains('is-open') ? closeMenu() : openMenu();
+    });
+
+    overlay.addEventListener('click', closeMenu);
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeMenu(); });
+
+    // Filtrado del buscador
+    searchInput?.addEventListener('input', () => {
+      filterApps(searchInput!.value.toLowerCase().trim());
+    });
+
+    function filterApps(query: string) {
+      smApps?.querySelectorAll<HTMLElement>('.sm-app-btn').forEach((btn) => {
+        const label = btn.querySelector('.sm-app-label')?.textContent?.toLowerCase() ?? '';
+        btn.classList.toggle('is-hidden', Boolean(query) && !label.includes(query));
+      });
+    }
+
+    // ────────────────────────────────────────────────────────────────────
+    // CREAR VENTANA DINÁMICAMENTE
+    // ────────────────────────────────────────────────────────────────────
+
+    function createWindow(opts: {
+      id: string; title: string; emoji: string;
+      content: string; width: number; height: number;
+    }) {
+      // Si ya existe, restaurar y traer al frente
+      const existing = document.getElementById(opts.id) as HTMLElement | null;
+      if (existing) {
+        existing.style.display = 'flex';
+        const state = windows[opts.id];
+        if (state) { state.minimized = false; state.btn.classList.remove('is-minimized'); }
+        bringWinToFront(opts.id);
+        setActive(opts.id);
+        return;
+      }
+
+      const w = opts.width, h = opts.height;
+      let x = Math.round(window.innerWidth  / 2 - w / 2 + (Math.random() * 60 - 30));
+      let y = Math.round((window.innerHeight - 52) / 2 - h / 2 + (Math.random() * 40 - 20));
+      x = Math.max(0, Math.min(x, window.innerWidth  - w));
+      y = Math.max(0, Math.min(y, window.innerHeight - h - 52));
+
+      const div = document.createElement('div');
+      div.className = 'win-window';
+      div.id = opts.id;
+      div.dataset.winEmoji = opts.emoji;
+      div.style.cssText = `width:${w}px;height:${h}px;left:${x}px;top:${y}px;`;
+      div.innerHTML =
+        `<div class="win-titlebar" data-drag-handle>
+          <div class="win-titlebar-left">
+            <span class="win-icon">${opts.emoji}</span>
+            <span class="win-title">${opts.title}</span>
+          </div>
+          <div class="win-controls">
+            <button class="win-btn win-minimize" title="Minimizar">─</button>
+            <button class="win-btn win-maximize" title="Maximizar">□</button>
+            <button class="win-btn win-close"    title="Cerrar">✕</button>
+          </div>
+        </div>
+        <div class="win-content">${opts.content}</div>
+        <div class="win-resize-handle" data-resize-handle></div>`;
+
+      document.body.appendChild(div);
+      attachWindowLogic(div, opts.id, opts.title, opts.emoji);
+    }
+
+    // ────────────────────────────────────────────────────────────────────
+    // LÓGICA DE VENTANA (drag / resize / botones)
+    // ────────────────────────────────────────────────────────────────────
+
+    function attachWindowLogic(win: HTMLElement, id: string, title: string, emoji: string) {
+      let isDragging = false, isResizing = false;
+      let startX = 0, startY = 0, startL = 0, startT = 0, startW = 0, startH = 0;
+      let isMaximized = false;
+      let saved = { left: '', top: '', width: '', height: '' };
+
+      const titlebar     = win.querySelector<HTMLElement>('[data-drag-handle]');
+      const resizeHandle = win.querySelector<HTMLElement>('[data-resize-handle]');
+      const btnMin       = win.querySelector<HTMLButtonElement>('.win-minimize');
+      const btnMax       = win.querySelector<HTMLButtonElement>('.win-maximize');
+      const btnClose     = win.querySelector<HTMLButtonElement>('.win-close');
+
+      if (!titlebar || !resizeHandle || !btnMin || !btnMax || !btnClose) return;
+
+      const emit = (name: string, extra?: object) =>
+        document.dispatchEvent(new CustomEvent(name, {
+          bubbles: true,
+          detail: Object.assign({ id, title, emoji }, extra ?? {})
+        }));
+
+      const getScreen = () => ({ w: window.innerWidth, h: window.innerHeight });
+      const clamp = (x: number, y: number, w: number, h: number) => {
+        const s = getScreen();
+        return { x: Math.max(0, Math.min(x, s.w - w)), y: Math.max(0, Math.min(y, s.h - h - 52)) };
+      };
+
+      function focus() {
+        const all = document.querySelectorAll<HTMLElement>('.win-window');
+        let maxZ = 1000;
+        all.forEach((w) => { const z = parseInt(getComputedStyle(w).zIndex) || 1000; if (z > maxZ) maxZ = z; });
+        win.style.zIndex = String(maxZ + 1);
+        all.forEach((w) => w.classList.remove('is-focused'));
+        win.classList.add('is-focused');
+        emit('win-focus');
+      }
+
+      win.addEventListener('mousedown', focus);
+      win.classList.add('is-focused');
+
+      titlebar.addEventListener('mousedown', (e: MouseEvent) => {
+        if ((e.target as HTMLElement).closest('.win-controls') || isMaximized) return;
+        isDragging = true;
+        startX = e.clientX; startY = e.clientY;
+        startL = win.offsetLeft; startT = win.offsetTop;
+        win.classList.add('is-dragging');
+        e.preventDefault();
+      });
+
+      document.addEventListener('mousemove', (e: MouseEvent) => {
+        if (isDragging) {
+          const p = clamp(startL + e.clientX - startX, startT + e.clientY - startY, win.offsetWidth, win.offsetHeight);
+          win.style.left = `${p.x}px`; win.style.top = `${p.y}px`;
+        }
+        if (isResizing) {
+          win.style.width  = `${Math.max(200, startW + e.clientX - startX)}px`;
+          win.style.height = `${Math.max(120, startH + e.clientY - startY)}px`;
+        }
+      });
+
+      document.addEventListener('mouseup', () => {
+        isDragging = false; isResizing = false;
+        win.classList.remove('is-dragging');
+      });
+
+      resizeHandle.addEventListener('mousedown', (e: MouseEvent) => {
+        if (isMaximized) return;
+        isResizing = true;
+        startX = e.clientX; startY = e.clientY;
+        startW = win.offsetWidth; startH = win.offsetHeight;
+        e.preventDefault(); e.stopPropagation();
+      });
+
+      btnMin.addEventListener('click', () => { win.style.display = 'none'; emit('win-minimize'); });
+
+      btnMax.addEventListener('click', () => {
+        const s = getScreen();
+        if (!isMaximized) {
+          saved = { left: win.style.left, top: win.style.top, width: win.style.width, height: win.style.height };
+          win.style.cssText += `left:0;top:0;width:${s.w}px;height:${s.h - 44}px;`;
+          win.classList.add('is-maximized'); isMaximized = true;
+        } else {
+          Object.assign(win.style, saved);
+          win.classList.remove('is-maximized'); isMaximized = false;
+        }
+      });
+
+      btnClose.addEventListener('click', () => {
+        emit('win-close');
+        win.style.animation = 'win-close-anim .15s ease forwards';
+        setTimeout(() => win.parentNode?.removeChild(win), 150);
+      });
+
+      titlebar.addEventListener('dblclick', (e: MouseEvent) => {
+        if (!(e.target as HTMLElement).closest('.win-controls')) btnMax!.click();
+      });
+
+      window.addEventListener('resize', () => {
+        if (isMaximized) {
+          const s = getScreen();
+          win.style.width = `${s.w}px`; win.style.height = `${s.h - 44}px`;
+        } else {
+          const p = clamp(win.offsetLeft, win.offsetTop, win.offsetWidth, win.offsetHeight);
+          win.style.left = `${p.x}px`; win.style.top = `${p.y}px`;
+        }
+      });
+
+      registerWindow(id, title, emoji);
+      focus();
+    }
+
+    // ── Click en apps del menú ────────────────────────────────────────────
+    smApps?.addEventListener('click', (e: Event) => {
+      const btn = (e.target as HTMLElement).closest<HTMLElement>('.sm-app-btn');
+      if (!btn) return;
+      closeMenu();
+      createWindow({
+        id:      btn.dataset.appId      ?? `win-${Math.random().toString(36).slice(2, 8)}`,
+        title:   btn.dataset.appTitle   ?? 'Ventana',
+        emoji:   btn.dataset.appEmoji   ?? '🪟',
+        content: btn.dataset.appContent ?? '',
+        width:   parseInt(btn.dataset.appWidth  ?? '400') || 400,
+        height:  parseInt(btn.dataset.appHeight ?? '300') || 300,
+      });
+    });
+
+    // ── Inyectar estilos globales para ventanas dinámicas ─────────────────
+    const style = document.createElement('style');
+    style.textContent = `
+      @keyframes win-open { from{opacity:0;transform:scale(.9) translateY(12px)} to{opacity:1;transform:scale(1) translateY(0)} }
+      @keyframes win-close-anim { from{opacity:1;transform:scale(1)} to{opacity:0;transform:scale(.9) translateY(12px)} }
+      .win-window{position:fixed;display:flex;flex-direction:column;background-color:hsl(222 47% 14% / .85);border:2px solid hsl(217 33% 25% / .6);border-radius:8px;box-shadow:0 8px 32px rgba(0,0,0,.25),0 2px 8px rgba(0,0,0,.15);font-family:"Segoe UI",system-ui,sans-serif;min-width:200px;min-height:120px;overflow:hidden;z-index:1000;user-select:none;animation:win-open .2s cubic-bezier(.34,1.3,.64,1) both;max-height:calc(100vh - 56px)}
+      .win-window.is-dragging{box-shadow:0 16px 48px rgba(0,0,0,.35),0 4px 16px rgba(0,0,0,.2);opacity:.97}
+      .win-window.is-maximized{border-radius:0!important;border:none!important;transition:all .2s cubic-bezier(.4,0,.2,1)}
+      .win-window:not(.is-focused) .win-titlebar{background-color:hsl(217 33% 12%);opacity:.85}
+      .win-titlebar{display:flex;align-items:center;justify-content:space-between;background-color:hsl(217 33% 17%);color:#fff;padding:0 0 0 10px;height:36px;cursor:grab;flex-shrink:0;transition:background-color .25s,opacity .25s}
+      .win-titlebar:active{cursor:grabbing}
+      .win-titlebar-left{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:500;overflow:hidden}
+      .win-icon{font-size:15px;flex-shrink:0}.win-title{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+      .win-controls{display:flex;height:100%;flex-shrink:0}
+      .win-btn{width:46px;height:36px;background:transparent;border:none;color:hsl(215 20% 65%);font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .1s}
+      .win-btn:hover{background:rgba(255,255,255,.15)}.win-close:hover{background:#e81123!important;color:#fff}
+      .win-content{flex:1;padding:16px;overflow:auto;background-color:hsl(222 47% 14%);font-size:14px;color:hsl(215 20% 75%);min-height:0}
+      .win-resize-handle{position:absolute;bottom:0;right:0;width:16px;height:16px;cursor:se-resize;background:linear-gradient(135deg,transparent 50%,rgba(0,120,212,.3) 50%)}
+    `;
+    document.head.appendChild(style);
+
+    // ── Apagado ───────────────────────────────────────────────────────────
+    smShutdown?.addEventListener('click', () => {
+      closeMenu();
+      document.querySelectorAll<HTMLElement>('.win-window').forEach((win) => {
+        win.style.animation = 'win-close-anim .15s ease forwards';
+        setTimeout(() => win.parentNode?.removeChild(win), 150);
+      });
+      Object.keys(windows).forEach(removeWindow);
+    });
+
+  })();
+</script>

@@ -1,0 +1,266 @@
+---
+// StartMenu.astro
+// Popup del menú inicio. Se muestra/oculta desde Taskbar.astro via JS.
+
+import {
+  FolderOpen,
+  Terminal,
+  Globe,
+  FileText,
+  Calculator,
+  Music,
+  Search,
+  Power,
+} from '@lucide/astro/icons/index';
+
+import type { App } from './NavBar.types';
+
+interface Props {
+  apps: App[];
+}
+
+const { apps } = Astro.props;
+
+// Mapa de nombre → componente Lucide
+const iconMap: Record<string, any> = {
+  FolderOpen,
+  Terminal,
+  Globe,
+  FileText,
+  Calculator,
+  Music,
+};
+---
+
+<div id="start-menu" role="dialog" aria-label="Menú Inicio" aria-hidden="true">
+
+  <!-- Cabecera -->
+  <header class="sm-header">
+    <div class="sm-logo">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="white">
+        <path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z"/>
+      </svg>
+    </div>
+    <div>
+      <span class="sm-title">Mi Sistema</span>
+      <span class="sm-subtitle">Elige una aplicación</span>
+    </div>
+  </header>
+
+  <!-- Buscador -->
+  <div class="sm-search-wrap">
+    <Search size={14} color="hsl(215 20% 45%)" />
+    <input
+      id="sm-search"
+      class="sm-search"
+      type="text"
+      placeholder="Buscar aplicación..."
+      autocomplete="off"
+    />
+  </div>
+
+  <!-- Grid de apps -->
+  <p class="sm-section-label">Aplicaciones</p>
+
+  <div class="sm-apps" id="sm-apps">
+    {apps.map((app) => {
+      const Icon = iconMap[app.lucideIcon];
+      return (
+        <button
+          class="sm-app-btn"
+          data-app-id={app.id}
+          data-app-title={app.title}
+          data-app-emoji={app.emoji}
+          data-app-content={app.content ?? ''}
+          data-app-width={String(app.width ?? 400)}
+          data-app-height={String(app.height ?? 300)}
+          aria-label={`Abrir ${app.title}`}
+        >
+          <span class="sm-app-icon">
+            {Icon
+              ? <Icon size={26} color="hsl(217 91% 65%)" />
+              : <span>{app.emoji}</span>
+            }
+          </span>
+          <span class="sm-app-label">{app.title}</span>
+        </button>
+      );
+    })}
+  </div>
+
+  <!-- Footer -->
+  <footer class="sm-footer">
+    <button class="sm-shutdown-btn" id="sm-shutdown" aria-label="Apagar">
+      <Power size={14} color="currentColor" />
+      Apagar
+    </button>
+  </footer>
+</div>
+
+<!-- Overlay para cerrar al hacer click fuera -->
+<div id="start-overlay"></div>
+
+<style>
+  #start-menu {
+    position: fixed;
+    bottom: 52px;
+    left: 8px;
+    width: 320px;
+    background: hsl(222 47% 11% / .97);
+    backdrop-filter: blur(32px) saturate(180%);
+    -webkit-backdrop-filter: blur(32px) saturate(180%);
+    border: 1px solid hsl(217 33% 25% / .5);
+    border-radius: 12px;
+    box-shadow: 0 16px 48px rgba(0,0,0,.6), 0 4px 16px rgba(0,0,0,.3);
+    z-index: 99999;
+    font-family: "Segoe UI", system-ui, sans-serif;
+    color: hsl(215 20% 75%);
+    /* oculto por defecto — JS añade .is-open */
+    display: none;
+    flex-direction: column;
+    overflow: hidden;
+    transform-origin: bottom left;
+  }
+  #start-menu.is-open {
+    display: flex;
+    animation: sm-open .2s cubic-bezier(.34, 1.2, .64, 1) both;
+  }
+  @keyframes sm-open {
+    from { opacity: 0; transform: scale(.94) translateY(10px); }
+    to   { opacity: 1; transform: scale(1)   translateY(0); }
+  }
+
+  /* Cabecera */
+  .sm-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 18px 16px 14px;
+    border-bottom: 1px solid hsl(217 33% 20% / .6);
+    background: hsl(217 33% 14% / .6);
+  }
+  .sm-logo {
+    width: 38px; height: 38px;
+    background: linear-gradient(135deg, hsl(213 90% 45%), hsl(213 90% 35%));
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+    box-shadow: 0 2px 8px hsl(213 90% 40% / .4);
+  }
+  .sm-title    { display: block; font-size: 14px; font-weight: 600; color: hsl(215 20% 90%); }
+  .sm-subtitle { display: block; font-size: 11px; color: hsl(215 20% 45%); margin-top: 1px; }
+
+  /* Buscador */
+  .sm-search-wrap {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 12px 12px 4px;
+    background: hsl(217 33% 17% / .8);
+    border: 1px solid hsl(217 33% 25% / .5);
+    border-radius: 8px;
+    padding: 0 10px;
+    transition: border-color .15s, background .15s;
+  }
+  .sm-search-wrap:focus-within {
+    border-color: hsl(213 90% 55% / .6);
+    background: hsl(213 90% 40% / .08);
+  }
+  .sm-search {
+    width: 100%;
+    background: transparent;
+    border: none;
+    outline: none;
+    color: hsl(215 20% 80%);
+    font-size: 13px;
+    font-family: inherit;
+    padding: 9px 0;
+  }
+  .sm-search::placeholder { color: hsl(215 20% 35%); }
+
+  /* Label de sección */
+  .sm-section-label {
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    color: hsl(215 20% 35%);
+    padding: 10px 16px 6px;
+    margin: 0;
+  }
+
+  /* Grid de apps */
+  .sm-apps {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 4px;
+    padding: 0 10px 10px;
+    overflow-y: auto;
+    max-height: 260px;
+    scrollbar-width: thin;
+    scrollbar-color: hsl(217 33% 25%) transparent;
+  }
+
+  .sm-app-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 12px 6px 10px;
+    background: transparent;
+    border: 1px solid transparent;
+    border-radius: 8px;
+    cursor: pointer;
+    color: hsl(215 20% 65%);
+    font-family: inherit;
+    transition: background .15s, border-color .15s, color .15s, transform .1s;
+  }
+  .sm-app-btn:hover {
+    background: hsl(217 33% 20% / .7);
+    border-color: hsl(217 33% 30% / .5);
+    color: hsl(215 20% 90%);
+    transform: scale(1.04);
+  }
+  .sm-app-btn:active { transform: scale(.96); }
+  .sm-app-btn.is-hidden { display: none; }
+
+  .sm-app-icon  { display: flex; align-items: center; justify-content: center; line-height: 1; }
+  .sm-app-label { font-size: 11px; text-align: center; line-height: 1.2; }
+
+  /* Footer */
+  .sm-footer {
+    border-top: 1px solid hsl(217 33% 20% / .6);
+    padding: 8px 12px;
+    display: flex;
+    justify-content: flex-end;
+  }
+  .sm-shutdown-btn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    background: transparent;
+    border: 1px solid hsl(217 33% 25% / .5);
+    border-radius: 6px;
+    color: hsl(215 20% 50%);
+    font-size: 12px;
+    font-family: inherit;
+    cursor: pointer;
+    transition: background .15s, color .15s, border-color .15s;
+  }
+  .sm-shutdown-btn:hover {
+    background: hsl(0 70% 40% / .2);
+    border-color: hsl(0 70% 50% / .4);
+    color: hsl(0 84% 65%);
+  }
+
+  /* Overlay */
+  #start-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 99998;
+  }
+  #start-overlay.is-open { display: block; }
+</style>
