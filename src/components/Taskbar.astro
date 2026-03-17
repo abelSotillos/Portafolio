@@ -1,0 +1,456 @@
+---
+// Taskbar.astro
+import StartMenu from './StartMenu.astro';
+import { defaultApps } from './taskbar.types';
+import type { App } from './taskbar.types';
+
+
+interface Props {
+  apps?: App[];
+}
+
+
+const { apps = defaultApps } = Astro.props;
+
+---
+
+<nav id="taskbar" role="navigation" aria-label="Barra de tareas">
+
+  <!-- Botón inicio -->
+  <button
+    id="tb-start-btn"
+    class="tb-start"
+    aria-label="Inicio"
+    aria-haspopup="true"
+    aria-expanded="false"
+  >
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+      <path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z"/>
+    </svg>
+    <span>Inicio</span>
+  </button>
+
+  <div class="tb-divider"></div>
+
+  <!-- Botones de ventanas abiertas -->
+  <div id="tb-windows" class="tb-windows" role="list">
+    <span id="tb-empty-hint" class="tb-empty-hint">Sin ventanas abiertas</span>
+  </div>
+
+  <div class="tb-spacer"></div>
+
+  <!-- Sistema -->
+  <div class="tb-system">
+    <div class="tb-resolution">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" opacity=".5">
+        <path d="M21 2H3c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h7l-2 3v1h8v-1l-2-3h7c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H3V4h18v12z"/>
+      </svg>
+      <span id="tb-resolution">—</span>
+    </div>
+    <div class="tb-divider-v"></div>
+    <div class="tb-clock">
+      <span id="tb-time" class="tb-time">00:00</span>
+      <span id="tb-date" class="tb-date">—</span>
+    </div>
+  </div>
+</nav>
+
+<StartMenu apps={apps} />
+
+<style is:global>
+  #taskbar {
+    position: fixed;
+    bottom: 0; left: 0; right: 0;
+    height: 46px;
+    background: hsl(222 47% 8% / .95);
+    backdrop-filter: blur(24px) saturate(180%);
+    -webkit-backdrop-filter: blur(24px) saturate(180%);
+    border-top: 1px solid hsl(217 33% 25% / .4);
+    display: flex;
+    align-items: center;
+    padding: 0 6px;
+    gap: 4px;
+    z-index: 9999;
+    box-shadow: 0 -2px 24px rgba(0,0,0,.5);
+    font-family: "Segoe UI", system-ui, sans-serif;
+  }
+
+  .tb-start {
+    height: 34px;
+    padding: 0 12px;
+    background: transparent;
+    border: 1px solid transparent;
+    color: hsl(215 20% 65%);
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    cursor: pointer;
+    font-size: 12px;
+    font-family: inherit;
+    font-weight: 500;
+    letter-spacing: .02em;
+    transition: background .15s, color .15s, border-color .15s, transform .1s;
+    flex-shrink: 0;
+  }
+  .tb-start:hover  { background: hsl(217 33% 22% / .6); color: #fff; border-color: hsl(217 33% 30% / .5); }
+  .tb-start:active { transform: scale(.94); }
+  .tb-start.is-open {
+    background: hsl(213 90% 45% / .2);
+    color: #fff;
+    border-color: hsl(213 90% 55% / .4);
+  }
+
+  .tb-divider   { width: 1px; height: 22px; background: hsl(217 33% 25% / .5); flex-shrink: 0; margin: 0 2px; }
+  .tb-divider-v { width: 1px; height: 18px; background: hsl(217 33% 25% / .5); margin: 0 4px; flex-shrink: 0; }
+
+  .tb-windows {
+    display: flex;
+    align-items: center;
+    gap: 3px;
+    flex: 1;
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding: 0 2px;
+    scrollbar-width: none;
+  }
+  .tb-windows::-webkit-scrollbar { display: none; }
+
+  .tb-empty-hint {
+    font-size: 11px;
+    color: hsl(215 20% 35%);
+    white-space: nowrap;
+    padding: 0 6px;
+    pointer-events: none;
+  }
+
+  /* Botón de cada ventana en la taskbar */
+  .tb-win-btn {
+    height: 34px;
+    min-width: 44px;
+    max-width: 175px;
+    padding: 0 10px;
+    background: hsl(217 33% 17% / .7);
+    border: 1px solid hsl(217 33% 25% / .4);
+    border-radius: 6px;
+    color: hsl(215 20% 65%);
+    font-size: 12px;
+    font-family: inherit;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    white-space: nowrap;
+    overflow: hidden;
+    transition: background .15s, color .15s, border-color .15s;
+    position: relative;
+    flex-shrink: 0;
+    animation: tb-btn-in .22s cubic-bezier(.34, 1.56, .64, 1) both;
+  }
+  @keyframes tb-btn-in {
+    from { opacity: 0; transform: translateY(8px) scale(.9); }
+    to   { opacity: 1; transform: translateY(0)  scale(1); }
+  }
+  @keyframes tb-btn-out {
+    from { opacity: 1; transform: translateY(0)  scale(1); }
+    to   { opacity: 0; transform: translateY(8px) scale(.85); }
+  }
+  .tb-win-btn:hover { background: hsl(217 33% 22% / .8); color: #fff; border-color: hsl(217 33% 35% / .6); }
+  .tb-win-btn.is-active {
+    background: hsl(213 90% 45% / .2);
+    border-color: hsl(213 90% 55% / .45);
+    color: #fff;
+  }
+  .tb-win-btn.is-active::after {
+    content: '';
+    position: absolute;
+    bottom: -1px; left: 50%;
+    transform: translateX(-50%);
+    width: 55%; height: 2px;
+    background: hsl(213 90% 60%);
+    border-radius: 2px 2px 0 0;
+  }
+  .tb-win-btn.is-minimized       { opacity: .45; }
+  .tb-win-btn.is-minimized:hover { opacity: 1; }
+
+  .tb-win-   { font-size: 14px; flex-shrink: 0; line-height: 1; }
+  .tb-win-label { overflow: hidden; text-overflow: ellipsis; }
+
+  .tb-spacer { flex: 0 0 4px; }
+  .tb-system { display: flex; align-items: center; flex-shrink: 0; padding: 0 4px; }
+
+  .tb-resolution {
+    display: flex; align-items: center; gap: 5px;
+    padding: 4px 8px; border-radius: 5px; cursor: default;
+    transition: background .15s;
+  }
+  .tb-resolution:hover { background: hsl(217 33% 22% / .6); }
+  #tb-resolution { font-size: 11px; color: hsl(215 20% 45%); font-variant-numeric: tabular-nums; }
+
+  .tb-clock {
+    display: flex; flex-direction: column; align-items: flex-end;
+    padding: 3px 8px; border-radius: 5px; cursor: default;
+    transition: background .15s; min-width: 54px;
+  }
+  .tb-clock:hover { background: hsl(217 33% 22% / .6); }
+  .tb-time { font-size: 13px; font-weight: 600; color: hsl(215 20% 80%); font-variant-numeric: tabular-nums; line-height: 1.1; }
+  .tb-date { font-size: 10px; color: hsl(215 20% 45%); line-height: 1.3; }
+</style>
+
+<script>
+
+  (function () {
+    // ── Refs ─────────────────────────────────────────────────────────────
+    const tbWindows   = document.getElementById('tb-windows');
+    const emptyHint   = document.getElementById('tb-empty-hint');
+    const tbTime      = document.getElementById('tb-time');
+    const tbDate      = document.getElementById('tb-date');
+    const tbRes       = document.getElementById('tb-resolution');
+    const startBtn    = document.getElementById('tb-start-btn');
+    const startMenu   = document.getElementById('start-menu');
+    const overlay     = document.getElementById('start-overlay');
+    const searchInput = document.getElementById('sm-search') as HTMLInputElement | null;
+    const smApps      = document.getElementById('sm-apps');
+    const smShutdown  = document.getElementById('sm-shutdown');
+    const lucideSvgs: Record<string, string> = {
+      FolderOpen: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-folder-open-icon lucide-folder-open"><path d="m6 14 1.5-2.9A2 2 0 0 1 9.24 10H20a2 2 0 0 1 1.94 2.5l-1.54 6a2 2 0 0 1-1.95 1.5H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h3.9a2 2 0 0 1 1.69.9l.81 1.2a2 2 0 0 0 1.67.9H18a2 2 0 0 1 2 2v2"/></svg>`,
+      Terminal: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 17 10 11 4 5"/><line x1="12" x2="20" y1="19" y2="19"/></svg>`,
+      User:`<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-user-icon lucide-user"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>`,
+      FileText:`<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-file-text-icon lucide-file-text"><path d="M6 22a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h8a2.4 2.4 0 0 1 1.704.706l3.588 3.588A2.4 2.4 0 0 1 20 8v12a2 2 0 0 1-2 2z"/><path d="M14 2v5a1 1 0 0 0 1 1h5"/><path d="M10 9H8"/><path d="M16 13H8"/><path d="M16 17H8"/></svg>`,
+    };
+
+    if (!tbWindows || !emptyHint || !startBtn || !startMenu || !overlay) return;
+
+    // ── Estado de ventanas ────────────────────────────────────────────────
+    type WinState = { title: string; lucideIcon: string; minimized: boolean; active: boolean; btn: HTMLButtonElement };
+    const windows: Record<string, WinState> = {};
+
+    // ── Reloj ─────────────────────────────────────────────────────────────
+    function updateClock() {
+      const now = new Date();
+      if (tbTime) tbTime.textContent = now.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
+      if (tbDate) tbDate.textContent = now.toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: '2-digit' });
+    }
+    updateClock();
+    setInterval(updateClock, 10_000);
+
+    // ── Resolución ────────────────────────────────────────────────────────
+    function updateRes() {
+      if (tbRes) tbRes.textContent = `${window.innerWidth}×${window.innerHeight}`;
+    }
+    updateRes();
+    window.addEventListener('resize', updateRes);
+
+    // ── Hint "sin ventanas" ───────────────────────────────────────────────
+    function syncHint() {
+      emptyHint!.style.display = Object.keys(windows).length === 0 ? 'inline' : 'none';
+    }
+
+    // ── Marcar activa ─────────────────────────────────────────────────────
+    function setActive(activeId: string) {
+      Object.keys(windows).forEach((wid) => {
+        const s = windows[wid];
+        s.active = wid === activeId;
+        s.btn.classList.toggle('is-active', s.active);
+      });
+    }
+
+    // ── Traer al frente ───────────────────────────────────────────────────
+    function bringWinToFront(id: string) {
+      const win = document.getElementById(id) as HTMLElement | null;
+      if (!win) return;
+      const all = document.querySelectorAll<HTMLElement>('.win-window');
+      let maxZ = 1000;
+      all.forEach(w => { const z = parseInt(getComputedStyle(w).zIndex) || 1000; if (z > maxZ) maxZ = z; });
+      win.style.zIndex = String(maxZ + 1);
+      all.forEach(w => w.classList.remove('is-focused'));
+      win.classList.add('is-focused');
+    }
+
+    // ── Registrar ventana ─────────────────────────────────────────────────
+    function registerWindow(id: string, title: string, lucideIcon: string) {
+      if (windows[id]) return;
+
+      const btn = document.createElement('button');
+      btn.className = 'tb-win-btn';
+      btn.setAttribute('role', 'listitem');
+      btn.setAttribute('aria-label', `Ventana: ${title}`);
+      btn.innerHTML =
+        `<span class="tb-win-emoji" style="color:hsl(217 91% 65%)">${lucideSvgs[lucideIcon]}</span>` +
+        `<span class="tb-win-label">${title}</span>`;
+
+      btn.addEventListener('click', () => {
+        const win = document.getElementById(id) as HTMLElement | null;
+        const state = windows[id];
+        if (!win || !state) return;
+
+        if (state.minimized) {
+          // Restaurar
+          win.style.display = 'flex';
+          state.minimized = false;
+          btn.classList.remove('is-minimized');
+          bringWinToFront(id);
+          setActive(id);
+        } else if (state.active) {
+          // Minimizar si ya está activa
+          win.style.display = 'none';
+          state.minimized = true;
+          state.active = false;
+          btn.classList.add('is-minimized');
+          btn.classList.remove('is-active');
+        } else {
+          bringWinToFront(id);
+          setActive(id);
+        }
+      });
+
+      tbWindows!.appendChild(btn);
+      windows[id] = { title, lucideIcon, minimized: false, active: true, btn };
+      setActive(id);
+      syncHint();
+    }
+
+    // ── Eliminar ventana ──────────────────────────────────────────────────
+    function removeWindow(id: string) {
+      const state = windows[id];
+      if (!state) return;
+      state.btn.style.animation = 'tb-btn-out .15s ease forwards';
+      state.btn.addEventListener('animationend', () => {
+        state.btn.parentNode?.removeChild(state.btn);
+      }, { once: true });
+      delete windows[id];
+      syncHint();
+    }
+
+    // ── Eventos de ventanas ───────────────────────────────────────────────
+    document.addEventListener('win-register', (e: Event) => {
+      const { id, title, lucideIcon } = (e as CustomEvent).detail;
+      registerWindow(id, title, lucideIcon);
+    });
+
+    document.addEventListener('win-focus', (e: Event) => {
+      const { id } = (e as CustomEvent).detail;
+      if (windows[id]) setActive(id);
+    });
+
+    document.addEventListener('win-minimize', (e: Event) => {
+      const { id } = (e as CustomEvent).detail;
+      const state = windows[id];
+      if (!state) return;
+      state.minimized = true;
+      state.active = false;
+      state.btn.classList.add('is-minimized');
+      state.btn.classList.remove('is-active');
+    });
+
+    document.addEventListener('win-close', (e: Event) => {
+      removeWindow((e as CustomEvent).detail.id);
+    });
+
+    // ── Ventanas ya presentes en el DOM al cargar ─────────────────────────
+    // (las que NO tienen initialHidden, es decir display != none)
+    document.querySelectorAll<HTMLElement>('.win-window[id]').forEach((win) => {
+      if (win.style.display === 'none') return; // ocultas: no registrar aún
+      const id    = win.id;
+      const title = win.dataset.winTitle ?? win.querySelector('.win-title')?.textContent?.trim() ?? id;
+      const lucideIcon = win.dataset.winEmoji ?? '🪟';
+      registerWindow(id, title, lucideIcon);
+    });
+
+    syncHint();
+
+    // ────────────────────────────────────────────────────────────────────
+    // MENÚ INICIO — abre ventanas pre-renderizadas en el DOM
+    // ────────────────────────────────────────────────────────────────────
+
+    function openMenu() {
+      startMenu!.classList.add('is-open');
+      overlay!.classList.add('is-open');
+      startBtn!.classList.add('is-open');
+      startBtn!.setAttribute('aria-expanded', 'true');
+      if (searchInput) {
+        searchInput.value = '';
+        filterApps('');
+        requestAnimationFrame(() => searchInput!.focus());
+      }
+    }
+
+    function closeMenu() {
+      startMenu!.classList.remove('is-open');
+      overlay!.classList.remove('is-open');
+      startBtn!.classList.remove('is-open');
+      startBtn!.setAttribute('aria-expanded', 'false');
+    }
+
+    startBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      startMenu!.classList.contains('is-open') ? closeMenu() : openMenu();
+    });
+    overlay.addEventListener('click', closeMenu);
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeMenu(); });
+
+    searchInput?.addEventListener('input', () => {
+      filterApps(searchInput!.value.toLowerCase().trim());
+    });
+
+    function filterApps(query: string) {
+      smApps?.querySelectorAll<HTMLElement>('.sm-app-btn').forEach((btn) => {
+        const label = btn.querySelector('.sm-app-label')?.textContent?.toLowerCase() ?? '';
+        btn.classList.toggle('is-hidden', Boolean(query) && !label.includes(query));
+      });
+    }
+
+    // ── Click en app del menú inicio ──────────────────────────────────────
+    smApps?.addEventListener('click', (e: Event) => {
+      const btn = (e.target as HTMLElement).closest<HTMLElement>('.sm-app-btn');
+      if (!btn) return;
+
+      const id  = btn.dataset.appId;
+      if (!id) return;
+
+      closeMenu();
+
+      const win = document.getElementById(id) as HTMLElement | null;
+      if (!win) {
+        console.warn(`[Taskbar] No se encontró la ventana con id="${id}". ¿Está instanciado DraggableWindow con ese id?`);
+        return;
+      }
+
+      const state = windows[id];
+
+      if (state) {
+        // Ya registrada: restaurar si está minimizada, o traer al frente
+        if (state.minimized) {
+          win.style.display = 'flex';
+          state.minimized = false;
+          state.btn.classList.remove('is-minimized');
+        }
+        bringWinToFront(id);
+        setActive(id);
+      } else {
+        // Primera apertura: mostrar la ventana oculta (initialHidden=true)
+        win.style.display = 'flex';
+        const title = win.dataset.winTitle ?? win.querySelector('.win-title')?.textContent?.trim() ?? id;
+        const lucideIcon = win.dataset.winEmoji ?? '🪟';
+        registerWindow(id, title, lucideIcon);
+        bringWinToFront(id);
+        setActive(id);
+      }
+    });
+
+    // ── Apagado ───────────────────────────────────────────────────────────
+    smShutdown?.addEventListener('click', () => {
+      closeMenu();
+      document.querySelectorAll<HTMLElement>('.win-window').forEach((win) => {
+        // Disparar win-close para que la taskbar lo limpie
+        document.dispatchEvent(new CustomEvent('win-close', {
+          bubbles: true,
+          detail: { id: win.id }
+        }));
+        win.style.animation = 'win-close-anim .15s ease forwards';
+        setTimeout(() => win.parentNode?.removeChild(win), 150);
+      });
+    });
+
+  })();
+</script>

@@ -1,11 +1,91 @@
 ---
-import Welcome from '../components/Welcome.astro';
-import Layout from '../layouts/Layout.astro';
+// pages/desktop.astro  ← ejemplo de uso completo
+import Taskbar from "../components/Taskbar.astro";
+import DraggableWindow from "../components/DraggableWindow.astro";
 
-// Welcome to Astro! Wondering what to do next? Check out the Astro documentation at https://docs.astro.build
-// Don't want to use any of this? Delete everything in this file, the `assets`, `components`, and `layouts` directories, and start fresh.
+// Contenido de cada ventana como componente .astro
+import ExplorerWindow from "../components/windows/ExplorerWindow.astro";
+import NotesWindow from "../components/windows/NotesWindow.astro";
+import Portafolio from "../components/windows/Portafolio.astro";
+
+// Puedes crear tus propios componentes de ventana y registrarlos aquí
 ---
 
-<Layout>
-	<Welcome />	
-</Layout>
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Mi Escritorio</title>
+    <style>
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+      html,
+      body {
+        width: 100%;
+        height: 100%;
+        background: hsl(222 47% 10%);
+        overflow: hidden;
+      }
+      body {
+        background-position: center;
+        background-image: url('../assets/zorro-fondo2.png');
+      }
+    </style>
+  </head>
+  <body>
+    <!--
+    Cada DraggableWindow envuelve un componente de contenido.
+    - El id debe coincidir con el id definido en taskbar.types.ts
+    - initialHidden=true → la ventana solo se muestra al pulsar en el menú inicio
+    - Sin initialHidden  → la ventana aparece al cargar la página
+  -->
+
+     <DraggableWindow
+      id="portafolio"
+      title="about-me.txt"
+      lucideIcon="User"
+      width={400}
+      height={300}
+      initialX={200}
+      initialY={140}
+    >
+      <Portafolio/>
+    </DraggableWindow>
+
+    <DraggableWindow
+      id="app-explorer"
+      title="Explorador"
+      lucideIcon="FolderOpen"
+      width={480}
+      height={320}
+      initialX={80}
+      initialY={60}
+      initialHidden
+    >
+      <ExplorerWindow />
+    </DraggableWindow>
+
+    <!-- Notas: oculta hasta que el usuario la abra desde el menú inicio -->
+    <DraggableWindow
+      id="app-notes"
+      title="Notas"
+      lucideIcon="FileText"
+      width={400}
+      height={300}
+      initialX={200}
+      initialY={140}
+      initialHidden
+    >
+      <NotesWindow placeholder="Escribe aquí tus notas..." />
+    </DraggableWindow>
+
+    <!-- Barra de tareas + menú inicio -->
+    <Taskbar />
+  </body>
+</html>

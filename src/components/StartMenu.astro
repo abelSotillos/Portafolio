@@ -1,19 +1,12 @@
 ---
 // StartMenu.astro
-// Popup del menú inicio. Se muestra/oculta desde Taskbar.astro via JS.
-
 import {
-  FolderOpen,
-  Terminal,
-  Globe,
-  FileText,
-  Calculator,
-  Music,
-  Search,
-  Power,
+  FolderOpen, Terminal, Globe,
+  FileText, Calculator, Music,
+  Search, Power, User,
 } from '@lucide/astro/icons/index';
 
-import type { App } from './NavBar.types';
+import type { App } from './taskbar.types';
 
 interface Props {
   apps: App[];
@@ -21,14 +14,8 @@ interface Props {
 
 const { apps } = Astro.props;
 
-// Mapa de nombre → componente Lucide
 const iconMap: Record<string, any> = {
-  FolderOpen,
-  Terminal,
-  Globe,
-  FileText,
-  Calculator,
-  Music,
+  FolderOpen, Terminal, Globe, FileText, Calculator, Music, User,
 };
 ---
 
@@ -59,9 +46,9 @@ const iconMap: Record<string, any> = {
     />
   </div>
 
-  <!-- Grid de apps -->
   <p class="sm-section-label">Aplicaciones</p>
 
+  <!-- Grid de apps -->
   <div class="sm-apps" id="sm-apps">
     {apps.map((app) => {
       const Icon = iconMap[app.lucideIcon];
@@ -69,17 +56,12 @@ const iconMap: Record<string, any> = {
         <button
           class="sm-app-btn"
           data-app-id={app.id}
-          data-app-title={app.title}
-          data-app-emoji={app.emoji}
-          data-app-content={app.content ?? ''}
-          data-app-width={String(app.width ?? 400)}
-          data-app-height={String(app.height ?? 300)}
           aria-label={`Abrir ${app.title}`}
         >
           <span class="sm-app-icon">
             {Icon
               ? <Icon size={26} color="hsl(217 91% 65%)" />
-              : <span>{app.emoji}</span>
+              : ''
             }
           </span>
           <span class="sm-app-label">{app.title}</span>
@@ -97,7 +79,7 @@ const iconMap: Record<string, any> = {
   </footer>
 </div>
 
-<!-- Overlay para cerrar al hacer click fuera -->
+<!-- Overlay -->
 <div id="start-overlay"></div>
 
 <style>
@@ -115,7 +97,6 @@ const iconMap: Record<string, any> = {
     z-index: 99999;
     font-family: "Segoe UI", system-ui, sans-serif;
     color: hsl(215 20% 75%);
-    /* oculto por defecto — JS añade .is-open */
     display: none;
     flex-direction: column;
     overflow: hidden;
@@ -130,7 +111,6 @@ const iconMap: Record<string, any> = {
     to   { opacity: 1; transform: scale(1)   translateY(0); }
   }
 
-  /* Cabecera */
   .sm-header {
     display: flex;
     align-items: center;
@@ -150,7 +130,6 @@ const iconMap: Record<string, any> = {
   .sm-title    { display: block; font-size: 14px; font-weight: 600; color: hsl(215 20% 90%); }
   .sm-subtitle { display: block; font-size: 11px; color: hsl(215 20% 45%); margin-top: 1px; }
 
-  /* Buscador */
   .sm-search-wrap {
     display: flex;
     align-items: center;
@@ -178,7 +157,6 @@ const iconMap: Record<string, any> = {
   }
   .sm-search::placeholder { color: hsl(215 20% 35%); }
 
-  /* Label de sección */
   .sm-section-label {
     font-size: 10px;
     font-weight: 600;
@@ -189,7 +167,6 @@ const iconMap: Record<string, any> = {
     margin: 0;
   }
 
-  /* Grid de apps */
   .sm-apps {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
@@ -222,13 +199,12 @@ const iconMap: Record<string, any> = {
     color: hsl(215 20% 90%);
     transform: scale(1.04);
   }
-  .sm-app-btn:active { transform: scale(.96); }
+  .sm-app-btn:active  { transform: scale(.96); }
   .sm-app-btn.is-hidden { display: none; }
 
   .sm-app-icon  { display: flex; align-items: center; justify-content: center; line-height: 1; }
   .sm-app-label { font-size: 11px; text-align: center; line-height: 1.2; }
 
-  /* Footer */
   .sm-footer {
     border-top: 1px solid hsl(217 33% 20% / .6);
     padding: 8px 12px;
@@ -255,7 +231,6 @@ const iconMap: Record<string, any> = {
     color: hsl(0 84% 65%);
   }
 
-  /* Overlay */
   #start-overlay {
     display: none;
     position: fixed;
