@@ -4,11 +4,8 @@ import Taskbar from "../components/Taskbar.astro";
 import DraggableWindow from "../components/DraggableWindow.astro";
 
 // Contenido de cada ventana como componente .astro
-import ExplorerWindow from "../components/windows/ExplorerWindow.astro";
-import NotesWindow from "../components/windows/NotesWindow.astro";
 import Portafolio from "../components/windows/Portafolio.astro";
-
-// Puedes crear tus propios componentes de ventana y registrarlos aquí
+import TerminalWindow from "../components/windows/TerminalWindow.astro";
 ---
 
 <!doctype html>
@@ -61,30 +58,16 @@ import Portafolio from "../components/windows/Portafolio.astro";
     </DraggableWindow>
 
     <DraggableWindow
-      id="app-explorer"
-      title="Explorador"
-      lucideIcon="FolderOpen"
-      width={480}
-      height={320}
-      initialX={80}
-      initialY={60}
+      id="app-terminal"
+      title="Terminal"
+      lucideIcon="Terminal"
+      width={520}
+      height={340}
+      initialX={120}
+      initialY={80}
       initialHidden
     >
-      <ExplorerWindow />
-    </DraggableWindow>
-
-    <!-- Notas: oculta hasta que el usuario la abra desde el menú inicio -->
-    <DraggableWindow
-      id="app-notes"
-      title="Notas"
-      lucideIcon="FileText"
-      width={400}
-      height={300}
-      initialX={200}
-      initialY={140}
-      initialHidden
-    >
-      <NotesWindow placeholder="Escribe aquí tus notas..." />
+      <TerminalWindow />
     </DraggableWindow>
 
     <!-- Barra de tareas + menú inicio -->
