@@ -1,24 +1,807 @@
+<div class="cv" id="cv-root">
 
-<div class="p-3">
-	<h1>Abel Sotillos Cuenca</h1>
-	<p>Full stack developer</p>
-</div>
+  <!-- ── HEADER ── -->
+  <div class="cv-header">
+    <div class="cv-header-inner">
+      <img class="cv-avatar" src="/yo-sin-fondo.png" alt="Abel Sotillos Cuenca" />
+      <div class="cv-identity">
+        <h1 class="cv-name">Abel Sotillos Cuenca</h1>
+        <div class="cv-meta">
+          <span class="cv-role">Full Stack Developer</span>
+          <span class="cv-badge">+3 años exp.</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="cv-contacts">
+      <!-- email -->
+      <a class="cv-contact-item" href="mailto:abelsotillos@gmail.com">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="2" y="4" width="20" height="16" rx="2"/>
+          <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/>
+        </svg>
+        abelsotillos@gmail.com
+      </a>
+      <!-- phone -->
+      <span class="cv-contact-item">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.6 1.27h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>
+        </svg>
+        +34 616 88 07 83
+      </span>
+      <!-- location -->
+      <span class="cv-contact-item">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M20 10c0 6-8 12-8 12S4 16 4 10a8 8 0 0 1 16 0Z"/>
+          <circle cx="12" cy="10" r="3"/>
+        </svg>
+        Madrid, España
+      </span>
+      <!-- languages -->
+      <span class="cv-contact-item">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"/>
+          <path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+        </svg>
+        ES / EN
+      </span>
+    </div>
+  </div>
+
+  <!-- ── TABS ── -->
+  <div class="cv-tabs-bar">
+    <button class="cv-tab active" data-tab="perfil">Perfil</button>
+    <button class="cv-tab" data-tab="experiencia">Experiencia</button>
+    <button class="cv-tab" data-tab="habilidades">Habilidades</button>
+    <button class="cv-tab" data-tab="formacion">Formación</button>
+  </div>
+
+  <!-- ── CONTENT ── -->
+  <div class="cv-body">
+
+    <!-- TAB: PERFIL -->
+    <div class="cv-panel active" id="tab-perfil">
+      <section class="cv-section">
+        <h2 class="cv-section-title">Resumen profesional</h2>
+        <p class="cv-summary">
+          Desarrollador Full Stack con más de 3 años de experiencia especializado en
+          <strong>Angular</strong> y <strong>Spring Boot</strong>. Trayectoria en el desarrollo
+          de plataformas SaaS multitenant para sectores como gestión documental, compliance
+          (GDPR), reservas y sector inmobiliario. Experiencia en integración de pasarelas de
+          pago, APIs de terceros y diseño de pipelines CI/CD.
+        </p>
+      </section>
+
+      <section class="cv-section">
+        <h2 class="cv-section-title">Idiomas</h2>
+        <div class="lang-list">
+          <div class="lang-item">
+            <div class="lang-header">
+              <span class="lang-name">Español</span>
+              <span class="lang-level">Nativo</span>
+            </div>
+            <div class="lang-bar-bg">
+              <div class="lang-bar-fill" style="width:100%"></div>
+            </div>
+          </div>
+          <div class="lang-item">
+            <div class="lang-header">
+              <span class="lang-name">Inglés</span>
+              <span class="lang-level">Fluido (B2+)</span>
+            </div>
+            <div class="lang-bar-bg">
+              <div class="lang-bar-fill" style="width:80%"></div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <!-- TAB: EXPERIENCIA -->
+    <div class="cv-panel" id="tab-experiencia">
+      <section class="cv-section">
+        <div class="company-header">
+          <div class="company-dot active-dot"></div>
+          <div>
+            <span class="company-name">MELIT TECHNOLOGIES</span>
+            <span class="company-period">Ene 2023 — Actualidad</span>
+          </div>
+        </div>
+
+        <div class="timeline">
+
+          <!-- Proyecto 1 -->
+          <div class="tl-item">
+            <div class="tl-dot tl-dot--current"></div>
+            <div class="tl-content">
+              <div class="tl-header">
+                <span class="tl-project">Inmobiliaria Pomora</span>
+                <span class="tl-period current-badge">Oct 2025 — Actualidad</span>
+              </div>
+              <span class="tl-role">Full Stack Developer</span>
+              <p class="tl-desc">
+                Plataforma de gestión inmobiliaria con integración de Mailjet para comunicaciones
+                y James Edition API para sincronización de propiedades.
+              </p>
+              <div class="tl-stack">
+                <span class="tl-chip tl-chip--java">Spring Boot</span>
+                <span class="tl-chip tl-chip--java">JSP</span>
+                <span class="tl-chip tl-chip--java">Java</span>
+                <span class="tl-chip tl-chip--db">MySQL</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Proyecto 2 -->
+          <div class="tl-item">
+            <div class="tl-dot"></div>
+            <div class="tl-content">
+              <div class="tl-header">
+                <span class="tl-project">SaaS Gestión de Reservas White Label</span>
+                <span class="tl-period">Dic 2024 — Sep 2025 · 10m</span>
+              </div>
+              <span class="tl-role">Full Stack Developer</span>
+              <p class="tl-desc">
+                Plataforma de reservas en modelo marca blanca multitenant. Integración con
+                Google Calendar API, pasarela de pago Redsys y pipeline CI/CD automatizado.
+              </p>
+              <div class="tl-stack">
+                <span class="tl-chip tl-chip--angular">Angular</span>
+                <span class="tl-chip tl-chip--angular">Angular Material</span>
+                <span class="tl-chip tl-chip--java">Spring Boot</span>
+                <span class="tl-chip tl-chip--devops">CI/CD</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Proyecto 3 -->
+          <div class="tl-item">
+            <div class="tl-dot"></div>
+            <div class="tl-content">
+              <div class="tl-header">
+                <span class="tl-project">El Encinar de Humienta</span>
+                <span class="tl-period">Oct 2024 — Nov 2024 · 2m</span>
+              </div>
+              <span class="tl-role">Full Stack Developer</span>
+              <p class="tl-desc">
+                Modernización de sistema legacy: migración de arquitectura de microservicios a
+                monolito y actualización frontend de AngularJS a Angular 18.
+              </p>
+              <div class="tl-stack">
+                <span class="tl-chip tl-chip--angular">Angular 18</span>
+                <span class="tl-chip tl-chip--java">Spring Boot</span>
+                <span class="tl-chip tl-chip--db">PostgreSQL</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Proyecto 4 -->
+          <div class="tl-item">
+            <div class="tl-dot"></div>
+            <div class="tl-content">
+              <div class="tl-header">
+                <span class="tl-project">Canal de Denuncias SaaS</span>
+                <span class="tl-period">Feb 2024 — Sep 2024 · 7m</span>
+              </div>
+              <span class="tl-role">Full Stack Developer</span>
+              <p class="tl-desc">
+                Canal de denuncias con cumplimiento GDPR/EU Whistleblowing Directive. Cifrado
+                de datos sensibles, gestión de sesiones segura e integración Redsys.
+              </p>
+              <div class="tl-stack">
+                <span class="tl-chip tl-chip--angular">Angular</span>
+                <span class="tl-chip tl-chip--java">Spring Boot</span>
+                <span class="tl-chip tl-chip--db">MySQL</span>
+                <span class="tl-chip tl-chip--integration">GDPR</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Proyecto 5 -->
+          <div class="tl-item tl-item--last">
+            <div class="tl-dot"></div>
+            <div class="tl-content">
+              <div class="tl-header">
+                <span class="tl-project">Intelit Gestor Documental</span>
+                <span class="tl-period">Ene 2023 — Feb 2024 · 1a 2m</span>
+              </div>
+              <span class="tl-role">Frontend Developer</span>
+              <p class="tl-desc">
+                Plataforma de gestión documental multitenant estilo Google Drive. Implementación
+                de autenticación OAuth 2.0 y arquitectura de permisos por tenant.
+              </p>
+              <div class="tl-stack">
+                <span class="tl-chip tl-chip--angular">Angular</span>
+                <span class="tl-chip tl-chip--angular">Angular Material</span>
+                <span class="tl-chip tl-chip--angular">Bootstrap</span>
+                <span class="tl-chip tl-chip--integration">OAuth 2.0</span>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </section>
+    </div>
+
+    <!-- TAB: HABILIDADES -->
+    <div class="cv-panel" id="tab-habilidades">
+
+      <section class="cv-section">
+        <h2 class="cv-section-title">Frontend</h2>
+        <div class="chip-group">
+          <span class="chip chip--angular">Angular (v18)</span>
+          <span class="chip chip--angular">TypeScript</span>
+          <span class="chip chip--angular">Angular Material</span>
+          <span class="chip chip--angular">Bootstrap</span>
+          <span class="chip chip--angular">ng-select</span>
+          <span class="chip">HTML5</span>
+          <span class="chip">CSS3</span>
+          <span class="chip">JavaScript</span>
+          <span class="chip">AngularJS</span>
+          <span class="chip">Responsive</span>
+        </div>
+      </section>
+
+      <section class="cv-section">
+        <h2 class="cv-section-title">Backend</h2>
+        <div class="chip-group">
+          <span class="chip chip--java">Java</span>
+          <span class="chip chip--java">Spring Boot</span>
+          <span class="chip chip--java">JSP</span>
+          <span class="chip chip--java">APIs REST</span>
+          <span class="chip chip--java">Google OAuth 2.0</span>
+        </div>
+      </section>
+
+      <section class="cv-section">
+        <h2 class="cv-section-title">Bases de Datos</h2>
+        <div class="chip-group">
+          <span class="chip chip--db">MySQL</span>
+          <span class="chip chip--db">PostgreSQL</span>
+          <span class="chip chip--db">Cifrado de datos</span>
+          <span class="chip chip--db">Gestión de sesiones</span>
+        </div>
+      </section>
+
+      <section class="cv-section">
+        <h2 class="cv-section-title">DevOps &amp; Herramientas</h2>
+        <div class="chip-group">
+          <span class="chip chip--devops">Git</span>
+          <span class="chip chip--devops">Bitbucket</span>
+          <span class="chip chip--devops">Bitbucket Pipelines</span>
+          <span class="chip chip--devops">SourceTree</span>
+          <span class="chip chip--devops">Jira</span>
+        </div>
+      </section>
+
+      <section class="cv-section">
+        <h2 class="cv-section-title">Integraciones</h2>
+        <div class="chip-group">
+          <span class="chip chip--integration">Redsys</span>
+          <span class="chip chip--integration">Google Calendar API</span>
+          <span class="chip chip--integration">Mailjet</span>
+          <span class="chip chip--integration">James Edition API</span>
+          <span class="chip chip--integration">GDPR</span>
+        </div>
+      </section>
+
+    </div>
+
+    <!-- TAB: FORMACIÓN -->
+    <div class="cv-panel" id="tab-formacion">
+      <section class="cv-section">
+        <h2 class="cv-section-title">Estudios</h2>
+        <div class="edu-list">
+
+          <div class="edu-card">
+            <div class="edu-icon-wrap">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M22 10v6M2 10l10-5 10 5-10 5z"/>
+                <path d="M6 12v5c3 3 9 3 12 0v-5"/>
+              </svg>
+            </div>
+            <div class="edu-info">
+              <span class="edu-period">2021 — 2022</span>
+              <div class="edu-degrees">
+                <span class="edu-title">TS Administración de Sistemas Informáticos en Red</span>
+                <span class="edu-sep">+</span>
+                <span class="edu-title">TS Desarrollo de Aplicaciones Web</span>
+              </div>
+              <span class="edu-center">GSD Gredos San Diego · Buitrago de Lozoya, Madrid</span>
+            </div>
+          </div>
+
+          <div class="edu-card">
+            <div class="edu-icon-wrap">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M22 10v6M2 10l10-5 10 5-10 5z"/>
+                <path d="M6 12v5c3 3 9 3 12 0v-5"/>
+              </svg>
+            </div>
+            <div class="edu-info">
+              <span class="edu-period">2020 — 2021</span>
+              <div class="edu-degrees">
+                <span class="edu-title">Técnico en Sistemas Microinformáticos y Redes</span>
+              </div>
+              <span class="edu-center">IES Virgen del Espino · Soria</span>
+            </div>
+          </div>
+
+        </div>
+      </section>
+    </div>
+
+  </div><!-- /cv-body -->
+</div><!-- /cv-root -->
+
 <style>
-h1{
-		color:hsl(210 40% 98%);
-		font-weight: 700;
-		font-size: 1.875rem;
-    	line-height: 2.25rem;
-		text-shadow: 0 0 20px hsl(217 91% 60% / .5);
-		margin: 0;
-	}
-	p{
-		color: hsl(217 91% 60%);
-		font-size: 0.875rem;
-    	line-height: 1.25rem;
-		margin: 0;
-	}
-	.p-3{
-		padding: 1rem;
-	}
+  /* ── BASE ── */
+  .cv {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    font-family: "Segoe UI", system-ui, sans-serif;
+    background: hsl(217 33% 11%);
+    color: hsl(215 20% 80%);
+    overflow: hidden;
+  }
+
+  /* ── HEADER ── */
+  .cv-header {
+    flex-shrink: 0;
+    padding: 16px 18px 10px;
+    background: hsl(217 33% 14%);
+    border-bottom: 1px solid hsl(217 33% 22% / .6);
+  }
+
+  .cv-header-inner {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 10px;
+  }
+
+  .cv-avatar {
+    width: 46px;
+    height: 46px;
+    border-radius: 50%;
+    border: 2px solid hsl(217 91% 60% / .5);
+    object-fit: cover;
+    flex-shrink: 0;
+    box-shadow: 0 0 14px hsl(217 91% 60% / .2);
+  }
+
+  .cv-identity {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .cv-name {
+    margin: 0;
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: hsl(210 40% 98%);
+    text-shadow: 0 0 18px hsl(217 91% 60% / .55);
+    line-height: 1.2;
+  }
+
+  .cv-meta {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .cv-role {
+    color: hsl(217 91% 60%);
+    font-size: 0.8rem;
+  }
+
+  .cv-badge {
+    padding: 2px 8px;
+    border-radius: 10px;
+    background: hsl(217 91% 30% / .3);
+    border: 1px solid hsl(217 91% 60% / .35);
+    color: hsl(217 91% 70%);
+    font-size: 0.7rem;
+    font-weight: 600;
+  }
+
+  .cv-contacts {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px 12px;
+  }
+
+  .cv-contact-item {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 0.72rem;
+    color: hsl(215 20% 52%);
+    text-decoration: none;
+    transition: color .15s;
+  }
+  .cv-contact-item:hover { color: hsl(217 91% 65%); }
+  .cv-contact-item svg { flex-shrink: 0; color: hsl(217 91% 55%); }
+
+  /* ── TABS BAR ── */
+  .cv-tabs-bar {
+    display: flex;
+    gap: 2px;
+    padding: 6px 12px 0;
+    background: hsl(217 33% 14%);
+    border-bottom: 1px solid hsl(217 33% 22% / .5);
+    flex-shrink: 0;
+  }
+
+  .cv-tab {
+    padding: 6px 14px;
+    background: transparent;
+    border: none;
+    border-radius: 6px 6px 0 0;
+    color: hsl(215 20% 50%);
+    font-size: 0.78rem;
+    font-family: inherit;
+    cursor: pointer;
+    transition: background .15s, color .15s;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -1px;
+  }
+  .cv-tab:hover { background: hsl(217 33% 20%); color: hsl(215 20% 75%); }
+  .cv-tab.active {
+    color: hsl(217 91% 70%);
+    border-bottom-color: hsl(217 91% 60%);
+    background: hsl(217 33% 17%);
+  }
+
+  /* ── BODY / PANELS ── */
+  .cv-body {
+    flex: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding: 16px 18px;
+    scrollbar-width: thin;
+    scrollbar-color: hsl(217 33% 28%) transparent;
+  }
+  .cv-body::-webkit-scrollbar { width: 5px; }
+  .cv-body::-webkit-scrollbar-track { background: transparent; }
+  .cv-body::-webkit-scrollbar-thumb { background: hsl(217 33% 28%); border-radius: 3px; }
+
+  .cv-panel { display: none; }
+  .cv-panel.active { display: block; }
+
+  /* ── SECTIONS ── */
+  .cv-section { margin-bottom: 22px; }
+  .cv-section:last-child { margin-bottom: 0; }
+
+  .cv-section-title {
+    margin: 0 0 10px;
+    font-size: 0.7rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: .08em;
+    color: hsl(217 91% 60%);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .cv-section-title::after {
+    content: "";
+    flex: 1;
+    height: 1px;
+    background: hsl(217 33% 25% / .7);
+  }
+
+  /* ── PERFIL ── */
+  .cv-summary {
+    margin: 0;
+    font-size: 0.82rem;
+    line-height: 1.65;
+    color: hsl(215 20% 68%);
+  }
+  .cv-summary strong { color: hsl(215 20% 85%); }
+
+  /* ── LANGUAGES ── */
+  .lang-list { display: flex; flex-direction: column; gap: 10px; }
+
+  .lang-item { display: flex; flex-direction: column; gap: 5px; }
+
+  .lang-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+  }
+
+  .lang-name { font-size: 0.82rem; color: hsl(215 20% 78%); }
+  .lang-level { font-size: 0.7rem; color: hsl(215 20% 45%); }
+
+  .lang-bar-bg {
+    height: 5px;
+    border-radius: 3px;
+    background: hsl(217 33% 22%);
+    overflow: hidden;
+  }
+  .lang-bar-fill {
+    height: 100%;
+    border-radius: 3px;
+    background: linear-gradient(90deg, hsl(217 91% 50%), hsl(200 80% 60%));
+  }
+
+  /* ── EXPERIENCIA ── */
+  .company-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 14px;
+    padding: 8px 12px;
+    background: hsl(217 33% 16%);
+    border-radius: 8px;
+    border: 1px solid hsl(217 33% 24% / .5);
+  }
+
+  .company-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: hsl(217 33% 35%);
+    flex-shrink: 0;
+  }
+  .company-dot.active-dot {
+    background: hsl(142 70% 50%);
+    box-shadow: 0 0 6px hsl(142 70% 50% / .6);
+    animation: pulse-dot 2s infinite;
+  }
+
+  @keyframes pulse-dot {
+    0%, 100% { box-shadow: 0 0 5px hsl(142 70% 50% / .5); }
+    50%       { box-shadow: 0 0 12px hsl(142 70% 50% / .9); }
+  }
+
+  .company-name {
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: hsl(215 20% 82%);
+    letter-spacing: .03em;
+  }
+
+  .company-period {
+    margin-left: auto;
+    font-size: 0.7rem;
+    color: hsl(215 20% 42%);
+  }
+
+  /* ── TIMELINE ── */
+  .timeline {
+    position: relative;
+    padding-left: 22px;
+  }
+  .timeline::before {
+    content: "";
+    position: absolute;
+    left: 5px;
+    top: 6px;
+    bottom: 6px;
+    width: 1px;
+    background: hsl(217 33% 26%);
+  }
+
+  .tl-item {
+    position: relative;
+    padding-bottom: 20px;
+  }
+  .tl-item--last { padding-bottom: 0; }
+
+  .tl-dot {
+    position: absolute;
+    left: -18px;
+    top: 5px;
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    background: hsl(217 33% 30%);
+    border: 1.5px solid hsl(217 33% 40%);
+  }
+
+  .tl-dot--current {
+    background: hsl(142 70% 45%);
+    border-color: hsl(142 70% 60%);
+    animation: pulse-dot 2s infinite;
+  }
+
+  .tl-content {
+    background: hsl(217 33% 15%);
+    border: 1px solid hsl(217 33% 22% / .6);
+    border-radius: 8px;
+    padding: 10px 12px;
+    transition: border-color .15s;
+  }
+  .tl-content:hover { border-color: hsl(217 33% 32%); }
+
+  .tl-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 8px;
+    margin-bottom: 3px;
+  }
+
+  .tl-project {
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: hsl(215 20% 86%);
+    line-height: 1.3;
+  }
+
+  .tl-period {
+    font-size: 0.68rem;
+    color: hsl(215 20% 40%);
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+
+  .current-badge {
+    color: hsl(142 60% 50%);
+    background: hsl(142 60% 20% / .25);
+    padding: 1px 6px;
+    border-radius: 8px;
+    border: 1px solid hsl(142 60% 40% / .3);
+  }
+
+  .tl-role {
+    font-size: 0.7rem;
+    color: hsl(217 91% 60%);
+    display: block;
+    margin-bottom: 5px;
+  }
+
+  .tl-desc {
+    margin: 0 0 8px;
+    font-size: 0.75rem;
+    line-height: 1.55;
+    color: hsl(215 20% 55%);
+  }
+
+  .tl-stack { display: flex; flex-wrap: wrap; gap: 4px; }
+
+  /* ── CHIPS (timeline) ── */
+  .tl-chip {
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-size: 0.68rem;
+    font-weight: 500;
+    background: hsl(217 33% 20%);
+    border: 1px solid hsl(217 33% 28% / .6);
+    color: hsl(215 20% 60%);
+  }
+  .tl-chip--angular { background: hsl(0 75% 22% / .3); border-color: hsl(0 75% 55% / .3); color: hsl(0 70% 72%); }
+  .tl-chip--java    { background: hsl(27 90% 25% / .3); border-color: hsl(27 90% 55% / .3); color: hsl(27 80% 72%); }
+  .tl-chip--db      { background: hsl(260 50% 22% / .3); border-color: hsl(260 50% 55% / .3); color: hsl(260 50% 76%); }
+  .tl-chip--devops  { background: hsl(140 50% 18% / .3); border-color: hsl(140 50% 45% / .3); color: hsl(140 50% 66%); }
+  .tl-chip--integration { background: hsl(217 60% 22% / .3); border-color: hsl(217 60% 50% / .3); color: hsl(217 60% 74%); }
+
+  /* ── SKILLS CHIPS ── */
+  .chip-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  .chip {
+    padding: 4px 11px;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    background: hsl(217 33% 18%);
+    border: 1px solid hsl(217 33% 27% / .6);
+    color: hsl(215 20% 62%);
+    cursor: default;
+    transition: background .14s, border-color .14s, color .14s;
+  }
+  .chip:hover {
+    background: hsl(217 33% 24%);
+    border-color: hsl(217 91% 60% / .4);
+    color: hsl(215 20% 82%);
+  }
+
+  .chip--angular { background: hsl(0 75% 22% / .25); border-color: hsl(0 75% 55% / .25); color: hsl(0 65% 72%); }
+  .chip--angular:hover { background: hsl(0 75% 26% / .4); border-color: hsl(0 75% 60% / .5); }
+
+  .chip--java { background: hsl(27 90% 25% / .25); border-color: hsl(27 90% 55% / .25); color: hsl(27 80% 72%); }
+  .chip--java:hover { background: hsl(27 90% 28% / .4); border-color: hsl(27 90% 60% / .5); }
+
+  .chip--db { background: hsl(260 50% 22% / .25); border-color: hsl(260 50% 55% / .25); color: hsl(260 50% 76%); }
+  .chip--db:hover { background: hsl(260 50% 26% / .4); border-color: hsl(260 50% 60% / .5); }
+
+  .chip--devops { background: hsl(140 50% 18% / .25); border-color: hsl(140 50% 45% / .25); color: hsl(140 50% 66%); }
+  .chip--devops:hover { background: hsl(140 50% 22% / .4); border-color: hsl(140 50% 50% / .5); }
+
+  .chip--integration { background: hsl(217 60% 22% / .25); border-color: hsl(217 60% 50% / .25); color: hsl(217 60% 74%); }
+  .chip--integration:hover { background: hsl(217 60% 26% / .4); border-color: hsl(217 60% 60% / .5); }
+
+  /* ── FORMACIÓN ── */
+  .edu-list { display: flex; flex-direction: column; gap: 12px; }
+
+  .edu-card {
+    display: flex;
+    gap: 14px;
+    padding: 12px 14px;
+    background: hsl(217 33% 15%);
+    border: 1px solid hsl(217 33% 22% / .6);
+    border-radius: 10px;
+    transition: border-color .15s;
+  }
+  .edu-card:hover { border-color: hsl(217 33% 32%); }
+
+  .edu-icon-wrap {
+    width: 38px;
+    height: 38px;
+    border-radius: 8px;
+    background: hsl(217 91% 25% / .25);
+    border: 1px solid hsl(217 91% 50% / .2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    color: hsl(217 91% 60%);
+  }
+
+  .edu-info {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+  }
+
+  .edu-period {
+    font-size: 0.68rem;
+    color: hsl(217 91% 60%);
+    font-weight: 600;
+  }
+
+  .edu-degrees {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .edu-title {
+    font-size: 0.79rem;
+    font-weight: 600;
+    color: hsl(215 20% 82%);
+    line-height: 1.3;
+  }
+
+  .edu-sep {
+    font-size: 0.7rem;
+    color: hsl(215 20% 38%);
+    padding-left: 2px;
+  }
+
+  .edu-center {
+    font-size: 0.72rem;
+    color: hsl(215 20% 45%);
+    margin-top: 2px;
+  }
 </style>
+
+<script>
+  (function () {
+    const root = document.getElementById('cv-root');
+    if (!root) return;
+
+    const tabs   = root.querySelectorAll<HTMLButtonElement>('.cv-tab');
+    const panels = root.querySelectorAll<HTMLElement>('.cv-panel');
+
+    tabs.forEach((tab) => {
+      tab.addEventListener('click', () => {
+        const target = tab.dataset.tab;
+
+        tabs.forEach((t)   => t.classList.remove('active'));
+        panels.forEach((p) => p.classList.remove('active'));
+
+        tab.classList.add('active');
+        const panel = root.querySelector<HTMLElement>(`#tab-${target}`);
+        if (panel) panel.classList.add('active');
+      });
+    });
+  })();
+</script>
