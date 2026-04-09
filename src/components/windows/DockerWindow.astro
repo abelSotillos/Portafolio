@@ -1,0 +1,2353 @@
+<div class="docker" id="docker-root">
+
+  <!-- ── TABS ── -->
+  <div class="dk-tabs">
+    <button class="dk-tab active" data-tab="docs">Documentación</button>
+    <button class="dk-tab" data-tab="quick">Quick Deploy</button>
+    <button class="dk-tab" data-tab="compose">Compose Generator</button>
+  </div>
+
+  <!-- ══════════════════════════════════════════════ -->
+  <!-- TAB 1: DOCUMENTACIÓN                          -->
+  <!-- ══════════════════════════════════════════════ -->
+  <div class="dk-panel active" id="dk-docs">
+    <div class="dk-docs-sidebar" id="dk-docs-sidebar">
+      <button class="dk-doc-link active" data-doc="basics">Básicos</button>
+      <button class="dk-doc-link" data-doc="images">Imágenes</button>
+      <button class="dk-doc-link" data-doc="containers">Contenedores</button>
+      <button class="dk-doc-link" data-doc="volumes">Volúmenes</button>
+      <button class="dk-doc-link" data-doc="networks">Redes</button>
+      <button class="dk-doc-link" data-doc="compose">Compose</button>
+      <button class="dk-doc-link" data-doc="debug">Debug</button>
+      <button class="dk-doc-link" data-doc="cleanup">Limpieza</button>
+    </div>
+    <div class="dk-docs-content" id="dk-docs-content">
+      <!-- filled by JS -->
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════ -->
+  <!-- TAB 2: QUICK DEPLOY                           -->
+  <!-- ══════════════════════════════════════════════ -->
+  <div class="dk-panel" id="dk-quick">
+    <div class="dk-quick-search">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+      <input type="text" class="dk-search-input" id="dk-quick-filter" placeholder="Buscar servicio..." autocomplete="off">
+    </div>
+    <div class="dk-quick-grid" id="dk-quick-grid">
+      <!-- filled by JS -->
+    </div>
+    <div class="dk-tooltip hidden" id="dk-tooltip"></div>
+    <div class="dk-quick-form hidden" id="dk-quick-form">
+      <button class="dk-back" id="dk-quick-back">&larr; Volver</button>
+      <h3 class="dk-quick-title" id="dk-quick-title"></h3>
+      <div class="dk-fields" id="dk-quick-fields"></div>
+      <button class="dk-generate-btn" id="dk-quick-generate">Generar comando</button>
+      <div class="dk-result hidden" id="dk-quick-result">
+        <pre id="dk-quick-output"></pre>
+        <button class="dk-copy" id="dk-quick-copy">Copiar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════ -->
+  <!-- TAB 3: COMPOSE GENERATOR                      -->
+  <!-- ══════════════════════════════════════════════ -->
+  <div class="dk-panel" id="dk-compose">
+    <div class="dk-compose-layout">
+      <div class="dk-compose-services">
+        <div class="dk-compose-header">
+          <span>Servicios</span>
+          <button class="dk-add-svc" id="dk-add-svc">+ Añadir</button>
+        </div>
+        <div class="dk-svc-list" id="dk-svc-list"></div>
+      </div>
+      <div class="dk-compose-editor">
+        <div class="dk-compose-header">
+          <span>docker-compose.yml</span>
+          <button class="dk-copy" id="dk-compose-copy">Copiar</button>
+        </div>
+        <pre class="dk-yaml" id="dk-yaml">version: "3.9"
+services:
+  # Añade un servicio para empezar</pre>
+      </div>
+    </div>
+
+    <!-- Modal para añadir servicio -->
+    <div class="dk-modal hidden" id="dk-svc-modal">
+      <div class="dk-modal-box">
+        <h3>Añadir servicio</h3>
+        <label class="dk-label">Tipo</label>
+        <div class="dk-searchable-select" id="dk-svc-select">
+          <input type="text" class="dk-select-input" id="dk-svc-search" placeholder="Buscar servicio..." autocomplete="off">
+          <div class="dk-select-dropdown hidden" id="dk-svc-dropdown"></div>
+          <input type="hidden" id="dk-svc-type" value="">
+        </div>
+        <div id="dk-svc-extra-fields"></div>
+        <div class="dk-modal-actions">
+          <button class="dk-btn-cancel" id="dk-svc-cancel">Cancelar</button>
+          <button class="dk-generate-btn" id="dk-svc-add-btn">Añadir</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ═══════════════════════════════════════════════ -->
+<!-- STYLES                                          -->
+<!-- ═══════════════════════════════════════════════ -->
+<style>
+  .docker {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    font-family: "Segoe UI", system-ui, sans-serif;
+    background: hsl(222 47% 11%);
+    color: hsl(215 20% 80%);
+    font-size: 13px;
+  }
+  .docker :global(*) {
+    scrollbar-width: thin;
+    scrollbar-color: hsl(217 33% 25%) transparent;
+  }
+  .docker :global(*::-webkit-scrollbar) { width: 6px; height: 6px; }
+  .docker :global(*::-webkit-scrollbar-track) { background: transparent; }
+  .docker :global(*::-webkit-scrollbar-thumb) {
+    background: hsl(217 33% 25%);
+    border-radius: 3px;
+  }
+  .docker :global(*::-webkit-scrollbar-thumb:hover) {
+    background: hsl(217 33% 35%);
+  }
+
+  /* ── Tabs ── */
+  .dk-tabs {
+    display: flex;
+    gap: 0;
+    border-bottom: 1px solid hsl(217 33% 22% / .6);
+    flex-shrink: 0;
+    background: hsl(217 33% 14%);
+  }
+  .dk-tab {
+    flex: 1;
+    padding: 9px 10px;
+    background: transparent;
+    border: none;
+    border-bottom: 2px solid transparent;
+    color: hsl(215 20% 50%);
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: color .15s, border-color .15s;
+  }
+  .dk-tab:hover { color: hsl(215 20% 70%); }
+  .dk-tab.active {
+    color: hsl(207 90% 64%);
+    border-bottom-color: hsl(207 90% 64%);
+  }
+
+  /* ── Panels ── */
+  .dk-panel { display: none; flex: 1; overflow: hidden; }
+  .dk-panel.active { display: flex; }
+
+  /* ── DOCS ── */
+  #dk-docs { flex-direction: row; }
+  .dk-docs-sidebar {
+    width: 120px;
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+    padding: 6px;
+    background: hsl(217 33% 12%);
+    border-right: 1px solid hsl(217 33% 22% / .4);
+    overflow-y: auto;
+  }
+  .dk-doc-link {
+    padding: 6px 10px;
+    background: transparent;
+    border: none;
+    border-radius: 5px;
+    color: hsl(215 20% 55%);
+    font-size: 12px;
+    text-align: left;
+    cursor: pointer;
+    transition: background .12s, color .12s;
+  }
+  .dk-doc-link:hover { background: hsl(217 33% 18%); color: hsl(215 20% 75%); }
+  .dk-doc-link.active { background: hsl(207 90% 50% / .15); color: hsl(207 90% 64%); }
+
+  .dk-docs-content {
+    flex: 1;
+    overflow-y: auto;
+    padding: 14px 16px;
+    line-height: 1.6;
+  }
+  .dk-docs-content :global(h3) {
+    color: hsl(207 90% 64%);
+    font-size: 14px;
+    margin: 16px 0 8px;
+  }
+  .dk-docs-content :global(h3:first-child) { margin-top: 0; }
+  .dk-docs-content :global(p) { margin: 4px 0; font-size: 12px; color: hsl(215 20% 55%); }
+  .dk-docs-content :global(.dk-desc) {
+    margin: 10px 0 4px;
+    font-size: 12px;
+    color: hsl(215 20% 65%);
+    line-height: 1.5;
+  }
+  .dk-docs-content :global(.dk-desc code) {
+    background: hsl(217 33% 18%);
+    padding: 1px 5px;
+    border-radius: 3px;
+    font-family: "Cascadia Code", "Fira Code", monospace;
+    font-size: 11px;
+    color: hsl(215 20% 80%);
+  }
+
+  .dk-docs-content :global(.dk-cmd-block) {
+    background: hsl(0 0% 3%);
+    border: 1px solid hsl(0 0% 14%);
+    border-radius: 6px;
+    margin: 6px 0;
+    overflow: hidden;
+  }
+  .dk-docs-content :global(.dk-cmd-header) {
+    display: flex;
+    align-items: center;
+    padding: 9px 12px;
+    gap: 8px;
+    font-family: "Cascadia Code", "Fira Code", monospace;
+    font-size: 11.5px;
+    line-height: 1.4;
+  }
+  .dk-docs-content :global(.dk-cmd-header code) {
+    flex: 1;
+    color: #fff;
+    white-space: pre-wrap;
+    word-break: break-all;
+  }
+  .dk-docs-content :global(.dk-cmd-header .dk-ps1) { color: hsl(142 60% 55%); }
+  .dk-docs-content :global(.dk-cmd-header .dk-flag) { color: hsl(45 90% 65%); }
+  .dk-docs-content :global(.dk-cmd-header .dk-val) { color: hsl(207 90% 64%); }
+  .dk-docs-content :global(.dk-cmd-copy) {
+    flex-shrink: 0;
+    background: none;
+    border: none;
+    color: hsl(215 20% 35%);
+    cursor: pointer;
+    padding: 3px;
+    border-radius: 4px;
+    transition: color .15s, background .15s;
+    display: flex;
+    align-items: center;
+  }
+  .dk-docs-content :global(.dk-cmd-copy:hover) {
+    color: hsl(207 90% 64%);
+    background: hsl(217 33% 18%);
+  }
+  .dk-docs-content :global(.dk-cmd-copy.copied) { color: hsl(142 60% 55%); }
+  .dk-docs-content :global(.dk-cmd-out) {
+    padding: 8px 12px;
+    border-top: 1px solid hsl(0 0% 10%);
+    font-family: "Cascadia Code", "Fira Code", monospace;
+    font-size: 11px;
+    line-height: 1.5;
+    color: hsl(215 20% 50%);
+    white-space: pre;
+    overflow-x: auto;
+  }
+
+  /* ── QUICK DEPLOY ── */
+  #dk-quick { flex-direction: column; position: relative; }
+  .dk-quick-search {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 14px 0;
+    flex-shrink: 0;
+    color: hsl(215 20% 40%);
+  }
+  .dk-search-input {
+    flex: 1;
+    padding: 7px 10px;
+    background: hsl(222 47% 8%);
+    border: 1px solid hsl(217 33% 25% / .5);
+    border-radius: 6px;
+    color: hsl(215 20% 85%);
+    font-size: 12px;
+    font-family: inherit;
+    outline: none;
+    transition: border-color .15s;
+  }
+  .dk-search-input:focus { border-color: hsl(207 90% 50% / .6); }
+  .dk-search-input::placeholder { color: hsl(215 20% 35%); }
+  .dk-quick-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    gap: 8px;
+    padding: 14px;
+    overflow-x: hidden;
+    overflow-y: auto;
+    flex: 1;
+    align-content: start;
+  }
+  .dk-quick-grid :global(.dk-quick-card) {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    padding: 14px 8px;
+    background: hsl(217 33% 15%);
+    border: 1px solid hsl(217 33% 22% / .4);
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background .12s, border-color .15s, transform .12s;
+    min-width: 0;
+  }
+  .dk-quick-grid :global(.dk-quick-card:hover) {
+    background: hsl(217 33% 18%);
+    border-color: hsl(207 90% 50% / .4);
+    transform: translateY(-1px);
+  }
+  .dk-quick-grid :global(.dk-quick-card .dk-card-icon) { width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .dk-quick-grid :global(.dk-quick-card .dk-card-icon svg) { width: 100%; height: 100%; }
+  .dk-quick-grid :global(.dk-quick-card .dk-card-name) { font-size: 12px; font-weight: 600; color: hsl(215 20% 80%); text-align: center; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 100%; }
+  .dk-tooltip {
+    position: absolute;
+    width: max-content;
+    max-width: 210px;
+    padding: 7px 10px;
+    background: hsl(222 47% 18%);
+    border: 1px solid hsl(217 33% 28%);
+    border-radius: 6px;
+    color: hsl(215 20% 75%);
+    font-size: 11px;
+    line-height: 1.4;
+    text-align: center;
+    pointer-events: none;
+    z-index: 20;
+    white-space: normal;
+    transition: opacity .12s;
+  }
+  .dk-tooltip.hidden { opacity: 0; display: block !important; visibility: hidden; }
+  .dk-tooltip::before {
+    content: "";
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    border: 5px solid transparent;
+  }
+  .dk-tooltip.above::before { top: 100%; border-top-color: hsl(217 33% 28%); }
+  .dk-tooltip.below::before { bottom: 100%; border-bottom-color: hsl(217 33% 28%); }
+  .dk-quick-grid :global(.dk-no-results) {
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: 24px;
+    color: hsl(215 20% 40%);
+    font-size: 12px;
+  }
+
+  .dk-quick-form { padding: 14px; overflow-y: auto; flex: 1; }
+  .dk-back {
+    background: none; border: none; color: hsl(207 90% 64%);
+    font-size: 12px; cursor: pointer; padding: 0; margin-bottom: 10px;
+  }
+  .dk-back:hover { text-decoration: underline; }
+  .dk-quick-title { color: hsl(207 90% 64%); font-size: 15px; margin-bottom: 12px; }
+
+  .dk-fields { display: flex; flex-direction: column; gap: 8px; margin-bottom: 12px; }
+  :global(.dk-label) {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    font-size: 12px;
+    color: hsl(215 20% 55%);
+  }
+  :global(.dk-input), :global(.dk-select) {
+    padding: 7px 10px;
+    background: hsl(222 47% 8%);
+    border: 1px solid hsl(217 33% 25% / .5);
+    border-radius: 5px;
+    color: hsl(215 20% 85%);
+    font-size: 13px;
+    font-family: inherit;
+    outline: none;
+    transition: border-color .15s;
+  }
+  :global(.dk-input:focus), :global(.dk-select:focus) { border-color: hsl(207 90% 50% / .6); }
+
+  .dk-generate-btn {
+    padding: 8px 16px;
+    background: hsl(207 90% 45%);
+    border: none;
+    border-radius: 6px;
+    color: #fff;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background .15s;
+  }
+  .dk-generate-btn:hover { background: hsl(207 90% 52%); }
+
+  .dk-result {
+    margin-top: 12px;
+    position: relative;
+  }
+  .dk-result pre {
+    background: hsl(222 47% 7%);
+    padding: 12px;
+    border-radius: 6px;
+    font-family: "Cascadia Code", "Fira Code", monospace;
+    font-size: 12px;
+    line-height: 1.5;
+    color: hsl(142 60% 60%);
+    overflow-x: auto;
+    white-space: pre-wrap;
+    word-break: break-all;
+  }
+  .dk-copy {
+    position: absolute;
+    top: 6px; right: 6px;
+    padding: 4px 10px;
+    background: hsl(217 33% 22%);
+    border: 1px solid hsl(217 33% 30% / .5);
+    border-radius: 4px;
+    color: hsl(215 20% 65%);
+    font-size: 11px;
+    cursor: pointer;
+    transition: background .12s;
+  }
+  .dk-copy:hover { background: hsl(217 33% 28%); color: #fff; }
+
+  .hidden { display: none !important; }
+
+  /* ── COMPOSE ── */
+  .dk-compose-layout {
+    display: flex;
+    flex: 1;
+    overflow: hidden;
+  }
+  .dk-compose-services {
+    width: 190px;
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    border-right: 1px solid hsl(217 33% 22% / .4);
+    background: hsl(217 33% 12%);
+  }
+  .dk-compose-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 10px;
+    border-bottom: 1px solid hsl(217 33% 22% / .4);
+    font-size: 12px;
+    font-weight: 600;
+    color: hsl(215 20% 55%);
+  }
+  .dk-add-svc {
+    padding: 3px 8px;
+    background: hsl(207 90% 45%);
+    border: none;
+    border-radius: 4px;
+    color: #fff;
+    font-size: 11px;
+    cursor: pointer;
+    transition: background .12s;
+  }
+  .dk-add-svc:hover { background: hsl(207 90% 52%); }
+
+  .dk-svc-list {
+    flex: 1;
+    overflow-y: auto;
+    padding: 6px;
+  }
+  .dk-svc-list :global(.dk-svc-item) {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 7px 10px;
+    border-radius: 5px;
+    font-size: 12px;
+    color: hsl(215 20% 75%);
+    background: hsl(217 33% 15%);
+    margin-bottom: 4px;
+  }
+  .dk-svc-list :global(.dk-svc-rm) {
+    background: none; border: none;
+    color: hsl(0 70% 55%); cursor: pointer;
+    font-size: 14px; line-height: 1;
+    padding: 0 2px;
+  }
+  .dk-svc-list :global(.dk-svc-rm:hover) { color: hsl(0 70% 70%); }
+
+  .dk-compose-editor {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    position: relative;
+  }
+  .dk-yaml {
+    flex: 1;
+    overflow: auto;
+    margin: 0;
+    padding: 12px 14px;
+    background: hsl(222 47% 7%);
+    font-family: "Cascadia Code", "Fira Code", monospace;
+    font-size: 12px;
+    line-height: 1.5;
+    color: hsl(215 20% 75%);
+    white-space: pre;
+  }
+  #dk-compose-copy {
+    position: absolute;
+    top: 36px; right: 8px;
+  }
+
+  /* ── Modal ── */
+  .dk-modal {
+    position: absolute;
+    inset: 0;
+    background: hsl(0 0% 0% / .5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10;
+  }
+  .dk-modal-box {
+    background: hsl(222 47% 13%);
+    border: 1px solid hsl(217 33% 25% / .5);
+    border-radius: 10px;
+    padding: 18px;
+    width: 280px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .dk-modal-box h3 { color: hsl(207 90% 64%); font-size: 14px; margin: 0; }
+  .dk-modal-actions { display: flex; gap: 8px; justify-content: flex-end; }
+  .dk-btn-cancel {
+    padding: 6px 14px;
+    background: hsl(217 33% 20%);
+    border: 1px solid hsl(217 33% 28% / .5);
+    border-radius: 5px;
+    color: hsl(215 20% 65%);
+    font-size: 12px;
+    cursor: pointer;
+  }
+  .dk-btn-cancel:hover { background: hsl(217 33% 25%); }
+  #dk-svc-extra-fields { display: flex; flex-direction: column; gap: 8px; }
+
+  /* ── Searchable select ── */
+  .dk-searchable-select {
+    position: relative;
+  }
+  .dk-select-input {
+    width: 100%;
+    padding: 7px 10px;
+    background: hsl(222 47% 8%);
+    border: 1px solid hsl(217 33% 25% / .5);
+    border-radius: 5px;
+    color: hsl(215 20% 85%);
+    font-size: 13px;
+    font-family: inherit;
+    outline: none;
+    transition: border-color .15s;
+    box-sizing: border-box;
+  }
+  .dk-select-input:focus { border-color: hsl(207 90% 50% / .6); }
+  .dk-select-input::placeholder { color: hsl(215 20% 35%); }
+  .dk-select-dropdown {
+    position: absolute;
+    top: calc(100% + 4px);
+    left: 0;
+    right: 0;
+    max-height: 180px;
+    overflow-y: auto;
+    background: hsl(222 47% 10%);
+    border: 1px solid hsl(217 33% 25%);
+    border-radius: 6px;
+    z-index: 20;
+    scrollbar-width: thin;
+    scrollbar-color: hsl(217 33% 25%) transparent;
+  }
+  .dk-select-dropdown::-webkit-scrollbar { width: 5px; }
+  .dk-select-dropdown::-webkit-scrollbar-track { background: transparent; }
+  .dk-select-dropdown::-webkit-scrollbar-thumb { background: hsl(217 33% 25%); border-radius: 3px; }
+  .dk-select-dropdown :global(.dk-select-group) {
+    padding: 6px 10px 3px;
+    margin-top: 6px;
+    font-size: 10px;
+    font-weight: 700;
+    color: hsl(215 20% 40%);
+    text-transform: uppercase;
+    letter-spacing: .5px;
+    border-top: 1px solid hsl(217 33% 20%);
+  }
+  .dk-select-dropdown :global(.dk-select-group:first-child) {
+    margin-top: 0;
+    border-top: none;
+  }
+  .dk-select-dropdown :global(.dk-select-option) {
+    padding: 7px 12px;
+    font-size: 12px;
+    color: hsl(215 20% 75%);
+    cursor: pointer;
+    transition: background .1s;
+  }
+  .dk-select-dropdown :global(.dk-select-option:hover),
+  .dk-select-dropdown :global(.dk-select-option.active) {
+    background: hsl(207 90% 50% / .15);
+    color: hsl(207 90% 64%);
+  }
+  .dk-select-dropdown :global(.dk-select-empty) {
+    padding: 10px 12px;
+    font-size: 12px;
+    color: hsl(215 20% 40%);
+    text-align: center;
+  }
+</style>
+
+<!-- ═══════════════════════════════════════════════ -->
+<!-- SCRIPT                                          -->
+<!-- ═══════════════════════════════════════════════ -->
+<script>
+  // ── Tab switching ──
+  const root = document.getElementById("docker-root")!;
+  const tabs = root.querySelectorAll<HTMLButtonElement>(".dk-tab");
+  const panels = root.querySelectorAll<HTMLElement>(".dk-panel");
+
+  tabs.forEach(tab => {
+    tab.addEventListener("click", () => {
+      tabs.forEach(t => t.classList.remove("active"));
+      panels.forEach(p => p.classList.remove("active"));
+      tab.classList.add("active");
+      root.querySelector(`#dk-${tab.dataset.tab}`)?.classList.add("active");
+    });
+  });
+
+  // ════════════════════════════════════════════════
+  // TAB 1: DOCS
+  // ════════════════════════════════════════════════
+  const copyIcon = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>`;
+  const checkIcon = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>`;
+
+  function cmd(command: string, output?: string): string {
+    const plain = command.replace(/<[^>]*>/g, "");
+    return `<div class="dk-cmd-block"><div class="dk-cmd-header"><code><span class="dk-ps1">$</span> ${command}</code><button class="dk-cmd-copy" data-cmd="${plain.replace(/"/g, "&quot;")}" title="Copiar">${copyIcon}</button></div>${output ? `<pre class="dk-cmd-out">${output}</pre>` : ""}</div>`;
+  }
+  const desc = (text: string) => `<p class="dk-desc">${text}</p>`;
+  const f = (s: string) => `<span class="dk-flag">${s}</span>`;
+  const v = (s: string) => `<span class="dk-val">${s}</span>`;
+
+  const docs: Record<string, string> = {
+
+    basics: `<h3>Conceptos básicos</h3>
+${desc("Muestra la versión instalada del cliente y servidor de Docker, incluyendo la versión de la API.")}
+${cmd("docker version", `Client: Docker Engine - Community
+ Version:           24.0.7
+ API version:       1.43
+
+Server: Docker Engine - Community
+ Version:           24.0.7`)}
+
+${desc("Muestra información detallada del sistema: contenedores activos, imágenes descargadas, driver de almacenamiento y recursos.")}
+${cmd("docker info", `Containers: 5
+ Running: 3
+ Paused: 0
+ Stopped: 2
+Images: 12
+Server Version: 24.0.7
+Storage Driver: overlay2`)}
+
+${desc("Autentica tu sesión con Docker Hub o un registro privado para subir y descargar imágenes.")}
+${cmd("docker login", `Login with your Docker ID to push and pull images.
+Username: abel
+Password: ****
+Login Succeeded`)}
+
+<h3>Estructura de un comando</h3>
+${desc("Todos los comandos siguen el patrón <code>docker [comando] [opciones] [argumentos]</code>. Las opciones (flags) modifican el comportamiento y van precedidas de <code>-</code> o <code>--</code>.")}
+${cmd(`docker container run ${f("-d -p")} ${v("80:80")} ${f("--name")} ${v("web")} nginx`, "a1b2c3d4e5f6...")}
+
+<h3>Flags más usados</h3>
+${desc("Ejecuta el contenedor en segundo plano (detached mode), liberando la terminal.")}
+${cmd(`docker run ${f("-d")} nginx`, "f7a8b9c0d1e2...")}
+
+${desc("Abre una sesión interactiva con terminal dentro del contenedor. Útil para depurar o explorar el sistema de archivos.")}
+${cmd(`docker run ${f("-it")} ubuntu ${v("bash")}`, "root@f7a8b9c0:/# _")}
+
+${desc("Elimina automáticamente el contenedor cuando se detiene. Ideal para tareas puntuales que no necesitan persistir.")}
+${cmd(`docker run ${f("--rm")} alpine echo 'hola'`, "hola")}
+
+${desc("Combina mapeo de puertos (<code>-p</code>), montaje de volúmenes (<code>-v</code>) y variables de entorno (<code>-e</code>) en un solo comando.")}
+${cmd(`docker run ${f("-d -p")} ${v("8080:80")} ${f("-v")} ${v("./html:/usr/share/nginx/html")} ${f("-e")} ${v("ENV=prod")} nginx`)}`,
+
+    images: `<h3>Gestión de imágenes</h3>
+${desc("Lista todas las imágenes descargadas localmente, mostrando repositorio, tag, ID, fecha de creación y tamaño.")}
+${cmd("docker images", `REPOSITORY    TAG       IMAGE ID       CREATED        SIZE
+nginx         latest    a8758716bb6a   2 days ago     187MB
+mysql         8         3218b38490ce   5 days ago     516MB
+node          lts       b9d6e5c3a1f0   1 week ago     1.1GB`)}
+
+${desc("Descarga una imagen desde Docker Hub u otro registro. Puedes especificar un tag concreto con <code>:</code> para controlar la versión.")}
+${cmd("docker pull nginx:alpine", `alpine: Pulling from library/nginx
+4abcf2066143: Pull complete
+Digest: sha256:a1b2c3d4...
+Status: Downloaded newer image for nginx:alpine`)}
+
+${desc("Construye una imagen a partir del Dockerfile en el directorio actual. Usa <code>-t</code> para asignarle nombre y tag.")}
+${cmd(`docker build ${f("-t")} ${v("mi-app:1.0")} .`, `[+] Building 12.3s (8/8) FINISHED
+ => [1/3] FROM node:lts
+ => [2/3] COPY package*.json ./
+ => [3/3] RUN npm install
+ => exporting to image
+ => => naming to docker.io/library/mi-app:1.0`)}
+
+<h3>Publicar y limpiar</h3>
+${desc("Etiqueta una imagen local con un nombre de registro remoto antes de publicarla.")}
+${cmd(`docker tag mi-app:1.0 ${v("usuario/mi-app:1.0")}`)}
+
+${desc("Sube una imagen etiquetada al registro remoto (Docker Hub por defecto).")}
+${cmd(`docker push ${v("usuario/mi-app:1.0")}`, `The push refers to repository [docker.io/usuario/mi-app]
+1.0: digest: sha256:e5f6a7b8... size: 1576`)}
+
+${desc("Elimina una imagen local por nombre o ID. Usa <code>-f</code> para forzar si está en uso.")}
+${cmd("docker rmi nginx:alpine", `Untagged: nginx:alpine
+Deleted: sha256:a8758716bb6a...`)}
+
+${desc("Elimina todas las imágenes huérfanas (sin tag ni contenedor asociado) para liberar espacio en disco.")}
+${cmd("docker image prune", `Deleted Images:
+deleted: sha256:f1e2d3c4b5a6...
+Total reclaimed space: 234.5MB`)}`,
+
+    containers: `<h3>Ciclo de vida</h3>
+${desc("Crea y arranca un nuevo contenedor a partir de una imagen. Combina <code>docker create</code> + <code>docker start</code> en un solo paso.")}
+${cmd(`docker run ${f("-d --name")} ${v("web")} ${f("-p")} ${v("80:80")} nginx`, "a1b2c3d4e5f6g7h8...")}
+
+${desc("Detiene un contenedor en ejecución enviando SIGTERM, y SIGKILL si no responde en 10 segundos.")}
+${cmd("docker stop web", "web")}
+
+${desc("Reinicia un contenedor previamente detenido, manteniendo su configuración y datos.")}
+${cmd("docker start web", "web")}
+
+${desc("Detiene e inmediatamente reinicia el contenedor. Útil para aplicar cambios de configuración.")}
+${cmd("docker restart web", "web")}
+
+${desc("Elimina un contenedor. Usa <code>-f</code> para forzar la eliminación aunque esté en ejecución.")}
+${cmd(`docker rm ${f("-f")} web`, "web")}
+
+<h3>Inspección</h3>
+${desc("Lista los contenedores en ejecución con su ID, imagen, estado, puertos mapeados y nombre.")}
+${cmd("docker ps", `CONTAINER ID  IMAGE  COMMAND                 STATUS         PORTS                NAMES
+a1b2c3d4e5f6  nginx  "/docker-entrypoint.…"  Up 2 minutes   0.0.0.0:80->80/tcp   web
+d7e8f9a0b1c2  mysql  "docker-entrypoint.…"   Up 5 minutes   3306/tcp             db`)}
+
+${desc("Muestra todos los contenedores, incluidos los detenidos. Útil para ver contenedores que han fallado o terminado.")}
+${cmd(`docker ps ${f("-a")}`, `CONTAINER ID  IMAGE   STATUS                    NAMES
+a1b2c3d4e5f6  nginx   Up 2 minutes              web
+d7e8f9a0b1c2  mysql   Up 5 minutes              db
+f3a4b5c6d7e8  redis   Exited (0) 3 hours ago    cache`)}
+
+${desc("Muestra estadísticas de uso de CPU, memoria, red y disco de los contenedores activos en tiempo real.")}
+${cmd(`docker stats ${f("--no-stream")}`, `CONTAINER  CPU %  MEM USAGE / LIMIT    MEM %  NET I/O          BLOCK I/O
+web        0.02%  5.2MiB / 7.7GiB     0.07%  1.45kB / 648B    0B / 0B
+db         0.35%  380MiB / 7.7GiB     4.82%  3.21kB / 1.2kB   12MB / 45MB`)}`,
+
+    volumes: `<h3>Volúmenes</h3>
+${desc("Crea un volumen nombrado gestionado por Docker. Los datos persisten aunque el contenedor se elimine.")}
+${cmd(`docker volume create ${v("mi-vol")}`, "mi-vol")}
+
+${desc("Lista todos los volúmenes existentes en el sistema, mostrando el driver y el nombre.")}
+${cmd("docker volume ls", `DRIVER    VOLUME NAME
+local     mi-vol
+local     db-data
+local     wp-content`)}
+
+${desc("Muestra información detallada del volumen: punto de montaje en el host, driver utilizado y fecha de creación.")}
+${cmd("docker volume inspect mi-vol", `[{
+  "Name": "mi-vol",
+  "Driver": "local",
+  "Mountpoint": "/var/lib/docker/volumes/mi-vol/_data",
+  "CreatedAt": "2025-10-15T10:30:00Z"
+}]`)}
+
+${desc("Elimina un volumen específico. Fallará si algún contenedor lo tiene montado actualmente.")}
+${cmd("docker volume rm mi-vol", "mi-vol")}
+
+${desc("Elimina todos los volúmenes anónimos que no estén en uso por ningún contenedor.")}
+${cmd("docker volume prune", `WARNING! This will remove anonymous local volumes not used by at least one container.
+Total reclaimed space: 1.2GB`)}
+
+<h3>Tipos de montaje</h3>
+${desc("Los <strong>volúmenes nombrados</strong> son la opción recomendada para persistencia. Docker gestiona su ubicación en el host.")}
+${cmd(`docker run ${f("-v")} ${v("mi-vol:/data")} nginx`)}
+
+${desc("Los <strong>bind mounts</strong> montan un directorio del host directamente. Útil en desarrollo para ver cambios en tiempo real.")}
+${cmd(`docker run ${f("-v")} ${v("$(pwd)/html:/usr/share/nginx/html")} nginx`)}
+
+${desc("Los montajes <strong>tmpfs</strong> almacenan datos solo en RAM. Son temporales y se pierden al detener el contenedor.")}
+${cmd(`docker run ${f("--tmpfs")} ${v("/tmp")} nginx`)}`,
+
+    networks: `<h3>Redes</h3>
+${desc("Lista todas las redes Docker. Por defecto existen <code>bridge</code>, <code>host</code> y <code>none</code>.")}
+${cmd("docker network ls", `NETWORK ID     NAME       DRIVER    SCOPE
+a1b2c3d4e5f6   bridge     bridge    local
+d7e8f9a0b1c2   host       host      local
+f3a4b5c6d7e8   none       null      local`)}
+
+${desc("Crea una red personalizada. Los contenedores en la misma red pueden comunicarse entre sí por nombre.")}
+${cmd(`docker network create ${v("app-net")}`, "9c8d7e6f5a4b...")}
+
+${desc("Conecta un contenedor existente a una red. Un contenedor puede pertenecer a varias redes simultáneamente.")}
+${cmd(`docker network connect ${v("app-net")} web`)}
+
+${desc("Desconecta un contenedor de una red sin detenerlo.")}
+${cmd(`docker network disconnect ${v("app-net")} web`)}
+
+${desc("Elimina una red. Falla si hay contenedores conectados a ella.")}
+${cmd("docker network rm app-net", "app-net")}
+
+<h3>Contenedores comunicándose por nombre</h3>
+${desc("En una red personalizada, Docker proporciona resolución DNS automática: los contenedores se localizan entre sí usando su nombre como hostname.")}
+${cmd(`docker network create ${v("app-net")}`)}
+${cmd(`docker run ${f("-d --name")} ${v("db")} ${f("--network")} ${v("app-net")} mysql`)}
+${cmd(`docker run ${f("-d --name")} ${v("web")} ${f("--network")} ${v("app-net")} nginx`)}
+
+${desc("Desde el contenedor <code>web</code> se puede resolver <code>db</code> por nombre gracias al DNS integrado de Docker.")}
+${cmd("docker exec web ping db", `PING db (172.18.0.2): 56 data bytes
+64 bytes from 172.18.0.2: seq=0 ttl=64 time=0.089 ms`)}`,
+
+    compose: `<h3>Docker Compose</h3>
+${desc("Levanta todos los servicios definidos en <code>docker-compose.yml</code> en segundo plano, creando redes y volúmenes necesarios.")}
+${cmd(`docker compose up ${f("-d")}`, `[+] Running 3/3
+ ✔ Network app_default  Created
+ ✔ Container app-db-1   Started
+ ✔ Container app-web-1  Started`)}
+
+${desc("Muestra el estado actual de los servicios del proyecto Compose: nombre, imagen, estado y puertos.")}
+${cmd("docker compose ps", `NAME         IMAGE    STATUS         PORTS
+app-db-1     mysql    Up 2 minutes   3306/tcp
+app-web-1    nginx    Up 2 minutes   0.0.0.0:80->80/tcp`)}
+
+${desc("Muestra los logs de un servicio específico. Con <code>-f</code> sigue el flujo en tiempo real (como <code>tail -f</code>).")}
+${cmd(`docker compose logs ${f("-f")} web`, `app-web-1  | 172.18.0.1 - - [15/Oct/2025] "GET / HTTP/1.1" 200 615
+app-web-1  | 172.18.0.1 - - [15/Oct/2025] "GET /style.css HTTP/1.1" 200 932`)}
+
+${desc("Detiene y elimina todos los contenedores, redes y volúmenes anónimos creados por <code>up</code>.")}
+${cmd("docker compose down", `[+] Running 3/3
+ ✔ Container app-web-1  Removed
+ ✔ Container app-db-1   Removed
+ ✔ Network app_default  Removed`)}
+
+<h3>Archivo personalizado y rebuild</h3>
+${desc("Usa <code>-f</code> para especificar un archivo Compose diferente al predeterminado. Útil para separar entornos (dev, staging, prod).")}
+${cmd(`docker compose ${f("-f")} ${v("prod.yml")} up ${f("-d")}`, `[+] Running 2/2
+ ✔ Container prod-web-1  Started
+ ✔ Container prod-db-1   Started`)}
+
+${desc("Reconstruye las imágenes de los servicios desde cero, sin usar caché. Necesario tras cambiar el Dockerfile o dependencias.")}
+${cmd(`docker compose build ${f("--no-cache")}`, `[+] Building 24.5s (8/8) FINISHED
+ => [web] Building...`)}
+
+${desc("Ejecuta un comando interactivo dentro de un contenedor gestionado por Compose.")}
+${cmd(`docker compose exec ${v("web")} sh`, "/ # _")}`,
+
+    debug: `<h3>Logs</h3>
+${desc("Muestra la salida estándar y de errores de un contenedor. Fundamental para diagnosticar problemas de inicio o errores de la aplicación.")}
+${cmd(`docker logs ${v("web")}`, `172.18.0.1 - - [15/Oct/2025:10:30:00 +0000] "GET / HTTP/1.1" 200 615
+172.18.0.1 - - [15/Oct/2025:10:30:01 +0000] "GET /favicon.ico HTTP/1.1" 404 153`)}
+
+${desc("Combina <code>-f</code> (follow) para seguir en tiempo real y <code>--tail N</code> para limitar el historial inicial.")}
+${cmd(`docker logs ${f("-f --tail")} ${v("5")} web`, "... últimas 5 líneas + sigue en tiempo real ...")}
+
+<h3>Shell y procesos</h3>
+${desc("Abre un shell interactivo dentro del contenedor en ejecución. Permite inspeccionar archivos, instalar herramientas temporales o depurar.")}
+${cmd(`docker exec ${f("-it")} ${v("web")} sh`, `/ # ls
+bin  dev  etc  home  lib  media  mnt  opt  proc  root
+/ # exit`)}
+
+${desc("Muestra los procesos en ejecución dentro del contenedor, similiar a <code>ps</code> en Linux.")}
+${cmd(`docker top ${v("web")}`, `PID   USER   COMMAND
+1     root   nginx: master process
+33    nginx  nginx: worker process
+34    nginx  nginx: worker process`)}
+
+<h3>Copiar archivos y diff</h3>
+${desc("Copia archivos o directorios desde un contenedor al host local.")}
+${cmd(`docker cp ${v("web:/etc/nginx/nginx.conf")} ./nginx.conf`, "Successfully copied 2.56kB")}
+
+${desc("Copia archivos desde el host al sistema de archivos del contenedor.")}
+${cmd(`docker cp ./index.html ${v("web:/usr/share/nginx/html/")}`, "Successfully copied 1.02kB")}
+
+${desc("Muestra los cambios en el sistema de archivos del contenedor respecto a su imagen base. <code>C</code> = modificado, <code>A</code> = añadido.")}
+${cmd(`docker diff ${v("web")}`, `C /var
+C /var/cache
+C /var/cache/nginx
+A /var/cache/nginx/client_temp`)}`,
+
+    cleanup: `<h3>Ver espacio usado</h3>
+${desc("Muestra un resumen del espacio en disco utilizado por imágenes, contenedores, volúmenes y caché de builds.")}
+${cmd("docker system df", `TYPE           TOTAL   ACTIVE  SIZE      RECLAIMABLE
+Images         12      5       3.2GB     1.8GB (56%)
+Containers     8       3       125MB     89MB (71%)
+Volumes        6       3       890MB     340MB (38%)
+Build Cache    15      0       1.1GB     1.1GB`)}
+
+<h3>Limpieza selectiva</h3>
+${desc("Elimina todos los contenedores que están en estado detenido (Exited).")}
+${cmd("docker container prune", `Deleted Containers:
+f3a4b5c6d7e8
+Total reclaimed space: 89MB`)}
+
+${desc("Elimina imágenes sin usar. Con <code>-a</code> incluye también las que no tienen ningún contenedor asociado.")}
+${cmd(`docker image prune ${f("-a")}`, `Deleted Images:
+untagged: node:14
+deleted: sha256:...
+Total reclaimed space: 1.8GB`)}
+
+${desc("Elimina volúmenes huérfanos que no están montados por ningún contenedor.")}
+${cmd("docker volume prune", "Total reclaimed space: 340MB")}
+
+${desc("Elimina redes personalizadas sin ningún contenedor conectado.")}
+${cmd("docker network prune", "Deleted Networks: old-app-net")}
+
+<h3>Nuclear</h3>
+${desc("Detiene todos los contenedores en ejecución de una sola vez.")}
+${cmd(`docker stop ${v("$(docker ps -aq)")}`, `a1b2c3d4e5f6
+d7e8f9a0b1c2
+f3a4b5c6d7e8`)}
+
+${desc("Elimina <strong>todo</strong>: contenedores parados, imágenes sin usar, volúmenes huérfanos y redes inactivas. Usa <code>-f</code> para omitir la confirmación.")}
+${cmd(`docker system prune ${f("-a --volumes -f")}`, `Deleted Containers: ...
+Deleted Images: ...
+Deleted Volumes: ...
+Total reclaimed space: 5.4GB`)}`,
+  };
+
+  const sidebar = document.getElementById("dk-docs-sidebar")!;
+  const docsContent = document.getElementById("dk-docs-content")!;
+  docsContent.innerHTML = docs.basics;
+
+  sidebar.addEventListener("click", (e) => {
+    const link = (e.target as HTMLElement).closest<HTMLButtonElement>(".dk-doc-link");
+    if (!link) return;
+    sidebar.querySelectorAll(".dk-doc-link").forEach(l => l.classList.remove("active"));
+    link.classList.add("active");
+    docsContent.innerHTML = docs[link.dataset.doc!] || "";
+  });
+
+  // Copy command to clipboard
+  docsContent.addEventListener("click", (e) => {
+    const btn = (e.target as HTMLElement).closest<HTMLButtonElement>(".dk-cmd-copy");
+    if (!btn) return;
+    const text = btn.dataset.cmd || "";
+    navigator.clipboard.writeText(text).then(() => {
+      btn.innerHTML = checkIcon;
+      btn.classList.add("copied");
+      setTimeout(() => { btn.innerHTML = copyIcon; btn.classList.remove("copied"); }, 1500);
+    });
+  });
+
+  // ════════════════════════════════════════════════
+  // TAB 2: QUICK DEPLOY
+  // ════════════════════════════════════════════════
+  interface QuickApp {
+    id: string; name: string; icon: string; desc: string;
+    fields: { key: string; label: string; placeholder: string; default: string }[];
+    generate: (vals: Record<string, string>) => string;
+  }
+
+  // SVG logos for each service
+  const L: Record<string, string> = {
+    wordpress: `<svg viewBox="0 0 100 100" fill="none"><rect width="100" height="100" rx="18" fill="#21759b"/><path d="M26 50c0 10.8 6.3 20.1 15.4 24.5L28.3 45.3A24.6 24.6 0 0 0 26 50zm39.6-1.2c0-3.1-1.1-5.2-2-6.9-1.3-2-2.5-3.8-2.5-5.8 0-2.3 1.7-4.4 4.2-4.4h.3a24.6 24.6 0 0 0-37.1 2.4h1.8c3 0 7.6-.4 7.6-.4 1.5-.1 1.7 2.2.2 2.4 0 0-1.6.2-3.3.3l10.3 30.8 6.2-18.7-4.4-12.1c-1.5-.1-3-.3-3-.3-1.5-.1-1.3-2.4.2-2.4 0 0 4.7.4 7.5.4 3 0 7.6-.4 7.6-.4 1.5-.1 1.7 2.2.2 2.4 0 0-1.6.2-3.3.3l10.3 30.5 2.8-9.4c1.2-3.9 2.2-6.7 2.2-9.1z" fill="#fff"/><path d="M51.4 52.5l-8.5 24.7a24.7 24.7 0 0 0 15.2 0l-.6-1.2-6.1-16.5zm21.7-6.5a21.2 21.2 0 0 1 .2 3.3c0 3.3-.6 6.9-2.4 11.5L63.2 77.6A24.6 24.6 0 0 0 73.1 43z" fill="#fff"/></svg>`,
+    odoo: `<svg viewBox="0 0 100 100" fill="none"><rect width="100" height="100" rx="18" fill="#714B67"/><circle cx="50" cy="52" r="18" stroke="#fff" stroke-width="4" fill="none"/><circle cx="50" cy="52" r="5" fill="#fff"/></svg>`,
+    nextcloud: `<svg viewBox="0 0 100 100" fill="none"><rect width="100" height="100" rx="18" fill="#0082c9"/><circle cx="50" cy="50" r="16" stroke="#fff" stroke-width="5" fill="none"/><circle cx="26" cy="55" r="11" stroke="#fff" stroke-width="4" fill="none"/><circle cx="74" cy="55" r="11" stroke="#fff" stroke-width="4" fill="none"/></svg>`,
+    gitea: `<svg viewBox="0 0 100 100" fill="none"><rect width="100" height="100" rx="18" fill="#609926"/><text x="50" y="65" text-anchor="middle" font-family="Arial,sans-serif" font-weight="bold" font-size="40" fill="#fff">G</text></svg>`,
+    portainer: `<svg viewBox="0 0 100 100" fill="none"><rect width="100" height="100" rx="18" fill="#13bef9"/><path d="M30 35h40v6H30zm0 12h32v6H30zm0 12h36v6H30z" fill="#fff"/></svg>`,
+    nginx: `<svg viewBox="0 0 100 100" fill="none"><rect width="100" height="100" rx="18" fill="#009639"/><path d="M32 72V28l18 22V28h18v44L50 50v22z" fill="#fff"/></svg>`,
+    mysql: `<svg viewBox="0 0 100 100" fill="none"><rect width="100" height="100" rx="18" fill="#00758f"/><path d="M30 38c0 0 0-4 20-4s20 4 20 4v24c0 0 0 4-20 4s-20-4-20-4z" stroke="#f29111" stroke-width="3" fill="none"/><path d="M30 46c0 0 0 4 20 4s20-4 20-4" stroke="#f29111" stroke-width="3" fill="none"/><path d="M30 54c0 0 0 4 20 4s20-4 20-4" stroke="#f29111" stroke-width="3" fill="none"/></svg>`,
+    postgres: `<svg viewBox="0 0 100 100" fill="none"><rect width="100" height="100" rx="18" fill="#336791"/><ellipse cx="50" cy="42" rx="18" ry="12" stroke="#fff" stroke-width="3" fill="none"/><path d="M32 42v20c0 6.6 8 12 18 12s18-5.4 18-12V42" stroke="#fff" stroke-width="3" fill="none"/><path d="M32 52c0 6.6 8 12 18 12s18-5.4 18-12" stroke="#fff" stroke-width="3" fill="none"/></svg>`,
+    redis: `<svg viewBox="0 0 100 100" fill="none"><rect width="100" height="100" rx="18" fill="#dc382d"/><path d="M22 55l28-14 28 14-28 14z" fill="#fff" opacity=".9"/><path d="M22 48l28-14 28 14-28 14z" fill="#fff" opacity=".7"/><path d="M22 41l28-14 28 14-28 14z" fill="#fff" opacity=".5"/></svg>`,
+    mongo: `<svg viewBox="0 0 100 100" fill="none"><rect width="100" height="100" rx="18" fill="#47a248"/><path d="M50 20c-2 8-8 14-10 22-3 10 1 20 8 27l1 1 1-1c7-7 11-17 8-27-2-8-8-14-10-22z" fill="#fff" opacity=".9"/><path d="M49 70h2v10h-2z" fill="#fff" opacity=".6"/></svg>`,
+    mariadb: `<svg viewBox="0 0 100 100" fill="none"><rect width="100" height="100" rx="18" fill="#c0765a"/><path d="M30 38c0 0 0-4 20-4s20 4 20 4v24c0 0 0 4-20 4s-20-4-20-4z" stroke="#fff" stroke-width="3" fill="none"/><path d="M30 46c0 0 0 4 20 4s20-4 20-4" stroke="#fff" stroke-width="3" fill="none"/><path d="M30 54c0 0 0 4 20 4s20-4 20-4" stroke="#fff" stroke-width="3" fill="none"/></svg>`,
+    adminer: `<svg viewBox="0 0 100 100" fill="none"><rect width="100" height="100" rx="18" fill="#34495e"/><rect x="28" y="30" width="44" height="40" rx="4" stroke="#fff" stroke-width="3" fill="none"/><path d="M36 42h28M36 50h20M36 58h24" stroke="#fff" stroke-width="2"/></svg>`,
+    phpmyadmin: `<svg viewBox="0 0 100 100" fill="none"><rect width="100" height="100" rx="18" fill="#6c78af"/><path d="M30 38c0 0 0-4 20-4s20 4 20 4v24c0 0 0 4-20 4s-20-4-20-4z" stroke="#fff" stroke-width="3" fill="none"/><path d="M42 48l6 6 10-10" stroke="#f90" stroke-width="3" fill="none"/></svg>`,
+    traefik: `<svg viewBox="0 0 100 100" fill="none"><rect width="100" height="100" rx="18" fill="#24a1c1"/><path d="M30 65l20-35 20 35" stroke="#fff" stroke-width="4" fill="none" stroke-linejoin="round"/><circle cx="50" cy="30" r="4" fill="#fff"/></svg>`,
+    caddy: `<svg viewBox="0 0 100 100" fill="none"><rect width="100" height="100" rx="18" fill="#1f88c9"/><path d="M35 60a15 15 0 0 1 30 0" stroke="#fff" stroke-width="4" fill="none"/><path d="M45 52v-14M55 52v-14" stroke="#fff" stroke-width="3"/><circle cx="50" cy="34" r="8" stroke="#fff" stroke-width="3" fill="none"/></svg>`,
+    jenkins: `<svg viewBox="0 0 100 100" fill="none"><rect width="100" height="100" rx="18" fill="#d33833"/><circle cx="50" cy="42" r="16" stroke="#fff" stroke-width="3" fill="none"/><path d="M50 58v12M40 70h20" stroke="#fff" stroke-width="3"/><circle cx="44" cy="39" r="2" fill="#fff"/><circle cx="56" cy="39" r="2" fill="#fff"/><path d="M43 47c3 3 11 3 14 0" stroke="#fff" stroke-width="2" fill="none"/></svg>`,
+    grafana: `<svg viewBox="0 0 100 100" fill="none"><rect width="100" height="100" rx="18" fill="#f46800"/><circle cx="50" cy="50" r="22" stroke="#fff" stroke-width="3" fill="none"/><circle cx="50" cy="50" r="8" fill="#fff"/><path d="M50 28v6M50 66v6M28 50h6M66 50h6" stroke="#fff" stroke-width="3"/></svg>`,
+    prometheus: `<svg viewBox="0 0 100 100" fill="none"><rect width="100" height="100" rx="18" fill="#e6522c"/><circle cx="50" cy="45" r="18" stroke="#fff" stroke-width="3" fill="none"/><path d="M36 65h28M40 72h20" stroke="#fff" stroke-width="3"/><path d="M50 27v10M38 33l5 8M62 33l-5 8" stroke="#fff" stroke-width="2"/></svg>`,
+    minio: `<svg viewBox="0 0 100 100" fill="none"><rect width="100" height="100" rx="18" fill="#c72c48"/><circle cx="38" cy="50" r="10" stroke="#fff" stroke-width="3" fill="none"/><circle cx="62" cy="50" r="10" stroke="#fff" stroke-width="3" fill="none"/></svg>`,
+    rabbitmq: `<svg viewBox="0 0 100 100" fill="none"><rect width="100" height="100" rx="18" fill="#ff6600"/><rect x="30" y="40" width="16" height="24" rx="3" fill="#fff"/><rect x="54" y="40" width="16" height="24" rx="3" fill="#fff"/><rect x="42" y="30" width="16" height="24" rx="3" fill="#fff"/></svg>`,
+    elasticsearch: `<svg viewBox="0 0 100 100" fill="none"><rect width="100" height="100" rx="18" fill="#fed10a"/><path d="M28 50h44" stroke="#343741" stroke-width="4"/><circle cx="50" cy="50" r="18" stroke="#343741" stroke-width="3" fill="none"/><path d="M35 40h30M35 60h30" stroke="#343741" stroke-width="2"/></svg>`,
+    sonarqube: `<svg viewBox="0 0 100 100" fill="none"><rect width="100" height="100" rx="18" fill="#4e9bcd"/><path d="M30 70 Q50 20 70 70" stroke="#fff" stroke-width="4" fill="none"/><path d="M38 65 Q50 35 62 65" stroke="#fff" stroke-width="3" fill="none" opacity=".6"/></svg>`,
+    vault: `<svg viewBox="0 0 100 100" fill="none"><rect width="100" height="100" rx="18" fill="#000"/><path d="M50 25l25 20v15L50 75 25 60V45z" stroke="#ffec6e" stroke-width="3" fill="none"/><path d="M50 40v20M42 48h16" stroke="#ffec6e" stroke-width="3"/></svg>`,
+    keycloak: `<svg viewBox="0 0 100 100" fill="none"><rect width="100" height="100" rx="18" fill="#4d4d4d"/><circle cx="50" cy="40" r="10" stroke="#ed1c24" stroke-width="3" fill="none"/><path d="M35 68c0-10 7-16 15-16s15 6 15 16" stroke="#ed1c24" stroke-width="3" fill="none"/></svg>`,
+    mailhog: `<svg viewBox="0 0 100 100" fill="none"><rect width="100" height="100" rx="18" fill="#8b5cf6"/><rect x="28" y="36" width="44" height="28" rx="3" stroke="#fff" stroke-width="3" fill="none"/><path d="M28 36l22 16 22-16" stroke="#fff" stroke-width="3" fill="none"/></svg>`,
+    apache: `<svg viewBox="0 0 100 100" fill="none"><rect width="100" height="100" rx="18" fill="#d22128"/><path d="M30 65l20-35 20 35z" stroke="#fff" stroke-width="3" fill="none"/><path d="M35 55h30" stroke="#fff" stroke-width="2"/></svg>`,
+    drupal: `<svg viewBox="0 0 100 100" fill="none"><rect width="100" height="100" rx="18" fill="#0678be"/><path d="M50 25c-3 8-12 14-12 24 0 12 10 22 12 22s12-10 12-22c0-10-9-16-12-24z" fill="#fff" opacity=".9"/></svg>`,
+    ghost: `<svg viewBox="0 0 100 100" fill="none"><rect width="100" height="100" rx="18" fill="#15171a"/><path d="M50 28c-12 0-20 10-20 22v18c3-3 5-2 7 0s5 3 7 0c2-3 5-3 7 0s4 2 6 0c2-2 5-3 7 0V50c0-12-8-22-14-22z" fill="#fff"/><circle cx="43" cy="48" r="4" fill="#15171a"/><circle cx="57" cy="48" r="4" fill="#15171a"/></svg>`,
+    plausible: `<svg viewBox="0 0 100 100" fill="none"><rect width="100" height="100" rx="18" fill="#5850ec"/><path d="M30 70l15-20 10 10 15-30" stroke="#fff" stroke-width="4" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>`,
+    n8n: `<svg viewBox="0 0 100 100" fill="none"><rect width="100" height="100" rx="18" fill="#ea4b71"/><circle cx="35" cy="50" r="8" stroke="#fff" stroke-width="3" fill="none"/><circle cx="65" cy="50" r="8" stroke="#fff" stroke-width="3" fill="none"/><path d="M43 50h14" stroke="#fff" stroke-width="3"/></svg>`,
+    uptime: `<svg viewBox="0 0 100 100" fill="none"><rect width="100" height="100" rx="18" fill="#5cdd8b"/><circle cx="50" cy="50" r="20" stroke="#fff" stroke-width="3" fill="none"/><path d="M50 38v14l8 6" stroke="#fff" stroke-width="3" stroke-linecap="round"/></svg>`,
+    wireguard: `<svg viewBox="0 0 100 100" fill="none"><rect width="100" height="100" rx="18" fill="#88171a"/><circle cx="50" cy="45" r="14" stroke="#fff" stroke-width="3" fill="none"/><circle cx="44" cy="42" r="3" fill="#fff"/><circle cx="56" cy="42" r="3" fill="#fff"/><path d="M50 59v16" stroke="#fff" stroke-width="3"/></svg>`,
+    pihole: `<svg viewBox="0 0 100 100" fill="none"><rect width="100" height="100" rx="18" fill="#96060c"/><circle cx="50" cy="50" r="20" stroke="#fff" stroke-width="3" fill="none"/><path d="M36 50h28" stroke="#fff" stroke-width="3"/><circle cx="50" cy="50" r="8" fill="#fff" opacity=".3"/></svg>`,
+    homeassistant: `<svg viewBox="0 0 100 100" fill="none"><rect width="100" height="100" rx="18" fill="#41bdf5"/><path d="M50 28L28 48v22h16V58h12v12h16V48z" fill="#fff"/></svg>`,
+  };
+
+  const quickApps: QuickApp[] = [
+    // ── CMS / Web Apps ──
+    {
+      id: "wordpress", name: "WordPress", icon: L.wordpress, desc: "CMS open source para crear blogs y sitios web con plugins y temas",
+      fields: [
+        { key: "name", label: "Nombre del contenedor", placeholder: "mi-wordpress", default: "mi-wordpress" },
+        { key: "port", label: "Puerto", placeholder: "8080", default: "8080" },
+        { key: "dbpass", label: "Contraseña DB", placeholder: "secreto123", default: "secreto123" },
+      ],
+      generate: (v) =>
+`# 1. Crear red
+docker network create ${v.name}-net
+
+# 2. MySQL
+docker run -d --name ${v.name}-db \\
+  --network ${v.name}-net \\
+  -e MYSQL_ROOT_PASSWORD=${v.dbpass} \\
+  -e MYSQL_DATABASE=wordpress \\
+  -v ${v.name}-db-data:/var/lib/mysql \\
+  mysql:8
+
+# 3. WordPress
+docker run -d --name ${v.name} \\
+  --network ${v.name}-net \\
+  -p ${v.port}:80 \\
+  -e WORDPRESS_DB_HOST=${v.name}-db \\
+  -e WORDPRESS_DB_PASSWORD=${v.dbpass} \\
+  -v ${v.name}-data:/var/www/html \\
+  wordpress:latest`,
+    },
+    {
+      id: "odoo", name: "Odoo", icon: L.odoo, desc: "ERP y CRM completo para gestión empresarial: ventas, inventario, contabilidad",
+      fields: [
+        { key: "name", label: "Nombre", placeholder: "mi-odoo", default: "mi-odoo" },
+        { key: "port", label: "Puerto", placeholder: "8069", default: "8069" },
+        { key: "dbpass", label: "Contraseña PostgreSQL", placeholder: "odoo123", default: "odoo123" },
+      ],
+      generate: (v) =>
+`# 1. Crear red
+docker network create ${v.name}-net
+
+# 2. PostgreSQL
+docker run -d --name ${v.name}-db \\
+  --network ${v.name}-net \\
+  -e POSTGRES_USER=odoo \\
+  -e POSTGRES_PASSWORD=${v.dbpass} \\
+  -e POSTGRES_DB=postgres \\
+  -v ${v.name}-db-data:/var/lib/postgresql/data \\
+  postgres:15
+
+# 3. Odoo
+docker run -d --name ${v.name} \\
+  --network ${v.name}-net \\
+  -p ${v.port}:8069 \\
+  -e HOST=${v.name}-db \\
+  -e USER=odoo \\
+  -e PASSWORD=${v.dbpass} \\
+  -v ${v.name}-data:/var/lib/odoo \\
+  odoo:17`,
+    },
+    {
+      id: "nextcloud", name: "Nextcloud", icon: L.nextcloud, desc: "Nube privada para almacenar y sincronizar archivos, alternativa a Google Drive",
+      fields: [
+        { key: "name", label: "Nombre", placeholder: "mi-nextcloud", default: "mi-nextcloud" },
+        { key: "port", label: "Puerto", placeholder: "8080", default: "8080" },
+        { key: "dbpass", label: "Contraseña DB", placeholder: "nc123", default: "nc123" },
+      ],
+      generate: (v) =>
+`# 1. Crear red
+docker network create ${v.name}-net
+
+# 2. MariaDB
+docker run -d --name ${v.name}-db \\
+  --network ${v.name}-net \\
+  -e MYSQL_ROOT_PASSWORD=${v.dbpass} \\
+  -e MYSQL_DATABASE=nextcloud \\
+  -v ${v.name}-db-data:/var/lib/mysql \\
+  mariadb:11
+
+# 3. Nextcloud
+docker run -d --name ${v.name} \\
+  --network ${v.name}-net \\
+  -p ${v.port}:80 \\
+  -e MYSQL_HOST=${v.name}-db \\
+  -e MYSQL_DATABASE=nextcloud \\
+  -e MYSQL_USER=root \\
+  -e MYSQL_PASSWORD=${v.dbpass} \\
+  -v ${v.name}-data:/var/www/html \\
+  nextcloud:latest`,
+    },
+    {
+      id: "drupal", name: "Drupal", icon: L.drupal, desc: "CMS robusto para sitios web complejos con gestión avanzada de contenido",
+      fields: [
+        { key: "name", label: "Nombre", placeholder: "mi-drupal", default: "mi-drupal" },
+        { key: "port", label: "Puerto", placeholder: "8080", default: "8080" },
+        { key: "dbpass", label: "Contraseña DB", placeholder: "drupal123", default: "drupal123" },
+      ],
+      generate: (v) =>
+`# 1. Crear red
+docker network create ${v.name}-net
+
+# 2. PostgreSQL
+docker run -d --name ${v.name}-db \\
+  --network ${v.name}-net \\
+  -e POSTGRES_USER=drupal \\
+  -e POSTGRES_PASSWORD=${v.dbpass} \\
+  -e POSTGRES_DB=drupal \\
+  -v ${v.name}-db-data:/var/lib/postgresql/data \\
+  postgres:16
+
+# 3. Drupal
+docker run -d --name ${v.name} \\
+  --network ${v.name}-net \\
+  -p ${v.port}:80 \\
+  -v ${v.name}-data:/var/www/html \\
+  drupal:latest`,
+    },
+    {
+      id: "ghost", name: "Ghost", icon: L.ghost, desc: "Plataforma de publicación moderna para blogs y newsletters profesionales",
+      fields: [
+        { key: "name", label: "Nombre", placeholder: "mi-ghost", default: "mi-ghost" },
+        { key: "port", label: "Puerto", placeholder: "2368", default: "2368" },
+        { key: "url", label: "URL del sitio", placeholder: "http://localhost:2368", default: "http://localhost:2368" },
+      ],
+      generate: (v) =>
+`docker run -d --name ${v.name} \\
+  -p ${v.port}:2368 \\
+  -e url=${v.url} \\
+  -v ${v.name}-data:/var/lib/ghost/content \\
+  ghost:latest`,
+    },
+    // ── Bases de datos ──
+    {
+      id: "mysql", name: "MySQL", icon: L.mysql, desc: "Base de datos relacional, la más usada del mundo en aplicaciones web",
+      fields: [
+        { key: "name", label: "Nombre", placeholder: "mi-mysql", default: "mi-mysql" },
+        { key: "port", label: "Puerto", placeholder: "3306", default: "3306" },
+        { key: "rootpass", label: "Root password", placeholder: "root123", default: "root123" },
+        { key: "db", label: "Base de datos", placeholder: "mydb", default: "mydb" },
+      ],
+      generate: (v) =>
+`docker run -d --name ${v.name} \\
+  -p ${v.port}:3306 \\
+  -e MYSQL_ROOT_PASSWORD=${v.rootpass} \\
+  -e MYSQL_DATABASE=${v.db} \\
+  -v ${v.name}-data:/var/lib/mysql \\
+  mysql:8`,
+    },
+    {
+      id: "postgres", name: "PostgreSQL", icon: L.postgres, desc: "Base de datos relacional avanzada con soporte JSON, extensiones y alta fiabilidad",
+      fields: [
+        { key: "name", label: "Nombre", placeholder: "mi-postgres", default: "mi-postgres" },
+        { key: "port", label: "Puerto", placeholder: "5432", default: "5432" },
+        { key: "user", label: "Usuario", placeholder: "admin", default: "admin" },
+        { key: "pass", label: "Contraseña", placeholder: "admin123", default: "admin123" },
+        { key: "db", label: "Base de datos", placeholder: "mydb", default: "mydb" },
+      ],
+      generate: (v) =>
+`docker run -d --name ${v.name} \\
+  -p ${v.port}:5432 \\
+  -e POSTGRES_USER=${v.user} \\
+  -e POSTGRES_PASSWORD=${v.pass} \\
+  -e POSTGRES_DB=${v.db} \\
+  -v ${v.name}-data:/var/lib/postgresql/data \\
+  postgres:16`,
+    },
+    {
+      id: "mariadb", name: "MariaDB", icon: L.mariadb, desc: "Fork de MySQL, compatible y con mejoras en rendimiento y funcionalidades",
+      fields: [
+        { key: "name", label: "Nombre", placeholder: "mi-mariadb", default: "mi-mariadb" },
+        { key: "port", label: "Puerto", placeholder: "3306", default: "3306" },
+        { key: "rootpass", label: "Root password", placeholder: "root123", default: "root123" },
+        { key: "db", label: "Base de datos", placeholder: "mydb", default: "mydb" },
+      ],
+      generate: (v) =>
+`docker run -d --name ${v.name} \\
+  -p ${v.port}:3306 \\
+  -e MYSQL_ROOT_PASSWORD=${v.rootpass} \\
+  -e MYSQL_DATABASE=${v.db} \\
+  -v ${v.name}-data:/var/lib/mysql \\
+  mariadb:11`,
+    },
+    {
+      id: "mongo", name: "MongoDB", icon: L.mongo, desc: "Base de datos NoSQL orientada a documentos JSON, ideal para datos flexibles",
+      fields: [
+        { key: "name", label: "Nombre", placeholder: "mi-mongo", default: "mi-mongo" },
+        { key: "port", label: "Puerto", placeholder: "27017", default: "27017" },
+        { key: "user", label: "Usuario root", placeholder: "admin", default: "admin" },
+        { key: "pass", label: "Contraseña root", placeholder: "mongo123", default: "mongo123" },
+      ],
+      generate: (v) =>
+`docker run -d --name ${v.name} \\
+  -p ${v.port}:27017 \\
+  -e MONGO_INITDB_ROOT_USERNAME=${v.user} \\
+  -e MONGO_INITDB_ROOT_PASSWORD=${v.pass} \\
+  -v ${v.name}-data:/data/db \\
+  mongo:7`,
+    },
+    {
+      id: "redis", name: "Redis", icon: L.redis, desc: "Almacén clave-valor en memoria, usado como caché, colas y sesiones",
+      fields: [
+        { key: "name", label: "Nombre", placeholder: "mi-redis", default: "mi-redis" },
+        { key: "port", label: "Puerto", placeholder: "6379", default: "6379" },
+      ],
+      generate: (v) =>
+`docker run -d --name ${v.name} \\
+  -p ${v.port}:6379 \\
+  -v ${v.name}-data:/data \\
+  redis:alpine`,
+    },
+    {
+      id: "elasticsearch", name: "Elasticsearch", icon: L.elasticsearch, desc: "Motor de búsqueda y analítica distribuido para logs, métricas y texto completo",
+      fields: [
+        { key: "name", label: "Nombre", placeholder: "mi-elastic", default: "mi-elastic" },
+        { key: "port", label: "Puerto", placeholder: "9200", default: "9200" },
+      ],
+      generate: (v) =>
+`docker run -d --name ${v.name} \\
+  -p ${v.port}:9200 \\
+  -e discovery.type=single-node \\
+  -e xpack.security.enabled=false \\
+  -v ${v.name}-data:/usr/share/elasticsearch/data \\
+  elasticsearch:8.12.0`,
+    },
+    // ── Web servers / Reverse proxy ──
+    {
+      id: "nginx", name: "Nginx", icon: L.nginx, desc: "Servidor web de alto rendimiento y proxy inverso, el más usado del mundo",
+      fields: [
+        { key: "name", label: "Nombre", placeholder: "mi-nginx", default: "mi-nginx" },
+        { key: "port", label: "Puerto", placeholder: "80", default: "80" },
+        { key: "html", label: "Ruta HTML local", placeholder: "./html", default: "./html" },
+      ],
+      generate: (v) =>
+`docker run -d --name ${v.name} \\
+  -p ${v.port}:80 \\
+  -v ${v.html}:/usr/share/nginx/html:ro \\
+  nginx:alpine`,
+    },
+    {
+      id: "apache", name: "Apache", icon: L.apache, desc: "Servidor web clásico, flexible y con soporte para .htaccess y módulos",
+      fields: [
+        { key: "name", label: "Nombre", placeholder: "mi-apache", default: "mi-apache" },
+        { key: "port", label: "Puerto", placeholder: "80", default: "80" },
+        { key: "html", label: "Ruta HTML local", placeholder: "./html", default: "./html" },
+      ],
+      generate: (v) =>
+`docker run -d --name ${v.name} \\
+  -p ${v.port}:80 \\
+  -v ${v.html}:/usr/local/apache2/htdocs:ro \\
+  httpd:alpine`,
+    },
+    {
+      id: "traefik", name: "Traefik", icon: L.traefik, desc: "Proxy inverso moderno con descubrimiento automático de servicios Docker",
+      fields: [
+        { key: "http", label: "Puerto HTTP", placeholder: "80", default: "80" },
+        { key: "dash", label: "Puerto Dashboard", placeholder: "8080", default: "8080" },
+      ],
+      generate: (v) =>
+`docker run -d --name traefik \\
+  -p ${v.http}:80 \\
+  -p ${v.dash}:8080 \\
+  -v /var/run/docker.sock:/var/run/docker.sock:ro \\
+  --restart always \\
+  traefik:v3.0 \\
+    --api.insecure=true \\
+    --providers.docker=true`,
+    },
+    {
+      id: "caddy", name: "Caddy", icon: L.caddy, desc: "Servidor web con HTTPS automático via Let's Encrypt, config simple",
+      fields: [
+        { key: "name", label: "Nombre", placeholder: "mi-caddy", default: "mi-caddy" },
+        { key: "http", label: "Puerto HTTP", placeholder: "80", default: "80" },
+        { key: "https", label: "Puerto HTTPS", placeholder: "443", default: "443" },
+      ],
+      generate: (v) =>
+`docker run -d --name ${v.name} \\
+  -p ${v.http}:80 \\
+  -p ${v.https}:443 \\
+  -v ${v.name}-data:/data \\
+  -v ${v.name}-config:/config \\
+  caddy:alpine`,
+    },
+    // ── DB Admin ──
+    {
+      id: "adminer", name: "Adminer", icon: L.adminer, desc: "Gestor web ligero para MySQL, PostgreSQL, SQLite y MongoDB en un solo archivo",
+      fields: [
+        { key: "port", label: "Puerto", placeholder: "8081", default: "8081" },
+      ],
+      generate: (v) =>
+`docker run -d --name adminer \\
+  -p ${v.port}:8080 \\
+  --restart always \\
+  adminer:latest`,
+    },
+    {
+      id: "phpmyadmin", name: "phpMyAdmin", icon: L.phpmyadmin, desc: "Interfaz web para administrar bases de datos MySQL y MariaDB",
+      fields: [
+        { key: "port", label: "Puerto", placeholder: "8082", default: "8082" },
+        { key: "dbhost", label: "Host MySQL", placeholder: "mi-mysql", default: "mi-mysql" },
+      ],
+      generate: (v) =>
+`docker run -d --name phpmyadmin \\
+  -p ${v.port}:80 \\
+  -e PMA_HOST=${v.dbhost} \\
+  --restart always \\
+  phpmyadmin:latest`,
+    },
+    // ── DevOps / CI ──
+    {
+      id: "gitea", name: "Gitea", icon: L.gitea, desc: "Servidor Git ligero y autoalojado, alternativa simple a GitHub/GitLab",
+      fields: [
+        { key: "name", label: "Nombre", placeholder: "mi-gitea", default: "mi-gitea" },
+        { key: "port", label: "Puerto web", placeholder: "3000", default: "3000" },
+        { key: "ssh_port", label: "Puerto SSH", placeholder: "2222", default: "2222" },
+      ],
+      generate: (v) =>
+`docker run -d --name ${v.name} \\
+  -p ${v.port}:3000 \\
+  -p ${v.ssh_port}:22 \\
+  -v ${v.name}-data:/data \\
+  gitea/gitea:latest`,
+    },
+    {
+      id: "jenkins", name: "Jenkins", icon: L.jenkins, desc: "Servidor de automatización CI/CD con pipelines, plugins y builds distribuidos",
+      fields: [
+        { key: "port", label: "Puerto web", placeholder: "8080", default: "8080" },
+        { key: "agent", label: "Puerto agentes", placeholder: "50000", default: "50000" },
+      ],
+      generate: (v) =>
+`docker run -d --name jenkins \\
+  -p ${v.port}:8080 \\
+  -p ${v.agent}:50000 \\
+  -v jenkins-data:/var/jenkins_home \\
+  -v /var/run/docker.sock:/var/run/docker.sock \\
+  --restart always \\
+  jenkins/jenkins:lts`,
+    },
+    {
+      id: "sonarqube", name: "SonarQube", icon: L.sonarqube, desc: "Plataforma de calidad de código: detecta bugs, vulnerabilidades y code smells",
+      fields: [
+        { key: "port", label: "Puerto", placeholder: "9000", default: "9000" },
+      ],
+      generate: (v) =>
+`docker run -d --name sonarqube \\
+  -p ${v.port}:9000 \\
+  -v sonarqube-data:/opt/sonarqube/data \\
+  -v sonarqube-logs:/opt/sonarqube/logs \\
+  -v sonarqube-extensions:/opt/sonarqube/extensions \\
+  sonarqube:community`,
+    },
+    // ── Monitoring ──
+    {
+      id: "portainer", name: "Portainer", icon: L.portainer, desc: "Panel web para gestionar contenedores, imágenes, volúmenes y redes Docker",
+      fields: [
+        { key: "port", label: "Puerto", placeholder: "9443", default: "9443" },
+      ],
+      generate: (v) =>
+`docker run -d --name portainer \\
+  -p ${v.port}:9443 \\
+  -v /var/run/docker.sock:/var/run/docker.sock \\
+  -v portainer-data:/data \\
+  --restart always \\
+  portainer/portainer-ce:latest`,
+    },
+    {
+      id: "grafana", name: "Grafana", icon: L.grafana, desc: "Dashboards de visualizacion para métricas, logs y trazas de cualquier fuente",
+      fields: [
+        { key: "port", label: "Puerto", placeholder: "3000", default: "3000" },
+      ],
+      generate: (v) =>
+`docker run -d --name grafana \\
+  -p ${v.port}:3000 \\
+  -v grafana-data:/var/lib/grafana \\
+  --restart always \\
+  grafana/grafana:latest`,
+    },
+    {
+      id: "prometheus", name: "Prometheus", icon: L.prometheus, desc: "Sistema de monitorización y alertas que recopila métricas via pull HTTP",
+      fields: [
+        { key: "port", label: "Puerto", placeholder: "9090", default: "9090" },
+        { key: "config", label: "Ruta prometheus.yml", placeholder: "./prometheus.yml", default: "./prometheus.yml" },
+      ],
+      generate: (v) =>
+`docker run -d --name prometheus \\
+  -p ${v.port}:9090 \\
+  -v ${v.config}:/etc/prometheus/prometheus.yml:ro \\
+  -v prometheus-data:/prometheus \\
+  --restart always \\
+  prom/prometheus:latest`,
+    },
+    {
+      id: "uptime", name: "Uptime Kuma", icon: L.uptime, desc: "Monitor de uptime autoalojado con alertas por Telegram, Slack, email y mas",
+      fields: [
+        { key: "port", label: "Puerto", placeholder: "3001", default: "3001" },
+      ],
+      generate: (v) =>
+`docker run -d --name uptime-kuma \\
+  -p ${v.port}:3001 \\
+  -v uptime-kuma-data:/app/data \\
+  --restart always \\
+  louislam/uptime-kuma:latest`,
+    },
+    {
+      id: "plausible", name: "Plausible", icon: L.plausible, desc: "Analítica web ligera y privada, alternativa a Google Analytics sin cookies",
+      fields: [
+        { key: "port", label: "Puerto", placeholder: "8000", default: "8000" },
+        { key: "secret", label: "Secret key", placeholder: "replace-me-with-random-string", default: "replace-me-with-random-string" },
+      ],
+      generate: (v) =>
+`docker run -d --name plausible \\
+  -p ${v.port}:8000 \\
+  -e SECRET_KEY_BASE=${v.secret} \\
+  -e BASE_URL=http://localhost:${v.port} \\
+  -v plausible-data:/var/lib/plausible \\
+  ghcr.io/plausible/community-edition:latest`,
+    },
+    // ── Messaging / Queue ──
+    {
+      id: "rabbitmq", name: "RabbitMQ", icon: L.rabbitmq, desc: "Broker de mensajería con colas, exchanges y panel de gestión integrado",
+      fields: [
+        { key: "port", label: "Puerto AMQP", placeholder: "5672", default: "5672" },
+        { key: "mgmt", label: "Puerto Management", placeholder: "15672", default: "15672" },
+        { key: "user", label: "Usuario", placeholder: "admin", default: "admin" },
+        { key: "pass", label: "Contraseña", placeholder: "admin123", default: "admin123" },
+      ],
+      generate: (v) =>
+`docker run -d --name rabbitmq \\
+  -p ${v.port}:5672 \\
+  -p ${v.mgmt}:15672 \\
+  -e RABBITMQ_DEFAULT_USER=${v.user} \\
+  -e RABBITMQ_DEFAULT_PASS=${v.pass} \\
+  -v rabbitmq-data:/var/lib/rabbitmq \\
+  rabbitmq:management`,
+    },
+    // ── Storage / Security / Tools ──
+    {
+      id: "minio", name: "MinIO", icon: L.minio, desc: "Almacenamiento de objetos compatible con S3, ideal para backups y archivos",
+      fields: [
+        { key: "api", label: "Puerto API", placeholder: "9000", default: "9000" },
+        { key: "console", label: "Puerto Consola", placeholder: "9001", default: "9001" },
+        { key: "user", label: "Root user", placeholder: "minioadmin", default: "minioadmin" },
+        { key: "pass", label: "Root password", placeholder: "minioadmin", default: "minioadmin" },
+      ],
+      generate: (v) =>
+`docker run -d --name minio \\
+  -p ${v.api}:9000 \\
+  -p ${v.console}:9001 \\
+  -e MINIO_ROOT_USER=${v.user} \\
+  -e MINIO_ROOT_PASSWORD=${v.pass} \\
+  -v minio-data:/data \\
+  minio/minio server /data --console-address ":9001"`,
+    },
+    {
+      id: "vault", name: "Vault", icon: L.vault, desc: "Gestor de secretos: almacena tokens, contraseñas, certificados y claves API",
+      fields: [
+        { key: "port", label: "Puerto", placeholder: "8200", default: "8200" },
+      ],
+      generate: (v) =>
+`docker run -d --name vault \\
+  -p ${v.port}:8200 \\
+  -e VAULT_DEV_ROOT_TOKEN_ID=myroot \\
+  -e VAULT_DEV_LISTEN_ADDRESS=0.0.0.0:8200 \\
+  -v vault-data:/vault/file \\
+  --cap-add IPC_LOCK \\
+  hashicorp/vault:latest`,
+    },
+    {
+      id: "keycloak", name: "Keycloak", icon: L.keycloak, desc: "Servidor de identidad con SSO, OAuth2, OpenID Connect y gestión de usuarios",
+      fields: [
+        { key: "port", label: "Puerto", placeholder: "8080", default: "8080" },
+        { key: "user", label: "Admin user", placeholder: "admin", default: "admin" },
+        { key: "pass", label: "Admin password", placeholder: "admin", default: "admin" },
+      ],
+      generate: (v) =>
+`docker run -d --name keycloak \\
+  -p ${v.port}:8080 \\
+  -e KEYCLOAK_ADMIN=${v.user} \\
+  -e KEYCLOAK_ADMIN_PASSWORD=${v.pass} \\
+  quay.io/keycloak/keycloak:latest start-dev`,
+    },
+    {
+      id: "mailhog", name: "Mailhog", icon: L.mailhog, desc: "Servidor SMTP falso para desarrollo: captura emails sin enviarlos realmente",
+      fields: [
+        { key: "smtp", label: "Puerto SMTP", placeholder: "1025", default: "1025" },
+        { key: "web", label: "Puerto Web", placeholder: "8025", default: "8025" },
+      ],
+      generate: (v) =>
+`docker run -d --name mailhog \\
+  -p ${v.smtp}:1025 \\
+  -p ${v.web}:8025 \\
+  mailhog/mailhog:latest`,
+    },
+    // ── Automation / Network ──
+    {
+      id: "n8n", name: "n8n", icon: L.n8n, desc: "Automatización de workflows con nodos visuales, alternativa a Zapier autoalojada",
+      fields: [
+        { key: "port", label: "Puerto", placeholder: "5678", default: "5678" },
+      ],
+      generate: (v) =>
+`docker run -d --name n8n \\
+  -p ${v.port}:5678 \\
+  -v n8n-data:/home/node/.n8n \\
+  --restart always \\
+  n8nio/n8n:latest`,
+    },
+    {
+      id: "wireguard", name: "WireGuard", icon: L.wireguard, desc: "VPN moderna, rapida y segura con configuracion minima y cifrado de ultima generacion",
+      fields: [
+        { key: "port", label: "Puerto UDP", placeholder: "51820", default: "51820" },
+        { key: "peers", label: "N. de peers", placeholder: "3", default: "3" },
+        { key: "url", label: "URL externa", placeholder: "vpn.example.com", default: "vpn.example.com" },
+      ],
+      generate: (v) =>
+`docker run -d --name wireguard \\
+  -p ${v.port}:51820/udp \\
+  -e PUID=1000 -e PGID=1000 \\
+  -e SERVERURL=${v.url} \\
+  -e PEERS=${v.peers} \\
+  -v wireguard-config:/config \\
+  --cap-add NET_ADMIN \\
+  --cap-add SYS_MODULE \\
+  --sysctl net.ipv4.conf.all.src_valid_mark=1 \\
+  --restart always \\
+  lscr.io/linuxserver/wireguard:latest`,
+    },
+    {
+      id: "pihole", name: "Pi-hole", icon: L.pihole, desc: "Bloqueador de anuncios a nivel de red DNS para toda tu red local",
+      fields: [
+        { key: "web", label: "Puerto Web", placeholder: "8053", default: "8053" },
+        { key: "pass", label: "Web password", placeholder: "admin", default: "admin" },
+      ],
+      generate: (v) =>
+`docker run -d --name pihole \\
+  -p 53:53/tcp -p 53:53/udp \\
+  -p ${v.web}:80 \\
+  -e WEBPASSWORD=${v.pass} \\
+  -v pihole-etc:/etc/pihole \\
+  -v pihole-dnsmasq:/etc/dnsmasq.d \\
+  --restart always \\
+  pihole/pihole:latest`,
+    },
+    {
+      id: "homeassistant", name: "Home Assistant", icon: L.homeassistant, desc: "Plataforma de domótica que integra dispositivos IoT, luces, sensores y mas",
+      fields: [
+        { key: "port", label: "Puerto", placeholder: "8123", default: "8123" },
+      ],
+      generate: (v) =>
+`docker run -d --name homeassistant \\
+  -p ${v.port}:8123 \\
+  -v homeassistant-config:/config \\
+  -e TZ=Europe/Madrid \\
+  --restart always \\
+  ghcr.io/home-assistant/home-assistant:stable`,
+    },
+  ];
+
+  const quickGrid = document.getElementById("dk-quick-grid")!;
+  const quickForm = document.getElementById("dk-quick-form")!;
+  const quickFields = document.getElementById("dk-quick-fields")!;
+  const quickTitle = document.getElementById("dk-quick-title")!;
+  const quickResult = document.getElementById("dk-quick-result")!;
+  const quickOutput = document.getElementById("dk-quick-output")!;
+  const quickFilter = document.getElementById("dk-quick-filter") as HTMLInputElement;
+  const quickSearch = document.querySelector(".dk-quick-search") as HTMLElement;
+
+  function renderCards(filter: string = "") {
+    const q = filter.toLowerCase();
+    const filtered = q ? quickApps.filter(a => a.id.includes(q) || a.name.toLowerCase().includes(q) || a.desc.toLowerCase().includes(q)) : quickApps;
+    quickGrid.innerHTML = filtered.length
+      ? filtered.map(app =>
+          `<div class="dk-quick-card" data-app="${app.id}">
+            <span class="dk-card-icon">${app.icon}</span>
+            <span class="dk-card-name">${app.name}</span>
+          </div>`
+        ).join("")
+      : `<div class="dk-no-results">Sin resultados para "${filter}"</div>`;
+  }
+  renderCards();
+
+  quickFilter.addEventListener("input", () => renderCards(quickFilter.value));
+
+  // Tooltip
+  const tooltip = document.getElementById("dk-tooltip")!;
+  const quickPanel = document.getElementById("dk-quick")!;
+
+  quickGrid.addEventListener("mouseenter", (e) => {
+    const card = (e.target as HTMLElement).closest<HTMLElement>(".dk-quick-card");
+    if (!card) return;
+    const app = quickApps.find(a => a.id === card.dataset.app);
+    if (!app) return;
+
+    tooltip.textContent = app.desc;
+    tooltip.classList.remove("hidden", "above", "below");
+
+    const panelRect = quickPanel.getBoundingClientRect();
+    const cardRect = card.getBoundingClientRect();
+
+    // Position horizontally centered on the card
+    let left = cardRect.left - panelRect.left + cardRect.width / 2 - tooltip.offsetWidth / 2;
+    // Clamp to panel edges
+    left = Math.max(6, Math.min(left, panelRect.width - tooltip.offsetWidth - 6));
+
+    // Prefer below, but if not enough room show above
+    const spaceBelow = panelRect.bottom - cardRect.bottom;
+    if (spaceBelow > tooltip.offsetHeight + 12) {
+      tooltip.style.top = (cardRect.bottom - panelRect.top + 6) + "px";
+      tooltip.classList.add("below");
+    } else {
+      tooltip.style.top = (cardRect.top - panelRect.top - tooltip.offsetHeight - 6) + "px";
+      tooltip.classList.add("above");
+    }
+    tooltip.style.left = left + "px";
+  }, true);
+
+  quickGrid.addEventListener("mouseleave", (e) => {
+    const card = (e.target as HTMLElement).closest<HTMLElement>(".dk-quick-card");
+    if (!card) return;
+    tooltip.classList.add("hidden");
+  }, true);
+
+  let currentApp: QuickApp | null = null;
+
+  quickGrid.addEventListener("click", (e) => {
+    const card = (e.target as HTMLElement).closest<HTMLElement>(".dk-quick-card");
+    if (!card) return;
+    const app = quickApps.find(a => a.id === card.dataset.app);
+    if (!app) return;
+    currentApp = app;
+    quickTitle.innerHTML = `${app.name}`;
+    quickFields.innerHTML = app.fields.map(f =>
+      `<label class="dk-label">${f.label}
+        <input class="dk-input" data-key="${f.key}" value="${f.default}" placeholder="${f.placeholder}">
+      </label>`
+    ).join("");
+    quickResult.classList.add("hidden");
+    quickGrid.classList.add("hidden");
+    quickSearch.classList.add("hidden");
+    quickForm.classList.remove("hidden");
+  });
+
+  document.getElementById("dk-quick-back")!.addEventListener("click", () => {
+    quickForm.classList.add("hidden");
+    quickGrid.classList.remove("hidden");
+    quickSearch.classList.remove("hidden");
+    quickFilter.value = "";
+    renderCards();
+  });
+
+  document.getElementById("dk-quick-generate")!.addEventListener("click", () => {
+    if (!currentApp) return;
+    const vals: Record<string, string> = {};
+    quickFields.querySelectorAll<HTMLInputElement>(".dk-input").forEach(inp => {
+      vals[inp.dataset.key!] = inp.value || inp.placeholder;
+    });
+    quickOutput.textContent = currentApp.generate(vals);
+    quickResult.classList.remove("hidden");
+  });
+
+  document.getElementById("dk-quick-copy")!.addEventListener("click", () => {
+    navigator.clipboard.writeText(quickOutput.textContent || "");
+    const btn = document.getElementById("dk-quick-copy")!;
+    btn.textContent = "¡Copiado!";
+    setTimeout(() => btn.textContent = "Copiar", 1500);
+  });
+
+  // ════════════════════════════════════════════════
+  // TAB 3: COMPOSE GENERATOR
+  // ════════════════════════════════════════════════
+  interface SvcDef { name: string; yaml: string; }
+  const services: SvcDef[] = [];
+
+  const svcList = document.getElementById("dk-svc-list")!;
+  const yamlPre = document.getElementById("dk-yaml")!;
+  const modal = document.getElementById("dk-svc-modal")!;
+  const svcType = document.getElementById("dk-svc-type") as HTMLInputElement;
+  const svcSearch = document.getElementById("dk-svc-search") as HTMLInputElement;
+  const svcDropdown = document.getElementById("dk-svc-dropdown")!;
+  const extraFields = document.getElementById("dk-svc-extra-fields")!;
+
+  const svcOptions: { value: string; label: string; group: string }[] = [
+    { value: "wordpress", label: "WordPress + MySQL", group: "CMS / Web Apps" },
+    { value: "odoo", label: "Odoo + PostgreSQL", group: "CMS / Web Apps" },
+    { value: "nextcloud", label: "Nextcloud", group: "CMS / Web Apps" },
+    { value: "drupal", label: "Drupal", group: "CMS / Web Apps" },
+    { value: "ghost", label: "Ghost", group: "CMS / Web Apps" },
+    { value: "mysql", label: "MySQL", group: "Bases de datos" },
+    { value: "postgres", label: "PostgreSQL", group: "Bases de datos" },
+    { value: "mariadb", label: "MariaDB", group: "Bases de datos" },
+    { value: "mongo", label: "MongoDB", group: "Bases de datos" },
+    { value: "redis", label: "Redis", group: "Bases de datos" },
+    { value: "elasticsearch", label: "Elasticsearch", group: "Bases de datos" },
+    { value: "nginx", label: "Nginx", group: "Web / Proxy" },
+    { value: "apache", label: "Apache", group: "Web / Proxy" },
+    { value: "traefik", label: "Traefik", group: "Web / Proxy" },
+    { value: "caddy", label: "Caddy", group: "Web / Proxy" },
+    { value: "adminer", label: "Adminer", group: "Admin DB" },
+    { value: "phpmyadmin", label: "phpMyAdmin", group: "Admin DB" },
+    { value: "gitea", label: "Gitea", group: "DevOps / CI" },
+    { value: "jenkins", label: "Jenkins", group: "DevOps / CI" },
+    { value: "sonarqube", label: "SonarQube", group: "DevOps / CI" },
+    { value: "portainer", label: "Portainer", group: "Monitoring" },
+    { value: "grafana", label: "Grafana", group: "Monitoring" },
+    { value: "prometheus", label: "Prometheus", group: "Monitoring" },
+    { value: "uptime", label: "Uptime Kuma", group: "Monitoring" },
+    { value: "plausible", label: "Plausible", group: "Monitoring" },
+    { value: "rabbitmq", label: "RabbitMQ", group: "Otros" },
+    { value: "minio", label: "MinIO", group: "Otros" },
+    { value: "vault", label: "Vault", group: "Otros" },
+    { value: "keycloak", label: "Keycloak", group: "Otros" },
+    { value: "mailhog", label: "Mailhog", group: "Otros" },
+    { value: "n8n", label: "n8n", group: "Otros" },
+    { value: "wireguard", label: "WireGuard", group: "Otros" },
+    { value: "pihole", label: "Pi-hole", group: "Otros" },
+    { value: "homeassistant", label: "Home Assistant", group: "Otros" },
+    { value: "custom", label: "Personalizado", group: "" },
+  ];
+
+  function renderSvcDropdown(filter: string = "") {
+    const q = filter.toLowerCase();
+    const filtered = q ? svcOptions.filter(o => o.label.toLowerCase().includes(q) || o.value.includes(q)) : svcOptions;
+    if (!filtered.length) {
+      svcDropdown.innerHTML = `<div class="dk-select-empty">Sin resultados</div>`;
+      return;
+    }
+    // Group by type, preserving order
+    const groups = new Map<string, typeof filtered>();
+    for (const opt of filtered) {
+      const key = opt.group || "";
+      if (!groups.has(key)) groups.set(key, []);
+      groups.get(key)!.push(opt);
+    }
+    let html = "";
+    for (const [group, opts] of groups) {
+      if (group) html += `<div class="dk-select-group">${group}</div>`;
+      for (const opt of opts) {
+        html += `<div class="dk-select-option" data-value="${opt.value}">${opt.label}</div>`;
+      }
+    }
+    svcDropdown.innerHTML = html;
+  }
+
+  function selectSvcType(value: string) {
+    svcType.value = value;
+    const opt = svcOptions.find(o => o.value === value);
+    svcSearch.value = opt ? opt.label : "";
+    svcDropdown.classList.add("hidden");
+    // Trigger field update
+    updateExtraFields(value);
+  }
+
+  svcSearch.addEventListener("focus", () => {
+    renderSvcDropdown(svcSearch.value);
+    svcDropdown.classList.remove("hidden");
+  });
+
+  svcSearch.addEventListener("input", () => {
+    svcType.value = "";
+    renderSvcDropdown(svcSearch.value);
+    svcDropdown.classList.remove("hidden");
+  });
+
+  svcDropdown.addEventListener("click", (e) => {
+    const opt = (e.target as HTMLElement).closest<HTMLElement>(".dk-select-option");
+    if (!opt) return;
+    selectSvcType(opt.dataset.value!);
+  });
+
+  // Close dropdown on outside click
+  document.addEventListener("click", (e) => {
+    if (!(e.target as HTMLElement).closest("#dk-svc-select")) {
+      svcDropdown.classList.add("hidden");
+    }
+  });
+
+  function renderYaml() {
+    if (services.length === 0) {
+      yamlPre.textContent = 'version: "3.9"\nservices:\n  # Añade un servicio para empezar';
+      return;
+    }
+    let yaml = 'version: "3.9"\nservices:\n';
+    const volumes = new Set<string>();
+    const networks = new Set<string>();
+    for (const svc of services) {
+      yaml += svc.yaml + "\n";
+      // extract volume names
+      const volMatches = svc.yaml.matchAll(/^\s+- ([a-z0-9_-]+):/gm);
+      for (const m of volMatches) {
+        if (!m[1].startsWith("/") && !m[1].startsWith(".")) volumes.add(m[1]);
+      }
+    }
+    if (services.length > 0) {
+      networks.add("app-net");
+      yaml += "\nnetworks:\n  app-net:\n    driver: bridge\n";
+    }
+    if (volumes.size > 0) {
+      yaml += "\nvolumes:\n";
+      for (const v of volumes) yaml += `  ${v}:\n`;
+    }
+    yamlPre.textContent = yaml;
+  }
+
+  function renderSvcList() {
+    svcList.innerHTML = services.map((s, i) =>
+      `<div class="dk-svc-item">
+        <span>${s.name}</span>
+        <button class="dk-svc-rm" data-idx="${i}">&times;</button>
+      </div>`
+    ).join("");
+  }
+
+  svcList.addEventListener("click", (e) => {
+    const btn = (e.target as HTMLElement).closest<HTMLButtonElement>(".dk-svc-rm");
+    if (!btn) return;
+    services.splice(Number(btn.dataset.idx), 1);
+    renderSvcList();
+    renderYaml();
+  });
+
+  document.getElementById("dk-add-svc")!.addEventListener("click", () => {
+    svcType.value = "";
+    svcSearch.value = "";
+    extraFields.innerHTML = "";
+    renderSvcDropdown();
+    svcDropdown.classList.add("hidden");
+    modal.classList.remove("hidden");
+  });
+
+  document.getElementById("dk-svc-cancel")!.addEventListener("click", () => {
+    modal.classList.add("hidden");
+  });
+
+  const fieldDefs: Record<string, { key: string; label: string; default: string }[]> = {
+    wordpress: [{ key: "port", label: "Puerto", default: "8080" }, { key: "dbpass", label: "Contraseña DB", default: "wordpress123" }],
+    odoo: [{ key: "port", label: "Puerto", default: "8069" }, { key: "dbpass", label: "Contraseña DB", default: "odoo123" }],
+    nextcloud: [{ key: "port", label: "Puerto", default: "8080" }, { key: "dbpass", label: "Contraseña DB", default: "nc123" }],
+    drupal: [{ key: "port", label: "Puerto", default: "8080" }, { key: "dbpass", label: "Contraseña DB", default: "drupal123" }],
+    ghost: [{ key: "port", label: "Puerto", default: "2368" }],
+    mysql: [{ key: "port", label: "Puerto", default: "3306" }, { key: "rootpass", label: "Root password", default: "root123" }, { key: "db", label: "Database", default: "mydb" }],
+    postgres: [{ key: "port", label: "Puerto", default: "5432" }, { key: "user", label: "Usuario", default: "admin" }, { key: "pass", label: "Contraseña", default: "admin123" }, { key: "db", label: "Database", default: "mydb" }],
+    mariadb: [{ key: "port", label: "Puerto", default: "3306" }, { key: "rootpass", label: "Root password", default: "root123" }, { key: "db", label: "Database", default: "mydb" }],
+    mongo: [{ key: "port", label: "Puerto", default: "27017" }, { key: "user", label: "Usuario", default: "admin" }, { key: "pass", label: "Contraseña", default: "mongo123" }],
+    redis: [{ key: "port", label: "Puerto", default: "6379" }],
+    elasticsearch: [{ key: "port", label: "Puerto", default: "9200" }],
+    nginx: [{ key: "port", label: "Puerto", default: "80" }],
+    apache: [{ key: "port", label: "Puerto", default: "80" }],
+    traefik: [{ key: "http", label: "Puerto HTTP", default: "80" }, { key: "dash", label: "Puerto Dashboard", default: "8080" }],
+    caddy: [{ key: "http", label: "Puerto HTTP", default: "80" }, { key: "https", label: "Puerto HTTPS", default: "443" }],
+    adminer: [{ key: "port", label: "Puerto", default: "8081" }],
+    phpmyadmin: [{ key: "port", label: "Puerto", default: "8082" }],
+    gitea: [{ key: "port", label: "Puerto web", default: "3000" }, { key: "ssh", label: "Puerto SSH", default: "2222" }],
+    jenkins: [{ key: "port", label: "Puerto", default: "8080" }],
+    sonarqube: [{ key: "port", label: "Puerto", default: "9000" }],
+    portainer: [{ key: "port", label: "Puerto", default: "9443" }],
+    grafana: [{ key: "port", label: "Puerto", default: "3000" }],
+    prometheus: [{ key: "port", label: "Puerto", default: "9090" }],
+    uptime: [{ key: "port", label: "Puerto", default: "3001" }],
+    plausible: [{ key: "port", label: "Puerto", default: "8000" }],
+    rabbitmq: [{ key: "port", label: "Puerto AMQP", default: "5672" }, { key: "mgmt", label: "Puerto Management", default: "15672" }],
+    minio: [{ key: "api", label: "Puerto API", default: "9000" }, { key: "console", label: "Puerto Consola", default: "9001" }],
+    vault: [{ key: "port", label: "Puerto", default: "8200" }],
+    keycloak: [{ key: "port", label: "Puerto", default: "8080" }],
+    mailhog: [{ key: "smtp", label: "Puerto SMTP", default: "1025" }, { key: "web", label: "Puerto Web", default: "8025" }],
+    n8n: [{ key: "port", label: "Puerto", default: "5678" }],
+    wireguard: [{ key: "port", label: "Puerto UDP", default: "51820" }],
+    pihole: [{ key: "web", label: "Puerto Web", default: "8053" }],
+    homeassistant: [{ key: "port", label: "Puerto", default: "8123" }],
+    custom: [{ key: "name", label: "Nombre servicio", default: "mi-app" }, { key: "image", label: "Imagen", default: "nginx:alpine" }, { key: "port", label: "Puerto (host:container)", default: "8080:80" }],
+  };
+
+  function updateExtraFields(type: string) {
+    const fields = fieldDefs[type] || [];
+    extraFields.innerHTML = fields.map(f =>
+      `<label class="dk-label">${f.label}
+        <input class="dk-input" data-key="${f.key}" value="${f.default}" placeholder="${f.default}">
+      </label>`
+    ).join("");
+  }
+
+  document.getElementById("dk-svc-add-btn")!.addEventListener("click", () => {
+    const type = svcType.value;
+    if (!type) return;
+    const vals: Record<string, string> = {};
+    extraFields.querySelectorAll<HTMLInputElement>(".dk-input").forEach(inp => {
+      vals[inp.dataset.key!] = inp.value || inp.placeholder;
+    });
+
+    const generators: Record<string, () => SvcDef[]> = {
+      wordpress: () => [
+        { name: "wordpress", yaml:
+`  wordpress:
+    image: wordpress:latest
+    ports:
+      - "${vals.port}:80"
+    environment:
+      WORDPRESS_DB_HOST: wordpress-db
+      WORDPRESS_DB_PASSWORD: ${vals.dbpass}
+    volumes:
+      - wp-data:/var/www/html
+    networks:
+      - app-net
+    depends_on:
+      - wordpress-db` },
+        { name: "wordpress-db", yaml:
+`  wordpress-db:
+    image: mysql:8
+    environment:
+      MYSQL_ROOT_PASSWORD: ${vals.dbpass}
+      MYSQL_DATABASE: wordpress
+    volumes:
+      - wp-db-data:/var/lib/mysql
+    networks:
+      - app-net` },
+      ],
+      odoo: () => [
+        { name: "odoo", yaml:
+`  odoo:
+    image: odoo:17
+    ports:
+      - "${vals.port}:8069"
+    environment:
+      HOST: odoo-db
+      USER: odoo
+      PASSWORD: ${vals.dbpass}
+    volumes:
+      - odoo-data:/var/lib/odoo
+    networks:
+      - app-net
+    depends_on:
+      - odoo-db` },
+        { name: "odoo-db", yaml:
+`  odoo-db:
+    image: postgres:15
+    environment:
+      POSTGRES_USER: odoo
+      POSTGRES_PASSWORD: ${vals.dbpass}
+      POSTGRES_DB: postgres
+    volumes:
+      - odoo-db-data:/var/lib/postgresql/data
+    networks:
+      - app-net` },
+      ],
+      nginx: () => [{ name: "nginx", yaml:
+`  nginx:
+    image: nginx:alpine
+    ports:
+      - "${vals.port}:80"
+    networks:
+      - app-net` }],
+      mysql: () => [{ name: "mysql", yaml:
+`  mysql:
+    image: mysql:8
+    ports:
+      - "${vals.port}:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: ${vals.rootpass}
+      MYSQL_DATABASE: ${vals.db}
+    volumes:
+      - mysql-data:/var/lib/mysql
+    networks:
+      - app-net` }],
+      postgres: () => [{ name: "postgres", yaml:
+`  postgres:
+    image: postgres:16
+    ports:
+      - "${vals.port}:5432"
+    environment:
+      POSTGRES_USER: ${vals.user}
+      POSTGRES_PASSWORD: ${vals.pass}
+      POSTGRES_DB: ${vals.db}
+    volumes:
+      - pg-data:/var/lib/postgresql/data
+    networks:
+      - app-net` }],
+      redis: () => [{ name: "redis", yaml:
+`  redis:
+    image: redis:alpine
+    ports:
+      - "${vals.port}:6379"
+    volumes:
+      - redis-data:/data
+    networks:
+      - app-net` }],
+      mongo: () => [{ name: "mongo", yaml:
+`  mongo:
+    image: mongo:7
+    ports:
+      - "${vals.port}:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${vals.user}
+      MONGO_INITDB_ROOT_PASSWORD: ${vals.pass}
+    volumes:
+      - mongo-data:/data/db
+    networks:
+      - app-net` }],
+      mariadb: () => [{ name: "mariadb", yaml:
+`  mariadb:
+    image: mariadb:11
+    ports:
+      - "${vals.port}:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: ${vals.rootpass}
+      MYSQL_DATABASE: ${vals.db}
+    volumes:
+      - mariadb-data:/var/lib/mysql
+    networks:
+      - app-net` }],
+      adminer: () => [{ name: "adminer", yaml:
+`  adminer:
+    image: adminer:latest
+    ports:
+      - "${vals.port}:8080"
+    networks:
+      - app-net` }],
+      phpmyadmin: () => [{ name: "phpmyadmin", yaml:
+`  phpmyadmin:
+    image: phpmyadmin:latest
+    ports:
+      - "${vals.port}:80"
+    environment:
+      PMA_ARBITRARY: 1
+    networks:
+      - app-net` }],
+      portainer: () => [{ name: "portainer", yaml:
+`  portainer:
+    image: portainer/portainer-ce:latest
+    ports:
+      - "${vals.port}:9443"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - portainer-data:/data
+    restart: always
+    networks:
+      - app-net` }],
+      nextcloud: () => [
+        { name: "nextcloud", yaml:
+`  nextcloud:
+    image: nextcloud:latest
+    ports:
+      - "${vals.port}:80"
+    environment:
+      MYSQL_HOST: nextcloud-db
+      MYSQL_DATABASE: nextcloud
+      MYSQL_USER: root
+      MYSQL_PASSWORD: ${vals.dbpass}
+    volumes:
+      - nc-data:/var/www/html
+    networks:
+      - app-net
+    depends_on:
+      - nextcloud-db` },
+        { name: "nextcloud-db", yaml:
+`  nextcloud-db:
+    image: mariadb:11
+    environment:
+      MYSQL_ROOT_PASSWORD: ${vals.dbpass}
+      MYSQL_DATABASE: nextcloud
+    volumes:
+      - nc-db-data:/var/lib/mysql
+    networks:
+      - app-net` },
+      ],
+      drupal: () => [
+        { name: "drupal", yaml:
+`  drupal:
+    image: drupal:latest
+    ports:
+      - "${vals.port}:80"
+    volumes:
+      - drupal-data:/var/www/html
+    networks:
+      - app-net
+    depends_on:
+      - drupal-db` },
+        { name: "drupal-db", yaml:
+`  drupal-db:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: drupal
+      POSTGRES_PASSWORD: ${vals.dbpass}
+      POSTGRES_DB: drupal
+    volumes:
+      - drupal-db-data:/var/lib/postgresql/data
+    networks:
+      - app-net` },
+      ],
+      ghost: () => [{ name: "ghost", yaml:
+`  ghost:
+    image: ghost:latest
+    ports:
+      - "${vals.port}:2368"
+    volumes:
+      - ghost-data:/var/lib/ghost/content
+    networks:
+      - app-net` }],
+      elasticsearch: () => [{ name: "elasticsearch", yaml:
+`  elasticsearch:
+    image: elasticsearch:8.12.0
+    ports:
+      - "${vals.port}:9200"
+    environment:
+      discovery.type: single-node
+      xpack.security.enabled: "false"
+    volumes:
+      - elastic-data:/usr/share/elasticsearch/data
+    networks:
+      - app-net` }],
+      apache: () => [{ name: "apache", yaml:
+`  apache:
+    image: httpd:alpine
+    ports:
+      - "${vals.port}:80"
+    networks:
+      - app-net` }],
+      traefik: () => [{ name: "traefik", yaml:
+`  traefik:
+    image: traefik:v3.0
+    command:
+      - --api.insecure=true
+      - --providers.docker=true
+    ports:
+      - "${vals.http}:80"
+      - "${vals.dash}:8080"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    restart: always
+    networks:
+      - app-net` }],
+      caddy: () => [{ name: "caddy", yaml:
+`  caddy:
+    image: caddy:alpine
+    ports:
+      - "${vals.http}:80"
+      - "${vals.https}:443"
+    volumes:
+      - caddy-data:/data
+      - caddy-config:/config
+    networks:
+      - app-net` }],
+      gitea: () => [{ name: "gitea", yaml:
+`  gitea:
+    image: gitea/gitea:latest
+    ports:
+      - "${vals.port}:3000"
+      - "${vals.ssh}:22"
+    volumes:
+      - gitea-data:/data
+    networks:
+      - app-net` }],
+      jenkins: () => [{ name: "jenkins", yaml:
+`  jenkins:
+    image: jenkins/jenkins:lts
+    ports:
+      - "${vals.port}:8080"
+      - "50000:50000"
+    volumes:
+      - jenkins-data:/var/jenkins_home
+    restart: always
+    networks:
+      - app-net` }],
+      sonarqube: () => [{ name: "sonarqube", yaml:
+`  sonarqube:
+    image: sonarqube:community
+    ports:
+      - "${vals.port}:9000"
+    volumes:
+      - sonarqube-data:/opt/sonarqube/data
+      - sonarqube-extensions:/opt/sonarqube/extensions
+    networks:
+      - app-net` }],
+      grafana: () => [{ name: "grafana", yaml:
+`  grafana:
+    image: grafana/grafana:latest
+    ports:
+      - "${vals.port}:3000"
+    volumes:
+      - grafana-data:/var/lib/grafana
+    restart: always
+    networks:
+      - app-net` }],
+      prometheus: () => [{ name: "prometheus", yaml:
+`  prometheus:
+    image: prom/prometheus:latest
+    ports:
+      - "${vals.port}:9090"
+    volumes:
+      - prometheus-data:/prometheus
+    restart: always
+    networks:
+      - app-net` }],
+      uptime: () => [{ name: "uptime-kuma", yaml:
+`  uptime-kuma:
+    image: louislam/uptime-kuma:latest
+    ports:
+      - "${vals.port}:3001"
+    volumes:
+      - uptime-data:/app/data
+    restart: always
+    networks:
+      - app-net` }],
+      plausible: () => [{ name: "plausible", yaml:
+`  plausible:
+    image: ghcr.io/plausible/community-edition:latest
+    ports:
+      - "${vals.port}:8000"
+    environment:
+      BASE_URL: http://localhost:${vals.port}
+    volumes:
+      - plausible-data:/var/lib/plausible
+    networks:
+      - app-net` }],
+      rabbitmq: () => [{ name: "rabbitmq", yaml:
+`  rabbitmq:
+    image: rabbitmq:management
+    ports:
+      - "${vals.port}:5672"
+      - "${vals.mgmt}:15672"
+    volumes:
+      - rabbitmq-data:/var/lib/rabbitmq
+    networks:
+      - app-net` }],
+      minio: () => [{ name: "minio", yaml:
+`  minio:
+    image: minio/minio
+    command: server /data --console-address ":9001"
+    ports:
+      - "${vals.api}:9000"
+      - "${vals.console}:9001"
+    volumes:
+      - minio-data:/data
+    networks:
+      - app-net` }],
+      vault: () => [{ name: "vault", yaml:
+`  vault:
+    image: hashicorp/vault:latest
+    ports:
+      - "${vals.port}:8200"
+    environment:
+      VAULT_DEV_ROOT_TOKEN_ID: myroot
+      VAULT_DEV_LISTEN_ADDRESS: 0.0.0.0:8200
+    cap_add:
+      - IPC_LOCK
+    networks:
+      - app-net` }],
+      keycloak: () => [{ name: "keycloak", yaml:
+`  keycloak:
+    image: quay.io/keycloak/keycloak:latest
+    command: start-dev
+    ports:
+      - "${vals.port}:8080"
+    environment:
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: admin
+    networks:
+      - app-net` }],
+      mailhog: () => [{ name: "mailhog", yaml:
+`  mailhog:
+    image: mailhog/mailhog:latest
+    ports:
+      - "${vals.smtp}:1025"
+      - "${vals.web}:8025"
+    networks:
+      - app-net` }],
+      n8n: () => [{ name: "n8n", yaml:
+`  n8n:
+    image: n8nio/n8n:latest
+    ports:
+      - "${vals.port}:5678"
+    volumes:
+      - n8n-data:/home/node/.n8n
+    restart: always
+    networks:
+      - app-net` }],
+      wireguard: () => [{ name: "wireguard", yaml:
+`  wireguard:
+    image: lscr.io/linuxserver/wireguard:latest
+    ports:
+      - "${vals.port}:51820/udp"
+    environment:
+      PUID: "1000"
+      PGID: "1000"
+    volumes:
+      - wireguard-config:/config
+    cap_add:
+      - NET_ADMIN
+      - SYS_MODULE
+    restart: always
+    networks:
+      - app-net` }],
+      pihole: () => [{ name: "pihole", yaml:
+`  pihole:
+    image: pihole/pihole:latest
+    ports:
+      - "53:53/tcp"
+      - "53:53/udp"
+      - "${vals.web}:80"
+    environment:
+      WEBPASSWORD: admin
+    volumes:
+      - pihole-etc:/etc/pihole
+      - pihole-dnsmasq:/etc/dnsmasq.d
+    restart: always
+    networks:
+      - app-net` }],
+      homeassistant: () => [{ name: "homeassistant", yaml:
+`  homeassistant:
+    image: ghcr.io/home-assistant/home-assistant:stable
+    ports:
+      - "${vals.port}:8123"
+    environment:
+      TZ: Europe/Madrid
+    volumes:
+      - ha-config:/config
+    restart: always
+    networks:
+      - app-net` }],
+      custom: () => {
+        const name = vals.name.replace(/\s+/g, "-").toLowerCase();
+        const ports = vals.port.includes(":") ? vals.port : `${vals.port}:${vals.port}`;
+        return [{ name, yaml:
+`  ${name}:
+    image: ${vals.image}
+    ports:
+      - "${ports}"
+    networks:
+      - app-net` }];
+      },
+    };
+
+    const gen = generators[type];
+    if (!gen) return;
+    const newSvcs = gen();
+
+    // Avoid duplicate service names
+    for (const s of newSvcs) {
+      if (!services.some(x => x.name === s.name)) {
+        services.push(s);
+      }
+    }
+
+    renderSvcList();
+    renderYaml();
+    modal.classList.add("hidden");
+  });
+
+  document.getElementById("dk-compose-copy")!.addEventListener("click", () => {
+    navigator.clipboard.writeText(yamlPre.textContent || "");
+    const btn = document.getElementById("dk-compose-copy")!;
+    btn.textContent = "¡Copiado!";
+    setTimeout(() => btn.textContent = "Copiar", 1500);
+  });
+</script>

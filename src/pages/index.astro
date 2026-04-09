@@ -6,6 +6,7 @@ import DraggableWindow from "../components/DraggableWindow.astro";
 // Contenido de cada ventana como componente .astro
 import Portafolio from "../components/windows/Portafolio.astro";
 import TerminalWindow from "../components/windows/TerminalWindow.astro";
+import DockerWindow from "../components/windows/DockerWindow.astro";
 ---
 
 <!doctype html>
@@ -68,6 +69,19 @@ import TerminalWindow from "../components/windows/TerminalWindow.astro";
       initialHidden
     >
       <TerminalWindow />
+    </DraggableWindow>
+
+    <DraggableWindow
+      id="app-docker"
+      title="Docker"
+      lucideIcon="Sailboat"
+      width={560}
+      height={420}
+      initialX={160}
+      initialY={60}
+      initialHidden
+    >
+      <DockerWindow />
     </DraggableWindow>
 
     <!-- Barra de tareas + menú inicio -->
