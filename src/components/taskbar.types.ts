@@ -10,6 +10,6 @@ export const defaultApps: App[] = [
   { id: "portafolio",   title: "Perfil",   lucideIcon: "User" },
   { id: "app-terminal", title: "Terminal", lucideIcon: "Terminal" },
   { id: "app-docker",   title: "Docker",   lucideIcon: "Sailboat" },
-  { id: "app-angular",  title: "Angular",  lucideIcon: "FileCode" },
+  { id: "app-angular",  title: "Angular",  lucideIcon: "Component" },
   { id: "app-springboot", title: "Spring Boot", lucideIcon: "Leaf" },
 ];

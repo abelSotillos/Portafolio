@@ -2,7 +2,7 @@
 // StartMenu.astro
 import {
   FolderOpen, Terminal, Globe,
-  FileText, FileCode, Leaf, Calculator, Music,
+  FileText, FileCode, Component, Leaf, Calculator, Music,
   Search, Power, User, Sailboat,
 } from '@lucide/astro/icons/index';
 
@@ -15,7 +15,7 @@ interface Props {
 const { apps } = Astro.props;
 
 const iconMap: Record<string, any> = {
-  FolderOpen, Terminal, Globe, FileText, FileCode, Leaf, Calculator, Music, User, Sailboat,
+  FolderOpen, Terminal, Globe, FileText, FileCode, Component, Leaf, Calculator, Music, User, Sailboat,
 };
 ---
 
