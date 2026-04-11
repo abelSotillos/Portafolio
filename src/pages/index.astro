@@ -7,6 +7,7 @@ import DraggableWindow from "../components/DraggableWindow.astro";
 import Portafolio from "../components/windows/Portafolio.astro";
 import TerminalWindow from "../components/windows/TerminalWindow.astro";
 import DockerWindow from "../components/windows/DockerWindow.astro";
+import AngularWindow from "../components/windows/AngularWindow.astro";
 ---
 
 <!doctype html>
@@ -82,6 +83,19 @@ import DockerWindow from "../components/windows/DockerWindow.astro";
       initialHidden
     >
       <DockerWindow />
+    </DraggableWindow>
+
+    <DraggableWindow
+      id="app-angular"
+      title="Angular"
+      lucideIcon="FileCode"
+      width={580}
+      height={420}
+      initialX={180}
+      initialY={70}
+      initialHidden
+    >
+      <AngularWindow />
     </DraggableWindow>
 
     <!-- Barra de tareas + menú inicio -->

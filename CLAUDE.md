@@ -13,7 +13,7 @@ Personal portfolio website for Abel Sotillos Cuenca (abelsotillos.com) built as 
 - **Preview build:** `npm run preview`
 - **Docker build:** `docker build -t astro .` (serves static files on port 80 via `npx serve dist`)
 
-The CI pipeline uses `pnpm` (`pnpm install && pnpm run build`), but local development uses `npm`.
+Local development uses `npm`. The CI pipeline (`.github/workflows/npm-publish-github-packages.yml`) runs on a **self-hosted runner** with Node 24 and `pnpm`, then builds a Docker image and deploys via an external script.
 
 ## Architecture
 
@@ -21,20 +21,20 @@ The CI pipeline uses `pnpm` (`pnpm install && pnpm run build`), but local develo
 
 The core UI pattern is a custom window manager built with vanilla JavaScript and Astro components:
 
-1. **`DraggableWindow.astro`** — Generic window container with drag, resize, minimize, maximize, close. Accepts props: `id`, `title`, `lucideIcon`, `width`, `height`, `initialX`, `initialY`, `initialHidden`.
+1. **`DraggableWindow.astro`** — Generic window container with drag, resize, minimize, maximize, close. Accepts props: `id`, `title`, `lucideIcon`, `width`, `height`, `initialX`, `initialY`, `initialHidden`. Contains an `iconMap` that maps icon name strings to Lucide components.
 2. **`Taskbar.astro`** — Fixed bottom bar. Listens for custom events from windows to manage window buttons, focus state, and clock display.
 3. **`StartMenu.astro`** — App launcher grid with search filtering. Receives an `App[]` array.
 4. **`taskbar.types.ts`** — Defines the `App` interface and `defaultApps` registry (maps app IDs to window components).
 
 **Custom event flow:** Windows emit `win-register`, `win-focus`, `win-minimize`, `win-close` events. The Taskbar listens for these to sync its button state.
 
-**To add a new window:** Create a content component in `src/components/windows/`, add a `DraggableWindow` wrapper in `src/pages/index.astro`, and register it in `defaultApps` in `taskbar.types.ts`.
+**To add a new window:**
+1. Create a content component in `src/components/windows/`
+2. Add a `DraggableWindow` wrapper in `src/pages/index.astro`
+3. Register it in `defaultApps` in `taskbar.types.ts`
+4. If using a new Lucide icon, import it and add it to the `iconMap` in `DraggableWindow.astro`
 
-### Window Content Components (`src/components/windows/`)
-
-- **`Portafolio.astro`** — Main CV/resume with tabbed sections (Profile, Experience, Skills, Education)
-- **`ExplorerWindow.astro`** — File explorer UI (static demo)
-- **`NotesWindow.astro`** — Simple text editor with character counter
+Note: `index.astro` does not use `Layout.astro` — it has its own full HTML document with the desktop background.
 
 ### Styling
 

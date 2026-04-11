@@ -1,0 +1,886 @@
+<div class="ng" id="angular-root">
+
+  <!-- ── SIDEBAR ── -->
+  <div class="ng-sidebar" id="ng-sidebar">
+    <button class="ng-link active" data-section="getting-started">Primeros pasos</button>
+    <button class="ng-link" data-section="components">Componentes</button>
+    <button class="ng-link" data-section="templates">Templates</button>
+    <button class="ng-link" data-section="directives">Directivas</button>
+    <button class="ng-link" data-section="services">Servicios</button>
+    <button class="ng-link" data-section="routing">Routing</button>
+    <button class="ng-link" data-section="forms">Formularios</button>
+    <button class="ng-link" data-section="http">HTTP Client</button>
+    <button class="ng-link" data-section="signals">Signals</button>
+    <button class="ng-link" data-section="pipes">Pipes</button>
+  </div>
+
+  <!-- ── CONTENT ── -->
+  <div class="ng-content" id="ng-content">
+    <!-- filled by JS -->
+  </div>
+
+</div>
+
+<!-- ═══════════════════════════════════════════════ -->
+<!-- STYLES                                          -->
+<!-- ═══════════════════════════════════════════════ -->
+<style>
+  .ng {
+    display: flex;
+    flex-direction: row;
+    height: 100%;
+    font-family: "Segoe UI", system-ui, sans-serif;
+    background: hsl(222 47% 11%);
+    color: hsl(215 20% 80%);
+    font-size: 13px;
+  }
+  .ng :global(*) {
+    scrollbar-width: thin;
+    scrollbar-color: hsl(217 33% 25%) transparent;
+  }
+  .ng :global(*::-webkit-scrollbar) { width: 6px; height: 6px; }
+  .ng :global(*::-webkit-scrollbar-track) { background: transparent; }
+  .ng :global(*::-webkit-scrollbar-thumb) {
+    background: hsl(217 33% 25%);
+    border-radius: 3px;
+  }
+  .ng :global(*::-webkit-scrollbar-thumb:hover) {
+    background: hsl(217 33% 35%);
+  }
+
+  /* ── Sidebar ── */
+  .ng-sidebar {
+    width: 130px;
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+    padding: 6px;
+    background: hsl(217 33% 12%);
+    border-right: 1px solid hsl(217 33% 22% / .4);
+    overflow-y: auto;
+  }
+  .ng-link {
+    padding: 6px 10px;
+    background: transparent;
+    border: none;
+    border-radius: 5px;
+    color: hsl(215 20% 55%);
+    font-size: 12px;
+    text-align: left;
+    cursor: pointer;
+    transition: background .12s, color .12s;
+  }
+  .ng-link:hover { background: hsl(217 33% 18%); color: hsl(215 20% 75%); }
+  .ng-link.active { background: hsl(0 70% 50% / .15); color: hsl(0 80% 65%); }
+
+  /* ── Content ── */
+  .ng-content {
+    flex: 1;
+    overflow-y: auto;
+    padding: 14px 16px;
+    line-height: 1.6;
+  }
+  .ng-content :global(h2) {
+    color: hsl(0 80% 65%);
+    font-size: 16px;
+    margin: 0 0 10px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .ng-content :global(h3) {
+    color: hsl(355 80% 62%);
+    font-size: 13px;
+    margin: 16px 0 6px;
+  }
+  .ng-content :global(h3:first-child) { margin-top: 0; }
+  .ng-content :global(p) {
+    margin: 4px 0;
+    font-size: 12px;
+    color: hsl(215 20% 60%);
+    line-height: 1.5;
+  }
+  .ng-content :global(code) {
+    background: hsl(217 33% 18%);
+    padding: 1px 5px;
+    border-radius: 3px;
+    font-family: "Cascadia Code", "Fira Code", monospace;
+    font-size: 11px;
+    color: hsl(215 20% 80%);
+  }
+  .ng-content :global(.ng-code-block) {
+    background: hsl(0 0% 3%);
+    border: 1px solid hsl(0 0% 14%);
+    border-radius: 6px;
+    margin: 8px 0;
+    overflow: hidden;
+    position: relative;
+  }
+  .ng-content :global(.ng-code-label) {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 5px 12px;
+    background: hsl(0 0% 7%);
+    border-bottom: 1px solid hsl(0 0% 12%);
+    font-size: 10px;
+    color: hsl(215 20% 40%);
+    font-family: "Cascadia Code", "Fira Code", monospace;
+  }
+  .ng-content :global(.ng-copy-btn) {
+    background: none;
+    border: none;
+    color: hsl(215 20% 35%);
+    cursor: pointer;
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-size: 10px;
+    transition: color .15s, background .15s;
+  }
+  .ng-content :global(.ng-copy-btn:hover) {
+    color: hsl(355 80% 62%);
+    background: hsl(217 33% 18%);
+  }
+  .ng-content :global(.ng-copy-btn.copied) { color: hsl(142 60% 55%); }
+  .ng-content :global(.ng-code-pre) {
+    padding: 10px 12px;
+    font-family: "Cascadia Code", "Fira Code", monospace;
+    font-size: 11.5px;
+    line-height: 1.5;
+    color: hsl(215 20% 80%);
+    overflow-x: auto;
+    white-space: pre;
+    margin: 0;
+  }
+  .ng-content :global(.ng-code-pre .kw) { color: hsl(280 60% 70%); }
+  .ng-content :global(.ng-code-pre .dec) { color: hsl(0 80% 65%); }
+  .ng-content :global(.ng-code-pre .str) { color: hsl(142 60% 60%); }
+  .ng-content :global(.ng-code-pre .fn) { color: hsl(355 80% 68%); }
+  .ng-content :global(.ng-code-pre .cm) { color: hsl(215 20% 40%); font-style: italic; }
+  .ng-content :global(.ng-code-pre .tp) { color: hsl(45 90% 65%); }
+  .ng-content :global(.ng-code-pre .tag) { color: hsl(0 80% 65%); }
+  .ng-content :global(.ng-code-pre .attr) { color: hsl(355 80% 68%); }
+  .ng-content :global(.ng-code-pre .val) { color: hsl(142 60% 60%); }
+
+  .ng-content :global(.ng-tip) {
+    margin: 10px 0;
+    padding: 8px 12px;
+    background: hsl(355 80% 50% / .08);
+    border-left: 3px solid hsl(355 80% 50%);
+    border-radius: 0 6px 6px 0;
+    font-size: 12px;
+    color: hsl(215 20% 70%);
+  }
+</style>
+
+<!-- ═══════════════════════════════════════════════ -->
+<!-- SCRIPT                                          -->
+<!-- ═══════════════════════════════════════════════ -->
+<script>
+(function () {
+  const root = document.getElementById("angular-root");
+  if (!root) return;
+
+  const sidebar = root.querySelector("#ng-sidebar");
+  const content = root.querySelector("#ng-content");
+  if (!sidebar || !content) return;
+
+  /* ── Helper: code block with copy button ── */
+  function codeBlock(lang, code) {
+    return `<div class="ng-code-block">
+      <div class="ng-code-label"><span>${lang}</span><button class="ng-copy-btn" data-code="${encodeURIComponent(code)}">Copiar</button></div>
+      <pre class="ng-code-pre">${code}</pre>
+    </div>`;
+  }
+
+  /* ── Sections ── */
+  const sections = {
+    "getting-started": () => `
+      <h2>Primeros pasos</h2>
+      <p>Angular es un framework de desarrollo web creado por Google para construir aplicaciones SPA (Single Page Application).</p>
+
+      <h3>Instalar Angular CLI</h3>
+      <p>La CLI de Angular permite crear proyectos, componentes, servicios y más desde la terminal.</p>
+      ${codeBlock("terminal", `<span class="kw">npm</span> install -g <span class="str">@angular/cli</span>`)}
+
+      <h3>Crear un proyecto nuevo</h3>
+      ${codeBlock("terminal", `<span class="kw">ng</span> new <span class="str">mi-aplicacion</span>\n<span class="kw">cd</span> mi-aplicacion\n<span class="kw">ng</span> serve`)}
+      <p>La app estará disponible en <code>http://localhost:4200</code>.</p>
+
+      <h3>Estructura del proyecto</h3>
+      ${codeBlock("plaintext",
+`src/
+├── app/
+│   ├── app.component.ts      <span class="cm">// Componente raíz</span>
+│   ├── app.component.html    <span class="cm">// Template principal</span>
+│   ├── app.component.css     <span class="cm">// Estilos del componente</span>
+│   ├── app.config.ts         <span class="cm">// Configuración de la app</span>
+│   └── app.routes.ts         <span class="cm">// Definición de rutas</span>
+├── assets/                   <span class="cm">// Archivos estáticos</span>
+├── index.html
+├── main.ts                   <span class="cm">// Punto de entrada</span>
+└── styles.css                <span class="cm">// Estilos globales</span>`)}
+
+      <h3>Generar elementos con la CLI</h3>
+      ${codeBlock("terminal",
+`<span class="cm"># Componente</span>
+<span class="kw">ng</span> generate component <span class="str">nombre</span>
+
+<span class="cm"># Servicio</span>
+<span class="kw">ng</span> generate service <span class="str">nombre</span>
+
+<span class="cm"># Pipe</span>
+<span class="kw">ng</span> generate pipe <span class="str">nombre</span>
+
+<span class="cm"># Guard</span>
+<span class="kw">ng</span> generate guard <span class="str">nombre</span>`)}
+
+      <div class="ng-tip">Angular 17+ usa <strong>standalone components</strong> por defecto. Ya no es necesario declarar componentes en un módulo.</div>
+    `,
+
+    "components": () => `
+      <h2>Componentes</h2>
+      <p>Los componentes son la unidad básica de la interfaz en Angular. Cada componente tiene su lógica, template y estilos.</p>
+
+      <h3>Componente standalone básico</h3>
+      ${codeBlock("app.component.ts",
+`<span class="kw">import</span> { <span class="tp">Component</span> } <span class="kw">from</span> <span class="str">'@angular/core'</span>;
+
+<span class="dec">@Component</span>({
+  <span class="fn">selector</span>: <span class="str">'app-saludo'</span>,
+  <span class="fn">standalone</span>: <span class="tp">true</span>,
+  <span class="fn">template</span>: <span class="str">\`
+    &lt;div class="card"&gt;
+      &lt;h2&gt;Hola, {{ nombre }}&lt;/h2&gt;
+      &lt;p&gt;Bienvenido a Angular&lt;/p&gt;
+    &lt;/div&gt;
+  \`</span>,
+  <span class="fn">styles</span>: <span class="str">\`
+    .card {
+      padding: 1rem;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+    }
+  \`</span>
+})
+<span class="kw">export class</span> <span class="tp">SaludoComponent</span> {
+  nombre = <span class="str">'Abel'</span>;
+}`)}
+
+      <h3>Inputs y Outputs</h3>
+      <p>Comunicación entre componentes padre e hijo.</p>
+      ${codeBlock("hijo.component.ts",
+`<span class="kw">import</span> { <span class="tp">Component</span>, <span class="tp">Input</span>, <span class="tp">Output</span>, <span class="tp">EventEmitter</span> } <span class="kw">from</span> <span class="str">'@angular/core'</span>;
+
+<span class="dec">@Component</span>({
+  <span class="fn">selector</span>: <span class="str">'app-hijo'</span>,
+  <span class="fn">standalone</span>: <span class="tp">true</span>,
+  <span class="fn">template</span>: <span class="str">\`
+    &lt;button (click)="enviar()"&gt;
+      {{ texto }}
+    &lt;/button&gt;
+  \`</span>
+})
+<span class="kw">export class</span> <span class="tp">HijoComponent</span> {
+  <span class="dec">@Input</span>() texto = <span class="str">'Click'</span>;
+  <span class="dec">@Output</span>() clicked = <span class="kw">new</span> <span class="tp">EventEmitter</span>&lt;<span class="tp">string</span>&gt;();
+
+  <span class="fn">enviar</span>() {
+    <span class="kw">this</span>.clicked.<span class="fn">emit</span>(<span class="str">'Evento del hijo'</span>);
+  }
+}`)}
+
+      ${codeBlock("padre.component.html",
+`<span class="cm">&lt;!-- Uso en el padre --&gt;</span>
+<span class="tag">&lt;app-hijo</span>
+  <span class="attr">[texto]</span>=<span class="val">"'Púlsame'"</span>
+  <span class="attr">(clicked)</span>=<span class="val">"onHijoClicked($event)"</span>
+<span class="tag">/&gt;</span>`)}
+
+      <h3>Ciclo de vida</h3>
+      ${codeBlock("lifecycle.component.ts",
+`<span class="kw">import</span> { <span class="tp">Component</span>, <span class="tp">OnInit</span>, <span class="tp">OnDestroy</span> } <span class="kw">from</span> <span class="str">'@angular/core'</span>;
+
+<span class="kw">export class</span> <span class="tp">MiComponent</span> <span class="kw">implements</span> <span class="tp">OnInit</span>, <span class="tp">OnDestroy</span> {
+  <span class="fn">ngOnInit</span>() {
+    <span class="cm">// Se ejecuta al iniciar el componente</span>
+    console.<span class="fn">log</span>(<span class="str">'Componente iniciado'</span>);
+  }
+
+  <span class="fn">ngOnDestroy</span>() {
+    <span class="cm">// Limpieza: desuscripciones, timers, etc.</span>
+    console.<span class="fn">log</span>(<span class="str">'Componente destruido'</span>);
+  }
+}`)}
+    `,
+
+    "templates": () => `
+      <h2>Templates</h2>
+      <p>Angular usa su propio sistema de templates con sintaxis especial para binding de datos y control de flujo.</p>
+
+      <h3>Interpolación y binding</h3>
+      ${codeBlock("template.html",
+`<span class="cm">&lt;!-- Interpolación --&gt;</span>
+<span class="tag">&lt;h1&gt;</span>{{ titulo }}<span class="tag">&lt;/h1&gt;</span>
+
+<span class="cm">&lt;!-- Property binding --&gt;</span>
+<span class="tag">&lt;img</span> <span class="attr">[src]</span>=<span class="val">"imagenUrl"</span> <span class="attr">[alt]</span>=<span class="val">"descripcion"</span><span class="tag">&gt;</span>
+
+<span class="cm">&lt;!-- Event binding --&gt;</span>
+<span class="tag">&lt;button</span> <span class="attr">(click)</span>=<span class="val">"onClick()"</span><span class="tag">&gt;</span>Enviar<span class="tag">&lt;/button&gt;</span>
+
+<span class="cm">&lt;!-- Two-way binding (requiere FormsModule) --&gt;</span>
+<span class="tag">&lt;input</span> <span class="attr">[(ngModel)]</span>=<span class="val">"nombre"</span><span class="tag">&gt;</span>`)}
+
+      <h3>Control de flujo (Angular 17+)</h3>
+      <p>La nueva sintaxis de control de flujo reemplaza a <code>*ngIf</code>, <code>*ngFor</code> y <code>*ngSwitch</code>.</p>
+      ${codeBlock("flow.html",
+`<span class="cm">&lt;!-- Condicional --&gt;</span>
+<span class="dec">@if</span> (usuario) {
+  <span class="tag">&lt;p&gt;</span>Hola, {{ usuario.nombre }}<span class="tag">&lt;/p&gt;</span>
+} <span class="dec">@else</span> {
+  <span class="tag">&lt;p&gt;</span>No has iniciado sesión<span class="tag">&lt;/p&gt;</span>
+}
+
+<span class="cm">&lt;!-- Bucle --&gt;</span>
+<span class="dec">@for</span> (item <span class="kw">of</span> items; <span class="kw">track</span> item.id) {
+  <span class="tag">&lt;div&gt;</span>{{ item.nombre }}<span class="tag">&lt;/div&gt;</span>
+} <span class="dec">@empty</span> {
+  <span class="tag">&lt;p&gt;</span>No hay elementos<span class="tag">&lt;/p&gt;</span>
+}
+
+<span class="cm">&lt;!-- Switch --&gt;</span>
+<span class="dec">@switch</span> (estado) {
+  <span class="dec">@case</span> (<span class="str">'activo'</span>) { <span class="tag">&lt;span&gt;</span>Activo<span class="tag">&lt;/span&gt;</span> }
+  <span class="dec">@case</span> (<span class="str">'inactivo'</span>) { <span class="tag">&lt;span&gt;</span>Inactivo<span class="tag">&lt;/span&gt;</span> }
+  <span class="dec">@default</span> { <span class="tag">&lt;span&gt;</span>Desconocido<span class="tag">&lt;/span&gt;</span> }
+}`)}
+
+      <h3>Carga diferida</h3>
+      ${codeBlock("defer.html",
+`<span class="dec">@defer</span> (<span class="kw">on viewport</span>) {
+  <span class="tag">&lt;app-comentarios</span> <span class="tag">/&gt;</span>
+} <span class="dec">@placeholder</span> {
+  <span class="tag">&lt;p&gt;</span>Cargando comentarios...<span class="tag">&lt;/p&gt;</span>
+} <span class="dec">@loading</span> (<span class="kw">minimum</span> <span class="str">500ms</span>) {
+  <span class="tag">&lt;app-spinner</span> <span class="tag">/&gt;</span>
+}`)}
+      <div class="ng-tip"><strong>@defer</strong> carga componentes de forma lazy automáticamente, mejorando el rendimiento inicial de la app.</div>
+    `,
+
+    "directives": () => `
+      <h2>Directivas</h2>
+      <p>Las directivas modifican el comportamiento o la apariencia de elementos del DOM.</p>
+
+      <h3>Directiva de atributo personalizada</h3>
+      ${codeBlock("highlight.directive.ts",
+`<span class="kw">import</span> { <span class="tp">Directive</span>, <span class="tp">ElementRef</span>, <span class="tp">HostListener</span>, <span class="tp">Input</span> } <span class="kw">from</span> <span class="str">'@angular/core'</span>;
+
+<span class="dec">@Directive</span>({
+  <span class="fn">selector</span>: <span class="str">'[appHighlight]'</span>,
+  <span class="fn">standalone</span>: <span class="tp">true</span>
+})
+<span class="kw">export class</span> <span class="tp">HighlightDirective</span> {
+  <span class="dec">@Input</span>() appHighlight = <span class="str">'yellow'</span>;
+
+  <span class="kw">constructor</span>(<span class="kw">private</span> el: <span class="tp">ElementRef</span>) {}
+
+  <span class="dec">@HostListener</span>(<span class="str">'mouseenter'</span>)
+  <span class="fn">onMouseEnter</span>() {
+    <span class="kw">this</span>.el.nativeElement.style.backgroundColor
+      = <span class="kw">this</span>.appHighlight;
+  }
+
+  <span class="dec">@HostListener</span>(<span class="str">'mouseleave'</span>)
+  <span class="fn">onMouseLeave</span>() {
+    <span class="kw">this</span>.el.nativeElement.style.backgroundColor
+      = <span class="str">''</span>;
+  }
+}`)}
+
+      ${codeBlock("uso.html",
+`<span class="tag">&lt;p</span> <span class="attr">[appHighlight]</span>=<span class="val">"'#e0f7fa'"</span><span class="tag">&gt;</span>
+  Pasa el ratón por encima
+<span class="tag">&lt;/p&gt;</span>`)}
+
+      <h3>Directiva estructural personalizada</h3>
+      ${codeBlock("unless.directive.ts",
+`<span class="kw">import</span> { <span class="tp">Directive</span>, <span class="tp">Input</span>, <span class="tp">TemplateRef</span>, <span class="tp">ViewContainerRef</span> }
+  <span class="kw">from</span> <span class="str">'@angular/core'</span>;
+
+<span class="dec">@Directive</span>({
+  <span class="fn">selector</span>: <span class="str">'[appUnless]'</span>,
+  <span class="fn">standalone</span>: <span class="tp">true</span>
+})
+<span class="kw">export class</span> <span class="tp">UnlessDirective</span> {
+  <span class="dec">@Input</span>() <span class="kw">set</span> <span class="fn">appUnless</span>(condition: <span class="tp">boolean</span>) {
+    <span class="kw">if</span> (!condition) {
+      <span class="kw">this</span>.vc.<span class="fn">createEmbeddedView</span>(<span class="kw">this</span>.tpl);
+    } <span class="kw">else</span> {
+      <span class="kw">this</span>.vc.<span class="fn">clear</span>();
+    }
+  }
+
+  <span class="kw">constructor</span>(
+    <span class="kw">private</span> tpl: <span class="tp">TemplateRef</span>&lt;<span class="tp">any</span>&gt;,
+    <span class="kw">private</span> vc: <span class="tp">ViewContainerRef</span>
+  ) {}
+}`)}
+    `,
+
+    "services": () => `
+      <h2>Servicios e Inyección de dependencias</h2>
+      <p>Los servicios encapsulan lógica reutilizable y se inyectan donde se necesiten.</p>
+
+      <h3>Crear un servicio</h3>
+      ${codeBlock("user.service.ts",
+`<span class="kw">import</span> { <span class="tp">Injectable</span> } <span class="kw">from</span> <span class="str">'@angular/core'</span>;
+
+<span class="dec">@Injectable</span>({
+  <span class="fn">providedIn</span>: <span class="str">'root'</span>  <span class="cm">// Disponible en toda la app</span>
+})
+<span class="kw">export class</span> <span class="tp">UserService</span> {
+  <span class="kw">private</span> users: <span class="tp">string</span>[] = [];
+
+  <span class="fn">getUsers</span>(): <span class="tp">string</span>[] {
+    <span class="kw">return</span> <span class="kw">this</span>.users;
+  }
+
+  <span class="fn">addUser</span>(name: <span class="tp">string</span>): <span class="tp">void</span> {
+    <span class="kw">this</span>.users.<span class="fn">push</span>(name);
+  }
+}`)}
+
+      <h3>Inyectar en un componente</h3>
+      ${codeBlock("user-list.component.ts",
+`<span class="kw">import</span> { <span class="tp">Component</span>, <span class="tp">inject</span> } <span class="kw">from</span> <span class="str">'@angular/core'</span>;
+<span class="kw">import</span> { <span class="tp">UserService</span> } <span class="kw">from</span> <span class="str">'./user.service'</span>;
+
+<span class="dec">@Component</span>({
+  <span class="fn">selector</span>: <span class="str">'app-user-list'</span>,
+  <span class="fn">standalone</span>: <span class="tp">true</span>,
+  <span class="fn">template</span>: <span class="str">\`
+    @for (user of users; track user) {
+      &lt;p&gt;{{ user }}&lt;/p&gt;
+    }
+  \`</span>
+})
+<span class="kw">export class</span> <span class="tp">UserListComponent</span> {
+  <span class="cm">// Inyección con la función inject()</span>
+  <span class="kw">private</span> userService = <span class="fn">inject</span>(<span class="tp">UserService</span>);
+  users = <span class="kw">this</span>.userService.<span class="fn">getUsers</span>();
+}`)}
+
+      <div class="ng-tip"><strong>inject()</strong> es la forma moderna de inyectar dependencias (Angular 14+). Sustituye al constructor injection en la mayoría de casos.</div>
+    `,
+
+    "routing": () => `
+      <h2>Routing</h2>
+      <p>El sistema de rutas de Angular permite navegar entre vistas sin recargar la página.</p>
+
+      <h3>Definir rutas</h3>
+      ${codeBlock("app.routes.ts",
+`<span class="kw">import</span> { <span class="tp">Routes</span> } <span class="kw">from</span> <span class="str">'@angular/router'</span>;
+
+<span class="kw">export const</span> routes: <span class="tp">Routes</span> = [
+  {
+    <span class="fn">path</span>: <span class="str">''</span>,
+    <span class="fn">loadComponent</span>: () =>
+      <span class="fn">import</span>(<span class="str">'./home/home.component'</span>)
+        .then(m => m.<span class="tp">HomeComponent</span>)
+  },
+  {
+    <span class="fn">path</span>: <span class="str">'usuarios'</span>,
+    <span class="fn">loadComponent</span>: () =>
+      <span class="fn">import</span>(<span class="str">'./users/users.component'</span>)
+        .then(m => m.<span class="tp">UsersComponent</span>)
+  },
+  {
+    <span class="fn">path</span>: <span class="str">'usuario/:id'</span>,
+    <span class="fn">loadComponent</span>: () =>
+      <span class="fn">import</span>(<span class="str">'./user-detail/user-detail.component'</span>)
+        .then(m => m.<span class="tp">UserDetailComponent</span>)
+  },
+  {
+    <span class="fn">path</span>: <span class="str">'**'</span>,
+    <span class="fn">redirectTo</span>: <span class="str">''</span>
+  }
+];`)}
+
+      <h3>Navegación en templates</h3>
+      ${codeBlock("nav.html",
+`<span class="tag">&lt;nav&gt;</span>
+  <span class="tag">&lt;a</span> <span class="attr">routerLink</span>=<span class="val">"/"</span> <span class="attr">routerLinkActive</span>=<span class="val">"active"</span><span class="tag">&gt;</span>
+    Inicio
+  <span class="tag">&lt;/a&gt;</span>
+  <span class="tag">&lt;a</span> <span class="attr">routerLink</span>=<span class="val">"/usuarios"</span> <span class="attr">routerLinkActive</span>=<span class="val">"active"</span><span class="tag">&gt;</span>
+    Usuarios
+  <span class="tag">&lt;/a&gt;</span>
+<span class="tag">&lt;/nav&gt;</span>
+
+<span class="cm">&lt;!-- Aquí se renderizan las vistas --&gt;</span>
+<span class="tag">&lt;router-outlet</span> <span class="tag">/&gt;</span>`)}
+
+      <h3>Leer parámetros de ruta</h3>
+      ${codeBlock("user-detail.component.ts",
+`<span class="kw">import</span> { <span class="tp">Component</span>, <span class="tp">inject</span> } <span class="kw">from</span> <span class="str">'@angular/core'</span>;
+<span class="kw">import</span> { <span class="tp">ActivatedRoute</span> } <span class="kw">from</span> <span class="str">'@angular/router'</span>;
+
+<span class="kw">export class</span> <span class="tp">UserDetailComponent</span> {
+  <span class="kw">private</span> route = <span class="fn">inject</span>(<span class="tp">ActivatedRoute</span>);
+
+  <span class="cm">// Obtener el parámetro :id de la URL</span>
+  userId = <span class="kw">this</span>.route.snapshot.paramMap.<span class="fn">get</span>(<span class="str">'id'</span>);
+}`)}
+
+      <h3>Guards de navegación</h3>
+      ${codeBlock("auth.guard.ts",
+`<span class="kw">import</span> { <span class="fn">inject</span> } <span class="kw">from</span> <span class="str">'@angular/core'</span>;
+<span class="kw">import</span> { <span class="tp">CanActivateFn</span>, <span class="tp">Router</span> } <span class="kw">from</span> <span class="str">'@angular/router'</span>;
+<span class="kw">import</span> { <span class="tp">AuthService</span> } <span class="kw">from</span> <span class="str">'./auth.service'</span>;
+
+<span class="kw">export const</span> <span class="fn">authGuard</span>: <span class="tp">CanActivateFn</span> = () => {
+  <span class="kw">const</span> auth = <span class="fn">inject</span>(<span class="tp">AuthService</span>);
+  <span class="kw">const</span> router = <span class="fn">inject</span>(<span class="tp">Router</span>);
+
+  <span class="kw">if</span> (auth.<span class="fn">isLoggedIn</span>()) {
+    <span class="kw">return</span> <span class="tp">true</span>;
+  }
+  <span class="kw">return</span> router.<span class="fn">parseUrl</span>(<span class="str">'/login'</span>);
+};`)}
+    `,
+
+    "forms": () => `
+      <h2>Formularios</h2>
+      <p>Angular ofrece dos enfoques: <strong>Template-driven</strong> (simple) y <strong>Reactive</strong> (más control).</p>
+
+      <h3>Reactive Forms</h3>
+      ${codeBlock("registro.component.ts",
+`<span class="kw">import</span> { <span class="tp">Component</span>, <span class="tp">inject</span> } <span class="kw">from</span> <span class="str">'@angular/core'</span>;
+<span class="kw">import</span> {
+  <span class="tp">ReactiveFormsModule</span>,
+  <span class="tp">FormBuilder</span>,
+  <span class="tp">Validators</span>
+} <span class="kw">from</span> <span class="str">'@angular/forms'</span>;
+
+<span class="dec">@Component</span>({
+  <span class="fn">selector</span>: <span class="str">'app-registro'</span>,
+  <span class="fn">standalone</span>: <span class="tp">true</span>,
+  <span class="fn">imports</span>: [<span class="tp">ReactiveFormsModule</span>],
+  <span class="fn">template</span>: <span class="str">\`
+    &lt;form [formGroup]="form" (ngSubmit)="onSubmit()"&gt;
+      &lt;label&gt;
+        Nombre
+        &lt;input formControlName="nombre"&gt;
+      &lt;/label&gt;
+
+      @if (form.get('nombre')?.errors?.['required']
+           && form.get('nombre')?.touched) {
+        &lt;span class="error"&gt;Obligatorio&lt;/span&gt;
+      }
+
+      &lt;label&gt;
+        Email
+        &lt;input formControlName="email" type="email"&gt;
+      &lt;/label&gt;
+
+      &lt;button type="submit"
+              [disabled]="form.invalid"&gt;
+        Registrarse
+      &lt;/button&gt;
+    &lt;/form&gt;
+  \`</span>
+})
+<span class="kw">export class</span> <span class="tp">RegistroComponent</span> {
+  <span class="kw">private</span> fb = <span class="fn">inject</span>(<span class="tp">FormBuilder</span>);
+
+  form = <span class="kw">this</span>.fb.<span class="fn">group</span>({
+    nombre: [<span class="str">''</span>, [<span class="tp">Validators</span>.required,
+                   <span class="tp">Validators</span>.minLength(<span class="str">3</span>)]],
+    email:  [<span class="str">''</span>, [<span class="tp">Validators</span>.required,
+                   <span class="tp">Validators</span>.email]]
+  });
+
+  <span class="fn">onSubmit</span>() {
+    <span class="kw">if</span> (<span class="kw">this</span>.form.valid) {
+      console.<span class="fn">log</span>(<span class="kw">this</span>.form.value);
+    }
+  }
+}`)}
+
+      <h3>Validación personalizada</h3>
+      ${codeBlock("validators.ts",
+`<span class="kw">import</span> { <span class="tp">AbstractControl</span>, <span class="tp">ValidationErrors</span> }
+  <span class="kw">from</span> <span class="str">'@angular/forms'</span>;
+
+<span class="kw">export function</span> <span class="fn">noWhitespace</span>(
+  control: <span class="tp">AbstractControl</span>
+): <span class="tp">ValidationErrors</span> | <span class="tp">null</span> {
+  <span class="kw">const</span> hasWhitespace = control.value?.trim().length === <span class="str">0</span>;
+  <span class="kw">return</span> hasWhitespace ? { <span class="fn">whitespace</span>: <span class="tp">true</span> } : <span class="tp">null</span>;
+}
+
+<span class="cm">// Uso:</span>
+<span class="cm">// nombre: ['', [Validators.required, noWhitespace]]</span>`)}
+    `,
+
+    "http": () => `
+      <h2>HTTP Client</h2>
+      <p>Angular incluye un cliente HTTP basado en Observables para comunicarte con APIs REST.</p>
+
+      <h3>Configurar HttpClient</h3>
+      ${codeBlock("app.config.ts",
+`<span class="kw">import</span> { <span class="fn">provideHttpClient</span> } <span class="kw">from</span> <span class="str">'@angular/common/http'</span>;
+
+<span class="kw">export const</span> appConfig = {
+  <span class="fn">providers</span>: [
+    <span class="fn">provideHttpClient</span>()
+  ]
+};`)}
+
+      <h3>Servicio con peticiones HTTP</h3>
+      ${codeBlock("api.service.ts",
+`<span class="kw">import</span> { <span class="tp">Injectable</span>, <span class="tp">inject</span> } <span class="kw">from</span> <span class="str">'@angular/core'</span>;
+<span class="kw">import</span> { <span class="tp">HttpClient</span> } <span class="kw">from</span> <span class="str">'@angular/common/http'</span>;
+<span class="kw">import</span> { <span class="tp">Observable</span> } <span class="kw">from</span> <span class="str">'rxjs'</span>;
+
+<span class="kw">interface</span> <span class="tp">Post</span> {
+  id: <span class="tp">number</span>;
+  title: <span class="tp">string</span>;
+  body: <span class="tp">string</span>;
+}
+
+<span class="dec">@Injectable</span>({ <span class="fn">providedIn</span>: <span class="str">'root'</span> })
+<span class="kw">export class</span> <span class="tp">ApiService</span> {
+  <span class="kw">private</span> http = <span class="fn">inject</span>(<span class="tp">HttpClient</span>);
+  <span class="kw">private</span> url = <span class="str">'https://jsonplaceholder.typicode.com'</span>;
+
+  <span class="fn">getPosts</span>(): <span class="tp">Observable</span>&lt;<span class="tp">Post</span>[]&gt; {
+    <span class="kw">return</span> <span class="kw">this</span>.http.<span class="fn">get</span>&lt;<span class="tp">Post</span>[]&gt;(
+      <span class="str">\`\${this.url}/posts\`</span>
+    );
+  }
+
+  <span class="fn">createPost</span>(data: <span class="tp">Partial</span>&lt;<span class="tp">Post</span>&gt;): <span class="tp">Observable</span>&lt;<span class="tp">Post</span>&gt; {
+    <span class="kw">return</span> <span class="kw">this</span>.http.<span class="fn">post</span>&lt;<span class="tp">Post</span>&gt;(
+      <span class="str">\`\${this.url}/posts\`</span>, data
+    );
+  }
+
+  <span class="fn">deletePost</span>(id: <span class="tp">number</span>): <span class="tp">Observable</span>&lt;<span class="tp">void</span>&gt; {
+    <span class="kw">return</span> <span class="kw">this</span>.http.<span class="fn">delete</span>&lt;<span class="tp">void</span>&gt;(
+      <span class="str">\`\${this.url}/posts/\${id}\`</span>
+    );
+  }
+}`)}
+
+      <h3>Interceptores</h3>
+      ${codeBlock("auth.interceptor.ts",
+`<span class="kw">import</span> { <span class="tp">HttpInterceptorFn</span> } <span class="kw">from</span> <span class="str">'@angular/common/http'</span>;
+
+<span class="kw">export const</span> <span class="fn">authInterceptor</span>: <span class="tp">HttpInterceptorFn</span> =
+  (req, next) => {
+    <span class="kw">const</span> token = localStorage.<span class="fn">getItem</span>(<span class="str">'token'</span>);
+
+    <span class="kw">if</span> (token) {
+      <span class="kw">const</span> clone = req.<span class="fn">clone</span>({
+        <span class="fn">setHeaders</span>: {
+          Authorization: <span class="str">\`Bearer \${token}\`</span>
+        }
+      });
+      <span class="kw">return</span> <span class="fn">next</span>(clone);
+    }
+
+    <span class="kw">return</span> <span class="fn">next</span>(req);
+  };
+
+<span class="cm">// Registrar en app.config.ts:</span>
+<span class="cm">// provideHttpClient(withInterceptors([authInterceptor]))</span>`)}
+    `,
+
+    "signals": () => `
+      <h2>Signals</h2>
+      <p>Los Signals son el nuevo sistema de reactividad de Angular (v16+). Permiten gestionar estado de forma sencilla y eficiente.</p>
+
+      <h3>Signal básico</h3>
+      ${codeBlock("counter.component.ts",
+`<span class="kw">import</span> { <span class="tp">Component</span>, <span class="fn">signal</span>, <span class="fn">computed</span> }
+  <span class="kw">from</span> <span class="str">'@angular/core'</span>;
+
+<span class="dec">@Component</span>({
+  <span class="fn">selector</span>: <span class="str">'app-counter'</span>,
+  <span class="fn">standalone</span>: <span class="tp">true</span>,
+  <span class="fn">template</span>: <span class="str">\`
+    &lt;p&gt;Contador: {{ count() }}&lt;/p&gt;
+    &lt;p&gt;Doble: {{ doble() }}&lt;/p&gt;
+    &lt;button (click)="incrementar()"&gt;+1&lt;/button&gt;
+    &lt;button (click)="resetear()"&gt;Reset&lt;/button&gt;
+  \`</span>
+})
+<span class="kw">export class</span> <span class="tp">CounterComponent</span> {
+  <span class="cm">// Signal: valor reactivo</span>
+  count = <span class="fn">signal</span>(<span class="str">0</span>);
+
+  <span class="cm">// Computed: derivado de otros signals</span>
+  doble = <span class="fn">computed</span>(() => <span class="kw">this</span>.count() * <span class="str">2</span>);
+
+  <span class="fn">incrementar</span>() {
+    <span class="kw">this</span>.count.<span class="fn">update</span>(n => n + <span class="str">1</span>);
+  }
+
+  <span class="fn">resetear</span>() {
+    <span class="kw">this</span>.count.<span class="fn">set</span>(<span class="str">0</span>);
+  }
+}`)}
+
+      <h3>Effect</h3>
+      <p>Ejecuta código cuando cambian los signals que lee.</p>
+      ${codeBlock("logger.component.ts",
+`<span class="kw">import</span> { <span class="tp">Component</span>, <span class="fn">signal</span>, <span class="fn">effect</span> }
+  <span class="kw">from</span> <span class="str">'@angular/core'</span>;
+
+<span class="kw">export class</span> <span class="tp">LoggerComponent</span> {
+  query = <span class="fn">signal</span>(<span class="str">''</span>);
+
+  <span class="kw">constructor</span>() {
+    <span class="cm">// Se ejecuta cada vez que query() cambie</span>
+    <span class="fn">effect</span>(() => {
+      console.<span class="fn">log</span>(
+        <span class="str">'Buscando:'</span>, <span class="kw">this</span>.query()
+      );
+    });
+  }
+}`)}
+
+      <h3>Signal inputs (Angular 17.1+)</h3>
+      ${codeBlock("card.component.ts",
+`<span class="kw">import</span> { <span class="tp">Component</span>, <span class="fn">input</span>, <span class="fn">computed</span> }
+  <span class="kw">from</span> <span class="str">'@angular/core'</span>;
+
+<span class="dec">@Component</span>({
+  <span class="fn">selector</span>: <span class="str">'app-card'</span>,
+  <span class="fn">standalone</span>: <span class="tp">true</span>,
+  <span class="fn">template</span>: <span class="str">\`
+    &lt;div [class]="cssClass()"&gt;
+      {{ title() }}
+    &lt;/div&gt;
+  \`</span>
+})
+<span class="kw">export class</span> <span class="tp">CardComponent</span> {
+  <span class="cm">// Input como signal (reemplaza @Input())</span>
+  title = <span class="fn">input</span>(<span class="str">'Sin título'</span>);
+  type  = <span class="fn">input</span>&lt;<span class="str">'info'</span> | <span class="str">'warn'</span>&gt;(<span class="str">'info'</span>);
+
+  <span class="cm">// Required input</span>
+  id = <span class="fn">input</span>.<span class="fn">required</span>&lt;<span class="tp">number</span>&gt;();
+
+  cssClass = <span class="fn">computed</span>(
+    () => <span class="str">\`card card-\${this.type()}\`</span>
+  );
+}`)}
+
+      <div class="ng-tip">Los signals son la base de la nueva detección de cambios de Angular. Usa <code>signal()</code> para estado local, <code>computed()</code> para valores derivados y <code>effect()</code> para side effects.</div>
+    `,
+
+    "pipes": () => `
+      <h2>Pipes</h2>
+      <p>Los pipes transforman datos en los templates. Angular incluye pipes integrados y puedes crear los tuyos.</p>
+
+      <h3>Pipes integrados</h3>
+      ${codeBlock("built-in.html",
+`<span class="cm">&lt;!-- Texto --&gt;</span>
+<span class="tag">&lt;p&gt;</span>{{ <span class="str">'hola mundo'</span> | <span class="fn">uppercase</span> }}<span class="tag">&lt;/p&gt;</span>
+<span class="cm">&lt;!-- HOLA MUNDO --&gt;</span>
+
+<span class="tag">&lt;p&gt;</span>{{ <span class="str">'Hola Mundo'</span> | <span class="fn">lowercase</span> }}<span class="tag">&lt;/p&gt;</span>
+<span class="cm">&lt;!-- hola mundo --&gt;</span>
+
+<span class="tag">&lt;p&gt;</span>{{ <span class="str">'hola mundo'</span> | <span class="fn">titlecase</span> }}<span class="tag">&lt;/p&gt;</span>
+<span class="cm">&lt;!-- Hola Mundo --&gt;</span>
+
+<span class="cm">&lt;!-- Fecha --&gt;</span>
+<span class="tag">&lt;p&gt;</span>{{ fecha | <span class="fn">date</span>:<span class="str">'dd/MM/yyyy'</span> }}<span class="tag">&lt;/p&gt;</span>
+<span class="cm">&lt;!-- 11/04/2026 --&gt;</span>
+
+<span class="tag">&lt;p&gt;</span>{{ fecha | <span class="fn">date</span>:<span class="str">'long'</span> }}<span class="tag">&lt;/p&gt;</span>
+<span class="cm">&lt;!-- 11 de abril de 2026 --&gt;</span>
+
+<span class="cm">&lt;!-- Moneda --&gt;</span>
+<span class="tag">&lt;p&gt;</span>{{ precio | <span class="fn">currency</span>:<span class="str">'EUR'</span> }}<span class="tag">&lt;/p&gt;</span>
+<span class="cm">&lt;!-- €1,234.56 --&gt;</span>
+
+<span class="cm">&lt;!-- JSON (debug) --&gt;</span>
+<span class="tag">&lt;pre&gt;</span>{{ objeto | <span class="fn">json</span> }}<span class="tag">&lt;/pre&gt;</span>
+
+<span class="cm">&lt;!-- Async (desuscribe automáticamente) --&gt;</span>
+<span class="tag">&lt;p&gt;</span>{{ datos$ | <span class="fn">async</span> }}<span class="tag">&lt;/p&gt;</span>`)}
+
+      <h3>Pipe personalizado</h3>
+      ${codeBlock("truncate.pipe.ts",
+`<span class="kw">import</span> { <span class="tp">Pipe</span>, <span class="tp">PipeTransform</span> } <span class="kw">from</span> <span class="str">'@angular/core'</span>;
+
+<span class="dec">@Pipe</span>({
+  <span class="fn">name</span>: <span class="str">'truncate'</span>,
+  <span class="fn">standalone</span>: <span class="tp">true</span>
+})
+<span class="kw">export class</span> <span class="tp">TruncatePipe</span> <span class="kw">implements</span> <span class="tp">PipeTransform</span> {
+  <span class="fn">transform</span>(
+    value: <span class="tp">string</span>,
+    limit = <span class="str">50</span>,
+    trail = <span class="str">'...'</span>
+  ): <span class="tp">string</span> {
+    <span class="kw">return</span> value.length > limit
+      ? value.<span class="fn">substring</span>(<span class="str">0</span>, limit) + trail
+      : value;
+  }
+}`)}
+
+      ${codeBlock("uso.html",
+`<span class="cm">&lt;!-- Trunca a 30 caracteres --&gt;</span>
+<span class="tag">&lt;p&gt;</span>{{ descripcion | <span class="fn">truncate</span>:<span class="str">30</span> }}<span class="tag">&lt;/p&gt;</span>
+
+<span class="cm">&lt;!-- Trunca a 20 con sufijo personalizado --&gt;</span>
+<span class="tag">&lt;p&gt;</span>{{ descripcion | <span class="fn">truncate</span>:<span class="str">20</span>:<span class="str">' [+]'</span> }}<span class="tag">&lt;/p&gt;</span>`)}
+    `,
+  };
+
+  /* ── Render ── */
+  function render(key) {
+    if (sections[key]) {
+      content.innerHTML = sections[key]();
+      bindCopyButtons();
+    }
+  }
+
+  /* ── Copy buttons ── */
+  function bindCopyButtons() {
+    content.querySelectorAll(".ng-copy-btn").forEach(btn => {
+      btn.addEventListener("click", () => {
+        const raw = decodeURIComponent(btn.dataset.code || "");
+        const text = raw.replace(/<[^>]+>/g, "");
+        navigator.clipboard.writeText(text).then(() => {
+          btn.textContent = "Copiado!";
+          btn.classList.add("copied");
+          setTimeout(() => {
+            btn.textContent = "Copiar";
+            btn.classList.remove("copied");
+          }, 1500);
+        });
+      });
+    });
+  }
+
+  /* ── Sidebar nav ── */
+  sidebar.addEventListener("click", (e) => {
+    const link = e.target.closest(".ng-link");
+    if (!link) return;
+    sidebar.querySelectorAll(".ng-link").forEach(l => l.classList.remove("active"));
+    link.classList.add("active");
+    render(link.dataset.section);
+  });
+
+  /* ── Init ── */
+  render("getting-started");
+})();
+</script>
