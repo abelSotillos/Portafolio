@@ -1,7 +1,7 @@
 ---
-// pages/desktop.astro  ← ejemplo de uso completo
 import Taskbar from "../components/Taskbar.astro";
 import DraggableWindow from "../components/DraggableWindow.astro";
+import MobileLayout from "../components/MobileLayout.astro";
 
 // Contenido de cada ventana como componente .astro
 import Portafolio from "../components/windows/Portafolio.astro";
@@ -16,7 +16,13 @@ import SpringBootWindow from "../components/windows/SpringBootWindow.astro";
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Mi Escritorio</title>
+    <meta name="theme-color" content="#111827" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="Abel S.C." />
+    <link rel="manifest" href="/manifest.json" />
+    <link rel="apple-touch-icon" href="/icon-192.png" />
+    <title>Abel Sotillos — Portfolio</title>
     <style>
       *,
       *::before,
@@ -38,9 +44,17 @@ import SpringBootWindow from "../components/windows/SpringBootWindow.astro";
         background-repeat: no-repeat;
         background-size: cover;
       }
+      /* Hide desktop elements on mobile */
+      @media (max-width: 768px) {
+        .win-window, #taskbar { display: none !important; }
+        body { background-image: none; }
+      }
     </style>
   </head>
   <body>
+    <!-- ── Mobile layout ── -->
+    <MobileLayout />
+
     <!--
     Cada DraggableWindow envuelve un componente de contenido.
     - El id debe coincidir con el id definido en taskbar.types.ts

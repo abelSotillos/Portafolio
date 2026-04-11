@@ -1,0 +1,451 @@
+---
+import {
+  User, Terminal, Sailboat, Component, Leaf,
+  ChevronLeft, Wifi, BatteryMedium, Signal,
+  LayoutGrid,
+} from '@lucide/astro/icons/index';
+
+const iconMap: Record<string, any> = { User, Terminal, Sailboat, Component, Leaf };
+
+const apps = [
+  { id: "portafolio",      title: "Perfil",       lucideIcon: "User" },
+  { id: "app-terminal",    title: "Terminal",      lucideIcon: "Terminal" },
+  { id: "app-docker",      title: "Docker",        lucideIcon: "Sailboat" },
+  { id: "app-angular",     title: "Angular",       lucideIcon: "Component" },
+  { id: "app-springboot",  title: "Spring Boot",   lucideIcon: "Leaf" },
+];
+---
+
+<div id="mobile-layout">
+
+  <!-- ── STATUS BAR ── -->
+  <div class="mb-statusbar">
+    <div class="mb-sb-left">
+      <span id="mb-clock">00:00</span>
+    </div>
+    <div class="mb-sb-notch"></div>
+    <div class="mb-sb-right">
+      <Signal size={12} />
+      <Wifi size={12} />
+      <span class="mb-battery-wrap">
+        <BatteryMedium size={14} />
+        <span id="mb-battery-pct" class="mb-battery-pct">87%</span>
+      </span>
+    </div>
+  </div>
+
+  <!-- ── HOME SCREEN ── -->
+  <div class="mb-home" id="mb-home">
+    <div class="mb-greeting">
+      <p class="mb-greeting-hello">Hola, soy</p>
+      <h1 class="mb-greeting-name">Abel Sotillos</h1>
+      <p class="mb-greeting-role">Full Stack Developer</p>
+    </div>
+
+    <div class="mb-app-grid">
+      {apps.map((app) => {
+        const Icon = iconMap[app.lucideIcon];
+        return (
+          <button class="mb-app-btn" data-open={app.id}>
+            <span class="mb-app-icon">
+              {Icon ? <Icon size={28} color="white" /> : ''}
+            </span>
+            <span class="mb-app-label">{app.title}</span>
+          </button>
+        );
+      })}
+    </div>
+
+    <div class="mb-home-indicator"></div>
+  </div>
+
+  <!-- ── APP VIEWS (empty shells, content moved from desktop via JS) ── -->
+  {apps.map((app) => (
+    <div class="mb-appview hidden" id={`mb-view-${app.id}`}>
+      <div class="mb-appbar">
+        <button class="mb-back"><ChevronLeft size={20} /> {app.title}</button>
+      </div>
+      <div class="mb-appbody" data-for={app.id}></div>
+    </div>
+  ))}
+
+  <!-- ── BOTTOM NAV BAR ── -->
+  <nav class="mb-navbar" id="mb-navbar">
+    <button class="mb-nav-btn active" id="mb-nav-apps" aria-label="Apps">
+      <LayoutGrid size={22} />
+      <span>Apps</span>
+    </button>
+  </nav>
+
+</div>
+
+<style>
+  /* ── Only visible on mobile ── */
+  #mobile-layout {
+    display: none;
+  }
+  @media (max-width: 768px) {
+    #mobile-layout {
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      width: 100%;
+      position: fixed;
+      inset: 0;
+      z-index: 200000;
+      background: hsl(222 47% 8%);
+      font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
+      color: white;
+      overflow: hidden;
+    }
+  }
+
+  /* ── STATUS BAR ── */
+  .mb-statusbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 6px 16px;
+    height: 44px;
+    flex-shrink: 0;
+    background: hsl(222 47% 6% / .85);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    z-index: 10;
+    position: relative;
+  }
+  .mb-sb-left {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 14px;
+    font-weight: 600;
+    min-width: 60px;
+  }
+  .mb-sb-notch {
+    width: 120px;
+    height: 28px;
+    background: hsl(0 0% 0%);
+    border-radius: 0 0 16px 16px;
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+  }
+  .mb-sb-right {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    min-width: 60px;
+    justify-content: flex-end;
+    color: hsl(215 20% 80%);
+  }
+  .mb-battery-wrap {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+  }
+  .mb-battery-pct {
+    font-size: 11px;
+    font-weight: 500;
+  }
+
+  /* ── HOME SCREEN ── */
+  .mb-home {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    padding: 20px 20px 12px;
+    overflow-y: auto;
+    background-image: url('/zorro-fondo2.png');
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+  }
+  .mb-home.hidden { display: none; }
+
+  .mb-greeting {
+    padding: 24px 0 32px;
+    text-align: center;
+  }
+  .mb-greeting-hello {
+    font-size: 14px;
+    color: hsl(215 20% 55%);
+    margin: 0 0 4px;
+  }
+  .mb-greeting-name {
+    font-size: 26px;
+    font-weight: 700;
+    margin: 0 0 6px;
+    background: linear-gradient(135deg, hsl(213 90% 65%), hsl(280 60% 70%));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .mb-greeting-role {
+    font-size: 13px;
+    color: hsl(215 20% 50%);
+    margin: 0;
+  }
+
+  .mb-app-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    padding: 0 8px;
+  }
+  .mb-app-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    padding: 16px 8px;
+    background: hsl(217 33% 14% / .96);
+    border: 1px solid hsl(217 33% 22% / .3);
+    border-radius: 16px;
+    cursor: pointer;
+    color: white;
+    font-family: inherit;
+    transition: transform .12s, background .12s;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .mb-app-btn:active {
+    transform: scale(.93);
+    background: hsl(217 33% 20% / .8);
+  }
+  .mb-app-icon {
+    width: 50px;
+    height: 50px;
+    border-radius: 14px;
+    background: linear-gradient(135deg, hsl(213 90% 45%), hsl(213 90% 35%));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 12px hsl(213 90% 40% / .3);
+  }
+  .mb-app-label {
+    font-size: 11px;
+    font-weight: 500;
+    color: hsl(215 20% 75%);
+    text-align: center;
+  }
+
+  .mb-home-indicator {
+    width: 134px;
+    height: 5px;
+    background: hsl(215 20% 40%);
+    border-radius: 3px;
+    margin: auto auto 8px;
+    flex-shrink: 0;
+  }
+
+  /* ── APP VIEW ── */
+  .mb-appview {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    background: hsl(222 47% 8%);
+    min-height: 0;
+    animation: mb-slide-in .25s cubic-bezier(.25, .8, .25, 1) both;
+  }
+  .mb-appview.hidden {
+    display: none;
+    animation: none;
+  }
+  .mb-appview.mb-closing {
+    animation: mb-slide-out .2s cubic-bezier(.25, .8, .25, 1) both;
+  }
+  @keyframes mb-slide-in {
+    from { transform: translateX(30%); opacity: 0; }
+    to   { transform: translateX(0); opacity: 1; }
+  }
+  @keyframes mb-slide-out {
+    from { transform: translateX(0); opacity: 1; }
+    to   { transform: translateX(30%); opacity: 0; }
+  }
+
+  .mb-appbar {
+    display: flex;
+    align-items: center;
+    padding: 0 4px;
+    height: 44px;
+    flex-shrink: 0;
+    background: hsl(217 33% 12%);
+    border-bottom: 1px solid hsl(217 33% 20% / .5);
+  }
+  .mb-back {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    background: none;
+    border: none;
+    color: hsl(213 90% 65%);
+    font-size: 14px;
+    font-weight: 500;
+    font-family: inherit;
+    cursor: pointer;
+    padding: 8px;
+    border-radius: 8px;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .mb-back:active { opacity: .6; }
+
+  .mb-appbody {
+    flex: 1;
+    overflow: auto;
+    min-height: 0;
+  }
+
+  /* ── BOTTOM NAVBAR ── */
+  .mb-navbar {
+    display: flex;
+    align-items: stretch;
+    height: 56px;
+    flex-shrink: 0;
+    background: hsl(222 47% 6% / .92);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-top: 1px solid hsl(217 33% 20% / .4);
+    z-index: 20;
+    position: relative;
+  }
+  .mb-nav-btn {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 3px;
+    background: none;
+    border: none;
+    color: hsl(215 20% 45%);
+    font-family: inherit;
+    font-size: 10px;
+    font-weight: 500;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    transition: color .15s;
+  }
+  .mb-nav-btn.active {
+    color: hsl(213 90% 65%);
+  }
+  .mb-nav-btn:active { opacity: .6; }
+
+</style>
+
+<script>
+(function () {
+  const layout = document.getElementById("mobile-layout");
+  if (!layout) return;
+
+  const home    = document.getElementById("mb-home")!;
+  const clock   = document.getElementById("mb-clock");
+  const battery = document.getElementById("mb-battery-pct");
+  const navApps = document.getElementById("mb-nav-apps")!;
+
+  // Track which app content is currently borrowed from desktop
+  let activeAppId: string | null = null;
+
+  // ── Clock ──
+  function updateClock() {
+    if (clock) {
+      clock.textContent = new Date().toLocaleTimeString("es-ES", {
+        hour: "2-digit", minute: "2-digit",
+      });
+    }
+  }
+  updateClock();
+  setInterval(updateClock, 15000);
+
+  // ── Battery ──
+  if (battery) {
+    battery.textContent = (Math.floor(Math.random() * 40) + 55) + "%";
+  }
+
+  // ── Move content from desktop window to mobile shell ──
+  function borrowContent(id: string) {
+    const desktopWin = document.getElementById(id);
+    if (!desktopWin) return;
+    const winContent = desktopWin.querySelector(".win-content");
+    if (!winContent) return;
+    const mobileBody = layout!.querySelector<HTMLElement>(`.mb-appbody[data-for="${id}"]`);
+    if (!mobileBody) return;
+    // Move all children from win-content to mobile body
+    while (winContent.firstChild) {
+      mobileBody.appendChild(winContent.firstChild);
+    }
+  }
+
+  // ── Return content back to desktop window ──
+  function returnContent(id: string) {
+    const desktopWin = document.getElementById(id);
+    if (!desktopWin) return;
+    const winContent = desktopWin.querySelector(".win-content");
+    if (!winContent) return;
+    const mobileBody = layout!.querySelector<HTMLElement>(`.mb-appbody[data-for="${id}"]`);
+    if (!mobileBody) return;
+    while (mobileBody.firstChild) {
+      winContent.appendChild(mobileBody.firstChild);
+    }
+  }
+
+  // ── Helpers ──
+  function hideAllViews() {
+    if (activeAppId) {
+      returnContent(activeAppId);
+      activeAppId = null;
+    }
+    layout!.querySelectorAll<HTMLElement>(".mb-appview").forEach(v => {
+      v.classList.add("hidden");
+      v.classList.remove("mb-closing");
+    });
+  }
+
+  function showHome() {
+    hideAllViews();
+    home.classList.remove("hidden");
+    navApps.classList.add("active");
+  }
+
+  function openApp(id: string) {
+    const view = document.getElementById(`mb-view-${id}`);
+    if (!view) return;
+
+    home.classList.add("hidden");
+    hideAllViews();
+    borrowContent(id);
+    activeAppId = id;
+    view.classList.remove("hidden");
+
+    if (id === "app-terminal") {
+      const termInput = view.querySelector<HTMLInputElement>("#term-input");
+      if (termInput) setTimeout(() => termInput.focus(), 300);
+    }
+  }
+
+  // ── Open app from grid ──
+  layout!.querySelectorAll<HTMLButtonElement>(".mb-app-btn").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const id = btn.dataset.open;
+      if (id) openApp(id);
+    });
+  });
+
+  // ── Back button ──
+  layout!.querySelectorAll<HTMLButtonElement>(".mb-back").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const view = btn.closest(".mb-appview");
+      if (!view) return;
+      view.classList.add("mb-closing");
+      setTimeout(() => {
+        view.classList.add("hidden");
+        view.classList.remove("mb-closing");
+        showHome();
+      }, 200);
+    });
+  });
+
+  // ── Bottom nav ──
+  navApps.addEventListener("click", () => showHome());
+})();
+</script>

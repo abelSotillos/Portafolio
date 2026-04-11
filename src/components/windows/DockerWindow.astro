@@ -11,6 +11,13 @@
   <!-- TAB 1: DOCUMENTACIÓN                          -->
   <!-- ══════════════════════════════════════════════ -->
   <div class="dk-panel active" id="dk-docs">
+    <div class="dk-topbar" id="dk-topbar">
+      <button class="dk-sidebar-toggle" id="dk-sidebar-toggle" aria-label="Menú">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h16"/><path d="M4 12h16"/><path d="M4 18h16"/></svg>
+      </button>
+      <span class="dk-topbar-title" id="dk-topbar-title">Básicos</span>
+    </div>
+    <div class="dk-sidebar-overlay hidden" id="dk-sidebar-overlay"></div>
     <div class="dk-docs-sidebar" id="dk-docs-sidebar">
       <button class="dk-doc-link active" data-doc="basics">Básicos</button>
       <button class="dk-doc-link" data-doc="images">Imágenes</button>
@@ -55,8 +62,16 @@
   <!-- ══════════════════════════════════════════════ -->
   <div class="dk-panel" id="dk-compose">
     <div class="dk-compose-layout">
-      <div class="dk-compose-services">
-        <div class="dk-compose-header">
+      <div class="dk-compose-topbar" id="dk-compose-topbar">
+        <button class="dk-compose-toggle" id="dk-compose-toggle" aria-label="Servicios">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h16"/><path d="M4 12h16"/><path d="M4 18h16"/></svg>
+        </button>
+        <span class="dk-compose-topbar-title">Servicios</span>
+        <button class="dk-add-svc dk-add-svc-mobile" id="dk-add-svc-mobile">+ Añadir</button>
+      </div>
+      <div class="dk-compose-overlay hidden" id="dk-compose-overlay"></div>
+      <div class="dk-compose-services" id="dk-compose-services">
+        <div class="dk-compose-header dk-compose-header-desktop">
           <span>Servicios</span>
           <button class="dk-add-svc" id="dk-add-svc">+ Añadir</button>
         </div>
@@ -177,6 +192,83 @@ services:
   }
   .dk-doc-link:hover { background: hsl(217 33% 18%); color: hsl(215 20% 75%); }
   .dk-doc-link.active { background: hsl(207 90% 50% / .15); color: hsl(207 90% 64%); }
+
+  .dk-topbar {
+    display: none;
+    align-items: center;
+    gap: 10px;
+    padding: 0 10px;
+    height: 40px;
+    flex-shrink: 0;
+    background: hsl(217 33% 12%);
+    border-bottom: 1px solid hsl(217 33% 22% / .4);
+    z-index: 12;
+  }
+  .dk-topbar-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: hsl(207 90% 64%);
+  }
+  .dk-sidebar-toggle {
+    display: flex;
+    width: 32px;
+    height: 32px;
+    align-items: center;
+    justify-content: center;
+    background: none;
+    border: none;
+    color: hsl(215 20% 70%);
+    cursor: pointer;
+    border-radius: 6px;
+    flex-shrink: 0;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .dk-sidebar-toggle:active { background: hsl(217 33% 20%); }
+  .dk-sidebar-overlay {
+    display: none;
+    position: absolute;
+    inset: 0;
+    background: rgba(0,0,0,.4);
+    z-index: 10;
+  }
+
+  @media (max-width: 768px) {
+    #dk-docs { flex-direction: column; position: relative; }
+    .dk-topbar { display: flex; position: relative; z-index: 15; }
+    .dk-docs-sidebar {
+      position: absolute;
+      top: 40px;
+      left: 0;
+      bottom: 0;
+      z-index: 14;
+      width: 160px;
+      transform: translateX(-100%);
+      transition: transform .2s ease;
+      box-shadow: none;
+      background: hsl(217 33% 10%);
+      padding: 10px 8px;
+      gap: 4px;
+    }
+    .dk-docs-sidebar.open {
+      transform: translateX(0);
+      box-shadow: 4px 0 20px rgba(0,0,0,.5);
+    }
+    .dk-doc-link {
+      font-size: 14px;
+      padding: 10px 12px;
+    }
+    .dk-sidebar-overlay {
+      position: absolute;
+      top: 40px;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      z-index: 13;
+    }
+    .dk-sidebar-overlay.open {
+      display: block;
+    }
+  }
 
   .dk-docs-content {
     flex: 1;
@@ -425,6 +517,48 @@ services:
   .hidden { display: none !important; }
 
   /* ── COMPOSE ── */
+  .dk-compose-topbar {
+    display: none;
+    align-items: center;
+    gap: 10px;
+    padding: 0 10px;
+    height: 40px;
+    flex-shrink: 0;
+    background: hsl(217 33% 12%);
+    border-bottom: 1px solid hsl(217 33% 22% / .4);
+  }
+  .dk-compose-topbar-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: hsl(207 90% 64%);
+    flex: 1;
+  }
+  .dk-add-svc-mobile {
+    display: none;
+  }
+  .dk-compose-toggle {
+    display: flex;
+    width: 32px;
+    height: 32px;
+    align-items: center;
+    justify-content: center;
+    background: none;
+    border: none;
+    color: hsl(215 20% 70%);
+    cursor: pointer;
+    border-radius: 6px;
+    flex-shrink: 0;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .dk-compose-toggle:active { background: hsl(217 33% 20%); }
+  .dk-compose-overlay {
+    display: none;
+    position: absolute;
+    inset: 0;
+    background: rgba(0,0,0,.4);
+    z-index: 10;
+  }
+
   .dk-compose-layout {
     display: flex;
     flex: 1;
@@ -609,6 +743,39 @@ services:
     font-size: 12px;
     color: hsl(215 20% 40%);
     text-align: center;
+  }
+
+  /* ── COMPOSE MOBILE ── */
+  @media (max-width: 768px) {
+    .dk-compose-layout { position: relative; flex-direction: column; }
+    .dk-compose-topbar { display: flex; position: relative; z-index: 15; }
+    .dk-add-svc-mobile { display: inline-block; }
+    .dk-compose-services {
+      position: absolute;
+      top: 40px;
+      left: 0;
+      bottom: 0;
+      z-index: 14;
+      width: 170px;
+      transform: translateX(-100%);
+      transition: transform .2s ease;
+      box-shadow: none;
+      border-right: 1px solid hsl(217 33% 22% / .4);
+    }
+    .dk-compose-services.open {
+      transform: translateX(0);
+      box-shadow: 4px 0 20px rgba(0,0,0,.5);
+    }
+    .dk-compose-overlay {
+      position: absolute;
+      top: 40px;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      z-index: 13;
+    }
+    .dk-compose-overlay.open { display: block; }
+    .dk-compose-header-desktop { display: none; }
   }
 </style>
 
@@ -933,12 +1100,30 @@ Total reclaimed space: 5.4GB`)}`,
   const docsContent = document.getElementById("dk-docs-content")!;
   docsContent.innerHTML = docs.basics;
 
+  const dkTopbarTitle = document.getElementById("dk-topbar-title");
+
   sidebar.addEventListener("click", (e) => {
     const link = (e.target as HTMLElement).closest<HTMLButtonElement>(".dk-doc-link");
     if (!link) return;
     sidebar.querySelectorAll(".dk-doc-link").forEach(l => l.classList.remove("active"));
     link.classList.add("active");
     docsContent.innerHTML = docs[link.dataset.doc!] || "";
+    if (dkTopbarTitle) dkTopbarTitle.textContent = link.textContent;
+    sidebar.classList.remove("open");
+    dkOverlay.classList.remove("open");
+  });
+
+  // Sidebar toggle (mobile)
+  const dkToggle = document.getElementById("dk-sidebar-toggle");
+  const dkOverlay = document.getElementById("dk-sidebar-overlay")!;
+
+  dkToggle?.addEventListener("click", () => {
+    sidebar.classList.toggle("open");
+    dkOverlay.classList.toggle("open");
+  });
+  dkOverlay.addEventListener("click", () => {
+    sidebar.classList.remove("open");
+    dkOverlay.classList.remove("open");
   });
 
   // Copy command to clipboard
@@ -1666,6 +1851,21 @@ docker run -d --name ${v.name} \\
   });
 
   // ════════════════════════════════════════════════
+  // ── Compose sidebar toggle (mobile) ──
+  const composeToggle = document.getElementById("dk-compose-toggle");
+  const composeOverlay = document.getElementById("dk-compose-overlay")!;
+  const composeSidebar = document.getElementById("dk-compose-services")!;
+
+  function closeComposeSidebar() {
+    composeSidebar.classList.remove("open");
+    composeOverlay.classList.remove("open");
+  }
+  composeToggle?.addEventListener("click", () => {
+    composeSidebar.classList.toggle("open");
+    composeOverlay.classList.toggle("open");
+  });
+  composeOverlay.addEventListener("click", closeComposeSidebar);
+
   // TAB 3: COMPOSE GENERATOR
   // ════════════════════════════════════════════════
   interface SvcDef { name: string; yaml: string; }
@@ -1818,14 +2018,17 @@ docker run -d --name ${v.name} \\
     renderYaml();
   });
 
-  document.getElementById("dk-add-svc")!.addEventListener("click", () => {
+  function openAddSvcModal() {
     svcType.value = "";
     svcSearch.value = "";
     extraFields.innerHTML = "";
     renderSvcDropdown();
     svcDropdown.classList.add("hidden");
     modal.classList.remove("hidden");
-  });
+    closeComposeSidebar();
+  }
+  document.getElementById("dk-add-svc")!.addEventListener("click", openAddSvcModal);
+  document.getElementById("dk-add-svc-mobile")?.addEventListener("click", openAddSvcModal);
 
   document.getElementById("dk-svc-cancel")!.addEventListener("click", () => {
     modal.classList.add("hidden");

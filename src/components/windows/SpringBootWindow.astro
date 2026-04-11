@@ -1,5 +1,14 @@
 <div class="sb" id="springboot-root">
 
+  <!-- ── SIDEBAR TOGGLE BAR (mobile) ── -->
+  <div class="sb-topbar" id="sb-topbar">
+    <button class="sb-sidebar-toggle" id="sb-sidebar-toggle" aria-label="Menú">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h16"/><path d="M4 12h16"/><path d="M4 18h16"/></svg>
+    </button>
+    <span class="sb-topbar-title" id="sb-topbar-title">Primeros pasos</span>
+  </div>
+  <div class="sb-sidebar-overlay hidden" id="sb-sidebar-overlay"></div>
+
   <!-- ── SIDEBAR ── -->
   <div class="sb-sidebar" id="sb-sidebar">
     <button class="sb-link active" data-section="getting-started">Primeros pasos</button>
@@ -73,6 +82,83 @@
   }
   .sb-link:hover { background: hsl(217 33% 18%); color: hsl(215 20% 75%); }
   .sb-link.active { background: hsl(120 55% 45% / .15); color: hsl(120 55% 62%); }
+
+  .sb-topbar {
+    display: none;
+    align-items: center;
+    gap: 10px;
+    padding: 0 10px;
+    height: 40px;
+    flex-shrink: 0;
+    background: hsl(217 33% 12%);
+    border-bottom: 1px solid hsl(217 33% 22% / .4);
+    z-index: 12;
+  }
+  .sb-topbar-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: hsl(120 55% 62%);
+  }
+  .sb-sidebar-toggle {
+    display: flex;
+    width: 32px;
+    height: 32px;
+    align-items: center;
+    justify-content: center;
+    background: none;
+    border: none;
+    color: hsl(215 20% 70%);
+    cursor: pointer;
+    border-radius: 6px;
+    flex-shrink: 0;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .sb-sidebar-toggle:active { background: hsl(217 33% 20%); }
+  .sb-sidebar-overlay {
+    display: none;
+    position: absolute;
+    inset: 0;
+    background: rgba(0,0,0,.4);
+    z-index: 10;
+  }
+
+  @media (max-width: 768px) {
+    .sb { flex-direction: column; position: relative; }
+    .sb-topbar { display: flex; position: relative; z-index: 15; }
+    .sb-sidebar {
+      position: absolute;
+      top: 40px;
+      left: 0;
+      bottom: 0;
+      z-index: 14;
+      width: 170px;
+      transform: translateX(-100%);
+      transition: transform .2s ease;
+      box-shadow: none;
+      background: hsl(217 33% 10%);
+      padding: 10px 8px;
+      gap: 4px;
+    }
+    .sb-sidebar.open {
+      transform: translateX(0);
+      box-shadow: 4px 0 20px rgba(0,0,0,.5);
+    }
+    .sb-link {
+      font-size: 14px;
+      padding: 10px 12px;
+    }
+    .sb-sidebar-overlay {
+      position: absolute;
+      top: 40px;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      z-index: 13;
+    }
+    .sb-sidebar-overlay.open {
+      display: block;
+    }
+  }
 
   /* ── Content ── */
   .sb-content {
@@ -922,12 +1008,30 @@
   }
 
   /* ── Sidebar nav ── */
+  const sbTopbarTitle = root.querySelector("#sb-topbar-title");
+
   sidebar.addEventListener("click", (e) => {
     const link = e.target.closest(".sb-link");
     if (!link) return;
     sidebar.querySelectorAll(".sb-link").forEach(l => l.classList.remove("active"));
     link.classList.add("active");
     render(link.dataset.section);
+    if (sbTopbarTitle) sbTopbarTitle.textContent = link.textContent;
+    sidebar.classList.remove("open");
+    sbOverlay.classList.remove("open");
+  });
+
+  /* ── Sidebar toggle (mobile) ── */
+  const sbToggle = root.querySelector("#sb-sidebar-toggle");
+  const sbOverlay = root.querySelector("#sb-sidebar-overlay")!;
+
+  sbToggle?.addEventListener("click", () => {
+    sidebar.classList.toggle("open");
+    sbOverlay.classList.toggle("open");
+  });
+  sbOverlay.addEventListener("click", () => {
+    sidebar.classList.remove("open");
+    sbOverlay.classList.remove("open");
   });
 
   /* ── Init ── */

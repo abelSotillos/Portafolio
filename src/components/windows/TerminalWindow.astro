@@ -4,8 +4,8 @@
 <span class="term-accent">       ___       </span>  <span class="term-label">OS:</span> AbelOS v1.0
 <span class="term-accent">      /   \      </span>  <span class="term-label">Host:</span> abelsotillos.com
 <span class="term-accent">     | ^_^ |     </span>  <span class="term-label">Uptime:</span> +25 años
-<span class="term-accent">      \___/      </span>  <span class="term-label">Stack:</span> ASTRO
-<span class="term-accent">     /|   |\     </span>  <span class="term-label">IDE:</span> VS Code 
+<span class="term-accent">      \___/      </span>  <span class="term-label">Stack:</span> Angular · Spring Boot · Astro
+<span class="term-accent">     /|   |\     </span>  <span class="term-label">IDE:</span> VS Code
 <span class="term-accent">    / |   | \    </span>  <span class="term-label">Shell:</span> portfolio-sh
 <span class="term-accent">   •  •   •  •   </span>  <span class="term-label">Contacto:</span> abelsotillos@gmail.com
 
@@ -101,189 +101,33 @@ Escribe <span class="term-cmd">help</span> para ver los comandos disponibles.
 </style>
 
 <script>
-  const output = document.getElementById("term-output")!;
-  const input = document.getElementById("term-input") as HTMLInputElement;
+  import { getNode } from './terminal/filesystem';
+  import { createBuiltins, esc, type TerminalState } from './terminal/commands';
+  import { easterEggs, sudoHandler } from './terminal/easterEggs';
+  import { rmRfSequence } from './terminal/rmSequence';
+
+  // ── DOM refs ──
+  const output   = document.getElementById("term-output")!;
+  const input    = document.getElementById("term-input") as HTMLInputElement;
   const promptEl = document.getElementById("term-prompt")!;
+  const termRoot = document.getElementById("terminal-root")!;
+  const inputLine = termRoot.querySelector(".term-input-line") as HTMLElement;
+
+  // ── Mutable state ──
   const cmdHistory: string[] = [];
   let histIdx = -1;
+  let rmLocked = false;
 
-  // ── Filesystem ──
-  type FSNode = { type: "dir"; children: Record<string, FSNode> } | { type: "file"; content: string };
-
-  function dir(children: Record<string, FSNode>): FSNode { return { type: "dir", children }; }
-  function file(content: string): FSNode { return { type: "file", content }; }
-
-  const fs: FSNode = dir({
-    home: dir({
-      abel: dir({
-        "2020-2021": dir({
-          "README.md": file(
-            "# Técnico en Sistemas Microinformáticos y Redes\n" +
-            "IES Virgen del Espino · Soria\n\n" +
-            "Primer contacto con redes, hardware y administración de sistemas.\n" +
-            "Aquí empezó todo."
-          ),
-          "notas.txt": file(
-            "- Aprobé todo a la primera, menos REDES... eso me costó sudor.\n" +
-            "- Descubrí que me gustaba más el software que el hardware.\n" +
-            "- Mi primer 'Hola Mundo' fue en Python. Mágico."
-          ),
-        }),
-        "2021-2022": dir({
-          "README.md": file(
-            "# TS Administración de Sistemas + TS Desarrollo de Aplicaciones Web\n" +
-            "GSD Gredos San Diego · Buitrago de Lozoya, Madrid\n\n" +
-            "Dos grados superiores en paralelo. Año intenso.\n" +
-            "Aquí aprendí Java, SQL, Angular y a sobrevivir con 4h de sueño."
-          ),
-          "notas.txt": file(
-            "- Dos ciclos a la vez fue una locura, pero mereció la pena.\n" +
-            "- Primer proyecto serio con Angular. Me enamoré del framework.\n" +
-            "- El café se convirtió en mi mejor amigo."
-          ),
-          "primer-proyecto.txt": file(
-            "Mi primer proyecto 'de verdad': una app de gestión de inventario.\n" +
-            "Angular + Node.js + MySQL.\n" +
-            "El código era horrible pero funcionaba. Y eso es lo que importa.\n" +
-            "...¿verdad?"
-          ),
-        }),
-        "2023": dir({
-          "README.md": file(
-            "# Primer año en MELIT TECHNOLOGIES\n" +
-            "Enero 2023 — Diciembre 2023\n\n" +
-            "Mi primer trabajo como desarrollador. Nervios del primer día.\n" +
-            "Proyecto: Intelit Gestor Documental."
-          ),
-          "intelit-gestor-documental.txt": file(
-            "Plataforma de gestión documental multitenant estilo Google Drive.\n\n" +
-            "Stack: Angular · Angular Material · Bootstrap · OAuth 2.0\n" +
-            "Rol: Frontend Developer\n\n" +
-            "Lo que aprendí:\n" +
-            "- Arquitectura de permisos por tenant\n" +
-            "- OAuth 2.0 de verdad (no el de los tutoriales)\n" +
-            "- Que 'multitenant' suena fácil hasta que lo implementas"
-          ),
-          "notas.txt": file(
-            "- Síndrome del impostor nivel máximo los primeros meses.\n" +
-            "- Mi primer merge a producción: las manos me temblaban.\n" +
-            "- Descubrí que StackOverflow no tiene TODAS las respuestas."
-          ),
-        }),
-        "2024": dir({
-          "README.md": file(
-            "# Segundo año en MELIT TECHNOLOGIES\n" +
-            "Enero 2024 — Diciembre 2024\n\n" +
-            "Año de crecimiento brutal. Tres proyectos distintos.\n" +
-            "Pasé de 'el junior' a tener voz en las decisiones técnicas."
-          ),
-          "canal-denuncias-saas.txt": file(
-            "Canal de Denuncias SaaS — Feb 2024 a Sep 2024\n\n" +
-            "Stack: Angular · Spring Boot · MySQL · GDPR\n\n" +
-            "Cumplimiento EU Whistleblowing Directive.\n" +
-            "Cifrado de datos sensibles, gestión de sesiones segura, Redsys.\n\n" +
-            "La parte de GDPR me hizo leer más documentos legales que código."
-          ),
-          "el-encinar.txt": file(
-            "El Encinar de Humienta — Oct 2024 a Nov 2024\n\n" +
-            "Stack: Angular 18 · Spring Boot · PostgreSQL\n\n" +
-            "Migración de AngularJS a Angular 18 y de microservicios a monolito.\n" +
-            "Sí, has leído bien: de micro a mono. A veces menos es más."
-          ),
-          "saas-reservas.txt": file(
-            "SaaS Gestión de Reservas White Label — Dic 2024 a Sep 2025\n\n" +
-            "Stack: Angular · Angular Material · Spring Boot · CI/CD\n\n" +
-            "Plataforma multitenant de reservas con Redsys y Google Calendar API.\n" +
-            "Mi primer pipeline CI/CD de verdad con Bitbucket Pipelines."
-          ),
-          "notas.txt": file(
-            "- Primer año sin sentirme junior. Gran sensación.\n" +
-            "- Aprendí que migrar AngularJS es un deporte de riesgo.\n" +
-            "- El café ya no era suficiente. Pasé al mate."
-          ),
-        }),
-        "2025": dir({
-          "README.md": file(
-            "# Tercer año en MELIT TECHNOLOGIES\n" +
-            "Enero 2025 — Actualidad\n\n" +
-            "Proyecto actual: Inmobiliaria Pomora.\n" +
-            "Y este portafolio, que por fin me decidí a hacer."
-          ),
-          "inmobiliaria-pomora.txt": file(
-            "Inmobiliaria Pomora — Oct 2025 a Actualidad\n\n" +
-            "Stack: Spring Boot · JSP · Java · MySQL\n\n" +
-            "Plataforma de gestión inmobiliaria.\n" +
-            "Integración con Mailjet y James Edition API.\n" +
-            "JSP en 2025... sí, existe. Y funciona."
-          ),
-          "este-portafolio.txt": file(
-            "Este portafolio que estás viendo ahora mismo.\n\n" +
-            "Stack: Astro · TypeScript · CSS puro\n\n" +
-            "Estilo escritorio Windows porque... ¿por qué no?\n" +
-            "Si estás leyendo esto desde la terminal, enhorabuena.\n" +
-            "Eres de los míos."
-          ),
-          "notas.txt": file(
-            "- Por fin hice un portafolio. Solo me costó 3 años decidirme.\n" +
-            "- JSP no estaba en mis planes de 2025, pero aquí estamos.\n" +
-            "- Nota mental: no dejar el portafolio para 'la semana que viene'."
-          ),
-        }),
-        ".secreto": file(
-          "🦊 Has encontrado el easter egg secreto.\n\n" +
-          "Si has llegado hasta aquí es que sabes lo que haces.\n" +
-          "O que has probado 'ls -a' por costumbre. En cualquier caso, respeto.\n\n" +
-          "Fun facts:\n" +
-          "- Este portafolio se hizo con mucho café y algo de caos.\n" +
-          "- El zorro del fondo se llama Vulpi.\n" +
-          "- Mi primer ordenador fue un Pentium 4 con 512MB de RAM.\n" +
-          "- Una vez hice un rm -rf / en un servidor de prácticas. Aprendí rápido."
-        ),
-        ".bash_history": file(
-          "git push --force  # nunca más\n" +
-          "sudo rm -rf node_modules\n" +
-          "npm install\n" +
-          "npm install\n" +
-          "npm install  # ¿por qué no funciona?\n" +
-          "clear\n" +
-          "git blame  # buscando al culpable (era yo)\n" +
-          "man woman  # No manual entry for woman\n" +
-          "exit  # a dormir que mañana hay daily"
-        ),
-      }),
-    }),
-  });
-
-  let cwd = "/home/abel";
-
-  function resolve(path: string): string {
-    let parts: string[];
-    if (path.startsWith("/")) {
-      parts = path.split("/").filter(Boolean);
-    } else {
-      parts = [...cwd.split("/").filter(Boolean), ...path.split("/").filter(Boolean)];
-    }
-    const resolved: string[] = [];
-    for (const p of parts) {
-      if (p === ".") continue;
-      if (p === "..") { resolved.pop(); continue; }
-      resolved.push(p);
-    }
-    return "/" + resolved.join("/");
-  }
-
-  function getNode(path: string): FSNode | null {
-    const parts = path.split("/").filter(Boolean);
-    let node: FSNode = fs;
-    for (const p of parts) {
-      if (node.type !== "dir" || !(p in node.children)) return null;
-      node = node.children[p];
-    }
-    return node;
-  }
+  const state: TerminalState = {
+    cwd: "/home/abel",
+    setCwd(path: string) { state.cwd = path; },
+    updatePrompt,
+    cmdHistory,
+    sessionStart: Date.now(),
+  };
 
   function getPrompt(): string {
-    const display = cwd === "/home/abel" ? "~" : cwd.replace("/home/abel", "~");
+    const display = state.cwd === "/home/abel" ? "~" : state.cwd.replace("/home/abel", "~");
     return `abel@portfolio:${display}$\u00a0`;
   }
 
@@ -291,267 +135,10 @@ Escribe <span class="term-cmd">help</span> para ver los comandos disponibles.
     promptEl.textContent = getPrompt();
   }
 
-  // ── Easter eggs ──
-  let sudoCount = 0;
+  // ── Build commands ──
+  const builtins = createBuiltins(state);
 
-  const easterEggs: Record<string, () => string> = {
-    "sudo rm -rf /": () => "__RM_RF__",
-    "exit": () =>
-      "<span class=\"term-cmd\">¿Irte? Pero si acabas de llegar... Quédate un rato más.</span>",
-    "vim": () =>
-      "<span class=\"term-dim\">Has abierto vim. Buena suerte saliendo.\n" +
-      "(pista: :q! ... o cierra la pestaña, no juzgo)</span>",
-    "emacs": () =>
-      "<span class=\"term-dim\">Emacs no es un editor, es un sistema operativo.\nPero aquí usamos vim. O nano. Como gente normal.</span>",
-    "nano": () =>
-      "<span class=\"term-accent\">Nano: para cuando quieres editar un archivo y también salir de él.</span>",
-    "cowsay": () =>
-      "<span class=\"term-accent\"> _______________\n" +
-      "< Moo! Contrata a Abel >\n" +
-      " ---------------\n" +
-      "        \\   ^__^\n" +
-      "         \\  (oo)\\_______\n" +
-      "            (__)\\       )\\/\\\n" +
-      "                ||----w |\n" +
-      "                ||     ||</span>",
-    "sl": () =>
-      "<span class=\"term-dim\">      ====        ________                ___________\n" +
-      "  _D _|  |_______/        \\__I_I_____===__|_________|__\n" +
-      "   |(_)---  |   H\\________/ |   |        =|___ ___|  \n" +
-      "   /     |  |   H  |  |     |   |         ||_| |_||  \n" +
-      "  |      |  |   H  |__--------------------| [___] |  \n" +
-      "  | ________|___H__/__|_____/[][]~\\_______|       |  \n" +
-      "  |/ |   |-----------I_____I [][] []  D   |=======|__\n" +
-      "🚂 Quisiste escribir 'ls', ¿verdad?</span>",
-    "rm -rf /": () => "__RM_RF__",
-    "hack": () =>
-      "<span class=\"term-accent\">ACCEDIENDO AL MAINFRAME...\n" +
-      "████████████████████ 100%\n" +
-      "DESENCRIPTANDO ARCHIVOS...\n" +
-      "████████████████████ 100%\n" +
-      "...\n" +
-      "Acceso concedido: eres un hacker de película de los 90. Enhorabuena.</span>",
-    "make me a sandwich": () =>
-      "<span class=\"term-dim\">¿Qué? Hazlo tú.</span>",
-    "sudo make me a sandwich": () =>
-      "<span class=\"term-accent\">Okay. 🥪</span>",
-    "fortune": () => {
-      const fortunes = [
-        "Un buen desarrollador copia. Un gran desarrollador pega.",
-        "Hay 10 tipos de personas: las que entienden binario y las que no.",
-        "La mejor documentación es el código que no necesita documentación.",
-        "git commit -m 'arreglado' — Narrador: no estaba arreglado.",
-        "El café es solo una excusa para hacer debug con los ojos abiertos.",
-        "En producción funciona. No preguntes cómo.",
-        "Si funciona, no lo toques. Si no funciona, tampoco.",
-        "Siempre programa como si el tipo que va a mantener tu código fuera un psicópata que sabe dónde vives.",
-      ];
-      return `<span class="term-cmd">${fortunes[Math.floor(Math.random() * fortunes.length)]}</span>`;
-    },
-    "neofetch": () =>
-      "<span class=\"term-accent\">       ___       </span>  <span class=\"term-label\">OS:</span> AbelOS v1.0\n" +
-      "<span class=\"term-accent\">      /   \\      </span>  <span class=\"term-label\">Host:</span> abelsotillos.com\n" +
-      "<span class=\"term-accent\">     | ^_^ |     </span>  <span class=\"term-label\">Uptime:</span> +25 años\n" +
-      "<span class=\"term-accent\">      \\___/      </span>  <span class=\"term-label\">Stack:</span> ASTRO\n" +
-      "<span class=\"term-accent\">     /|   |\\     </span>  <span class=\"term-label\">IDE:</span> VS Code \n" +
-      "<span class=\"term-accent\">    / |   | \\    </span>  <span class=\"term-label\">Shell:</span> portfolio-sh\n" +
-      "<span class=\"term-accent\">   •  •   •  •   </span>  <span class=\"term-label\">Contacto:</span> abelsotillos@gmail.com",
-  };
-
-  // ── Commands ──
-  function cmdLs(args: string[]): string {
-    const showHidden = args.includes("-a") || args.includes("-la") || args.includes("-al");
-    const pathArg = args.find(a => !a.startsWith("-"));
-    const target = pathArg ? resolve(pathArg) : cwd;
-    const node = getNode(target);
-    if (!node) return `<span class="term-error">ls: no se puede acceder a '${esc(pathArg || "")}': No existe el archivo o el directorio</span>`;
-    if (node.type === "file") return pathArg || cwd.split("/").pop() || "";
-    const keys = Object.keys(node.children)
-      .filter(k => showHidden || !k.startsWith("."))
-      .sort();
-    if (keys.length === 0) return "<span class=\"term-dim\">(directorio vacío)</span>";
-    return keys.map(k => {
-      const child = node.children[k];
-      return child.type === "dir"
-        ? `<span class="term-label">${esc(k)}/</span>`
-        : `<span class="term-dim">${esc(k)}</span>`;
-    }).join("  ");
-  }
-
-  function cmdCd(args: string[]): string {
-    const target = args[0];
-    if (!target || target === "~") { cwd = "/home/abel"; updatePrompt(); return ""; }
-    const resolved = resolve(target);
-    const node = getNode(resolved);
-    if (!node) return `<span class="term-error">cd: ${esc(target)}: No existe el archivo o el directorio</span>`;
-    if (node.type !== "dir") return `<span class="term-error">cd: ${esc(target)}: No es un directorio</span>`;
-    cwd = resolved;
-    updatePrompt();
-    return "";
-  }
-
-  function cmdCat(args: string[]): string {
-    if (args.length === 0) return `<span class="term-error">cat: falta el operando</span>`;
-    const target = resolve(args[0]);
-    const node = getNode(target);
-    if (!node) return `<span class="term-error">cat: ${esc(args[0])}: No existe el archivo o el directorio</span>`;
-    if (node.type === "dir") return `<span class="term-error">cat: ${esc(args[0])}: Es un directorio</span>`;
-    return esc(node.content);
-  }
-
-  function cmdPwd(): string { return cwd; }
-
-  function cmdWhoami(): string { return "abel"; }
-
-  function cmdDate(): string { return new Date().toLocaleString("es-ES", { dateStyle: "full", timeStyle: "medium" }); }
-
-  function cmdUname(args: string[]): string {
-    if (args.includes("-a")) return "AbelOS 1.0.0 portfolio x86_64 GNU/Linux";
-    return "AbelOS";
-  }
-
-  function cmdTree(args: string[]): string {
-    const pathArg = args.find(a => !a.startsWith("-"));
-    const target = pathArg ? resolve(pathArg) : cwd;
-    const node = getNode(target);
-    if (!node) return `<span class="term-error">tree: '${esc(pathArg || "")}': No existe</span>`;
-    if (node.type === "file") return esc(pathArg || "");
-    const lines: string[] = [];
-    function walk(n: FSNode, prefix: string, isLast: boolean, name: string) {
-      const connector = isLast ? "└── " : "├── ";
-      if (n.type === "dir") {
-        lines.push(`${prefix}${connector}<span class="term-label">${esc(name)}/</span>`);
-        const entries = Object.keys(n.children).filter(k => !k.startsWith(".")).sort();
-        entries.forEach((k, i) => {
-          walk(n.children[k], prefix + (isLast ? "    " : "│   "), i === entries.length - 1, k);
-        });
-      } else {
-        lines.push(`${prefix}${connector}<span class="term-dim">${esc(name)}</span>`);
-      }
-    }
-    const entries = Object.keys(node.children).filter(k => !k.startsWith(".")).sort();
-    lines.push("<span class=\"term-label\">.</span>");
-    entries.forEach((k, i) => {
-      walk(node.children[k], "", i === entries.length - 1, k);
-    });
-    return lines.join("\n");
-  }
-
-  function cmdHelp(): string {
-    return `
-Comandos disponibles:
-
-  <span class="term-cmd">ls</span> [-a]         Listar archivos
-  <span class="term-cmd">cd</span> [dir]        Cambiar de directorio
-  <span class="term-cmd">cat</span> [archivo]   Ver contenido de un archivo
-  <span class="term-cmd">pwd</span>             Directorio actual
-  <span class="term-cmd">tree</span>            Árbol de directorios
-  <span class="term-cmd">whoami</span>          Usuario actual
-  <span class="term-cmd">date</span>            Fecha y hora
-  <span class="term-cmd">uname</span> [-a]      Info del sistema
-  <span class="term-cmd">clear</span>           Limpiar terminal
-  <span class="term-cmd">help</span>            Mostrar esta ayuda
-`;
-  }
-
-  const builtins: Record<string, (args: string[]) => string> = {
-    ls: cmdLs,
-    cd: cmdCd,
-    cat: cmdCat,
-    pwd: cmdPwd,
-    whoami: cmdWhoami,
-    date: cmdDate,
-    uname: cmdUname,
-    tree: cmdTree,
-    help: cmdHelp,
-    clear: () => "__CLEAR__",
-  };
-
-  function esc(s: string) {
-    return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
-  }
-
-  const termRoot = document.getElementById("terminal-root")!;
-  const inputLine = termRoot.querySelector(".term-input-line") as HTMLElement;
-  let rmLocked = false;
-
-  function sleep(ms: number) { return new Promise(r => setTimeout(r, ms)); }
-
-  async function typeText(target: HTMLElement, text: string, speed = 35) {
-    for (const ch of text) {
-      target.innerHTML += ch === "\n" ? "<br>" : esc(ch);
-      target.scrollTop = target.scrollHeight;
-      await sleep(speed);
-    }
-  }
-
-  async function rmRfSequence() {
-    rmLocked = true;
-    input.disabled = true;
-    inputLine.style.display = "none";
-
-    // 1. Fake "deleting" lines
-    const dirs = ["/home/abel/2025", "/home/abel/2024", "/home/abel/2023",
-      "/home/abel/2021-2022", "/home/abel/2020-2021", "/home/abel/.secreto",
-      "/home/abel", "/home", "/etc", "/usr", "/var", "/"];
-    for (const d of dirs) {
-      output.innerHTML += `<span class="term-error">rm: eliminando '${d}'...</span>\n`;
-      output.scrollTop = output.scrollHeight;
-      await sleep(120);
-    }
-
-    // 2. Flash
-    termRoot.classList.add("rm-flash");
-    await sleep(500);
-    termRoot.classList.remove("rm-flash");
-
-    // 3. White screen
-    output.innerHTML = "";
-    termRoot.classList.add("rm-white");
-    await sleep(2000);
-
-    // 4. Rebuild — back to dark, type the message
-    termRoot.classList.remove("rm-white");
-    termRoot.classList.add("rm-rebuild");
-    termRoot.style.background = "";
-    await sleep(600);
-
-    // 5. Type rebuild lines character by character
-    const lines = [
-      "Reconstruyendo sistema...",
-      "",
-      "████████████████████ 100%",
-      "",
-      "Sistema restaurado.",
-      "",
-    ];
-    for (const line of lines) {
-      await typeText(output, line + "\n", 25);
-      await sleep(200);
-    }
-    await sleep(400);
-
-    // 6. Final warning
-    const warning = "No vuelvas a hacer eso.";
-    const warningEl = document.createElement("span");
-    warningEl.className = "term-error";
-    warningEl.style.fontSize = "15px";
-    warningEl.style.fontWeight = "bold";
-    output.appendChild(warningEl);
-    await typeText(warningEl, warning, 60);
-    output.innerHTML += "\n\n";
-    output.scrollTop = output.scrollHeight;
-
-    await sleep(800);
-
-    // 7. Restore terminal
-    termRoot.classList.remove("rm-rebuild");
-    inputLine.style.display = "";
-    input.disabled = false;
-    input.focus();
-    rmLocked = false;
-  }
-
+  // ── Exec ──
   function exec(raw: string) {
     const trimmed = raw.trim();
     if (!trimmed || rmLocked) return;
@@ -561,13 +148,16 @@ Comandos disponibles:
 
     const promptHtml = `<span class="term-prompt">${esc(getPrompt())}</span>${esc(trimmed)}`;
 
-    // Check easter eggs first (full command match)
+    // Easter eggs (full command match)
     const eggKey = Object.keys(easterEggs).find(k => trimmed.toLowerCase() === k.toLowerCase());
     if (eggKey) {
       const result = easterEggs[eggKey]();
       if (result === "__RM_RF__") {
         output.innerHTML += `\n${promptHtml}\n`;
-        rmRfSequence();
+        rmRfSequence(
+          { termRoot, output, inputLine, input },
+          (v) => { rmLocked = v; }
+        );
         return;
       }
       output.innerHTML += `\n${promptHtml}\n${result}\n`;
@@ -575,21 +165,15 @@ Comandos disponibles:
       return;
     }
 
-    // Check sudo
-    if (trimmed.startsWith("sudo ")) {
-      sudoCount++;
-      const msgs = [
-        "abel no está en el archivo sudoers. Se reportará este incidente.",
-        "Otra vez intentando sudo... No aprenderás, ¿eh?",
-        "¿Sudo? En esta terminal mando yo.",
-        `Van ${sudoCount} intentos de sudo. ¿Quieres que te banee?`,
-      ];
-      const msg = sudoCount <= 3 ? msgs[sudoCount - 1] : msgs[3];
-      output.innerHTML += `\n${promptHtml}\n<span class="term-error">${msg}</span>\n`;
+    // Sudo
+    const sudoResult = sudoHandler(trimmed);
+    if (sudoResult) {
+      output.innerHTML += `\n${promptHtml}\n${sudoResult}\n`;
       output.scrollTop = output.scrollHeight;
       return;
     }
 
+    // Builtins
     const [cmd, ...args] = trimmed.split(/\s+/);
     const handler = builtins[cmd.toLowerCase()];
 
@@ -605,6 +189,7 @@ Comandos disponibles:
     output.scrollTop = output.scrollHeight;
   }
 
+  // ── Keyboard ──
   input.addEventListener("keydown", (e) => {
     if (e.key === "Enter") {
       exec(input.value);
@@ -618,11 +203,16 @@ Comandos disponibles:
       else { histIdx = -1; input.value = ""; }
     } else if (e.key === "Tab") {
       e.preventDefault();
-      // Simple tab completion for files/dirs in cwd
       const val = input.value;
       const parts = val.split(/\s+/);
       const partial = parts[parts.length - 1] || "";
-      const node = getNode(cwd);
+      // Tab-complete commands if first token
+      if (parts.length <= 1 && partial) {
+        const match = Object.keys(builtins).find(k => k.startsWith(partial));
+        if (match) { input.value = match + " "; return; }
+      }
+      // Tab-complete files/dirs
+      const node = getNode(state.cwd === "/home/abel" ? "/home/abel" : state.cwd);
       if (node?.type === "dir" && partial) {
         const match = Object.keys(node.children).find(k => k.startsWith(partial));
         if (match) {
@@ -636,7 +226,5 @@ Comandos disponibles:
     }
   });
 
-  document.getElementById("terminal-root")?.addEventListener("click", () => {
-    input.focus();
-  });
+  termRoot.addEventListener("click", () => { input.focus(); });
 </script>
