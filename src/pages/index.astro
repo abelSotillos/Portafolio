@@ -8,6 +8,7 @@ import Portafolio from "../components/windows/Portafolio.astro";
 import TerminalWindow from "../components/windows/TerminalWindow.astro";
 import DockerWindow from "../components/windows/DockerWindow.astro";
 import AngularWindow from "../components/windows/AngularWindow.astro";
+import SpringBootWindow from "../components/windows/SpringBootWindow.astro";
 ---
 
 <!doctype html>
@@ -96,6 +97,19 @@ import AngularWindow from "../components/windows/AngularWindow.astro";
       initialHidden
     >
       <AngularWindow />
+    </DraggableWindow>
+
+    <DraggableWindow
+      id="app-springboot"
+      title="Spring Boot"
+      lucideIcon="Leaf"
+      width={580}
+      height={420}
+      initialX={200}
+      initialY={80}
+      initialHidden
+    >
+      <SpringBootWindow />
     </DraggableWindow>
 
     <!-- Barra de tareas + menú inicio -->

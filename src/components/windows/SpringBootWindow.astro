@@ -1,0 +1,936 @@
+<div class="sb" id="springboot-root">
+
+  <!-- ── SIDEBAR ── -->
+  <div class="sb-sidebar" id="sb-sidebar">
+    <button class="sb-link active" data-section="getting-started">Primeros pasos</button>
+    <button class="sb-link" data-section="project">Estructura</button>
+    <button class="sb-link" data-section="controllers">Controllers</button>
+    <button class="sb-link" data-section="services">Services</button>
+    <button class="sb-link" data-section="repositories">Repositories</button>
+    <button class="sb-link" data-section="entities">Entities</button>
+    <button class="sb-link" data-section="dto">DTOs</button>
+    <button class="sb-link" data-section="config">Configuración</button>
+    <button class="sb-link" data-section="security">Security</button>
+    <button class="sb-link" data-section="testing">Testing</button>
+  </div>
+
+  <!-- ── CONTENT ── -->
+  <div class="sb-content" id="sb-content">
+    <!-- filled by JS -->
+  </div>
+
+</div>
+
+<!-- ═══════════════════════════════════════════════ -->
+<!-- STYLES                                          -->
+<!-- ═══════════════════════════════════════════════ -->
+<style>
+  .sb {
+    display: flex;
+    flex-direction: row;
+    height: 100%;
+    font-family: "Segoe UI", system-ui, sans-serif;
+    background: hsl(222 47% 11%);
+    color: hsl(215 20% 80%);
+    font-size: 13px;
+  }
+  .sb :global(*) {
+    scrollbar-width: thin;
+    scrollbar-color: hsl(217 33% 25%) transparent;
+  }
+  .sb :global(*::-webkit-scrollbar) { width: 6px; height: 6px; }
+  .sb :global(*::-webkit-scrollbar-track) { background: transparent; }
+  .sb :global(*::-webkit-scrollbar-thumb) {
+    background: hsl(217 33% 25%);
+    border-radius: 3px;
+  }
+  .sb :global(*::-webkit-scrollbar-thumb:hover) {
+    background: hsl(217 33% 35%);
+  }
+
+  /* ── Sidebar ── */
+  .sb-sidebar {
+    width: 130px;
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+    padding: 6px;
+    background: hsl(217 33% 12%);
+    border-right: 1px solid hsl(217 33% 22% / .4);
+    overflow-y: auto;
+  }
+  .sb-link {
+    padding: 6px 10px;
+    background: transparent;
+    border: none;
+    border-radius: 5px;
+    color: hsl(215 20% 55%);
+    font-size: 12px;
+    text-align: left;
+    cursor: pointer;
+    transition: background .12s, color .12s;
+  }
+  .sb-link:hover { background: hsl(217 33% 18%); color: hsl(215 20% 75%); }
+  .sb-link.active { background: hsl(120 55% 45% / .15); color: hsl(120 55% 62%); }
+
+  /* ── Content ── */
+  .sb-content {
+    flex: 1;
+    overflow-y: auto;
+    padding: 14px 16px;
+    line-height: 1.6;
+  }
+  .sb-content :global(h2) {
+    color: hsl(120 55% 55%);
+    font-size: 16px;
+    margin: 0 0 10px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .sb-content :global(h3) {
+    color: hsl(120 55% 62%);
+    font-size: 13px;
+    margin: 16px 0 6px;
+  }
+  .sb-content :global(h3:first-child) { margin-top: 0; }
+  .sb-content :global(p) {
+    margin: 4px 0;
+    font-size: 12px;
+    color: hsl(215 20% 60%);
+    line-height: 1.5;
+  }
+  .sb-content :global(code) {
+    background: hsl(217 33% 18%);
+    padding: 1px 5px;
+    border-radius: 3px;
+    font-family: "Cascadia Code", "Fira Code", monospace;
+    font-size: 11px;
+    color: hsl(215 20% 80%);
+  }
+  .sb-content :global(.sb-code-block) {
+    background: hsl(0 0% 3%);
+    border: 1px solid hsl(0 0% 14%);
+    border-radius: 6px;
+    margin: 8px 0;
+    overflow: hidden;
+    position: relative;
+  }
+  .sb-content :global(.sb-code-label) {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 5px 12px;
+    background: hsl(0 0% 7%);
+    border-bottom: 1px solid hsl(0 0% 12%);
+    font-size: 10px;
+    color: hsl(215 20% 40%);
+    font-family: "Cascadia Code", "Fira Code", monospace;
+  }
+  .sb-content :global(.sb-copy-btn) {
+    background: none;
+    border: none;
+    color: hsl(215 20% 35%);
+    cursor: pointer;
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-size: 10px;
+    transition: color .15s, background .15s;
+  }
+  .sb-content :global(.sb-copy-btn:hover) {
+    color: hsl(120 55% 62%);
+    background: hsl(217 33% 18%);
+  }
+  .sb-content :global(.sb-copy-btn.copied) { color: hsl(120 55% 55%); }
+  .sb-content :global(.sb-code-pre) {
+    padding: 10px 12px;
+    font-family: "Cascadia Code", "Fira Code", monospace;
+    font-size: 11.5px;
+    line-height: 1.5;
+    color: hsl(215 20% 80%);
+    overflow-x: auto;
+    white-space: pre;
+    margin: 0;
+  }
+  .sb-content :global(.sb-code-pre .kw) { color: hsl(280 60% 70%); }
+  .sb-content :global(.sb-code-pre .an) { color: hsl(120 55% 62%); }
+  .sb-content :global(.sb-code-pre .str) { color: hsl(30 90% 60%); }
+  .sb-content :global(.sb-code-pre .fn) { color: hsl(120 55% 68%); }
+  .sb-content :global(.sb-code-pre .cm) { color: hsl(215 20% 40%); font-style: italic; }
+  .sb-content :global(.sb-code-pre .tp) { color: hsl(45 90% 65%); }
+  .sb-content :global(.sb-code-pre .nb) { color: hsl(207 90% 64%); }
+  .sb-content :global(.sb-code-pre .val) { color: hsl(30 90% 60%); }
+
+  .sb-content :global(.sb-tip) {
+    margin: 10px 0;
+    padding: 8px 12px;
+    background: hsl(120 55% 45% / .08);
+    border-left: 3px solid hsl(120 55% 45%);
+    border-radius: 0 6px 6px 0;
+    font-size: 12px;
+    color: hsl(215 20% 70%);
+  }
+</style>
+
+<!-- ═══════════════════════════════════════════════ -->
+<!-- SCRIPT                                          -->
+<!-- ═══════════════════════════════════════════════ -->
+<script>
+(function () {
+  const root = document.getElementById("springboot-root");
+  if (!root) return;
+
+  const sidebar = root.querySelector("#sb-sidebar");
+  const content = root.querySelector("#sb-content");
+  if (!sidebar || !content) return;
+
+  /* ── Helper: code block with copy button ── */
+  function codeBlock(lang, code) {
+    return `<div class="sb-code-block">
+      <div class="sb-code-label"><span>${lang}</span><button class="sb-copy-btn" data-code="${encodeURIComponent(code)}">Copiar</button></div>
+      <pre class="sb-code-pre">${code}</pre>
+    </div>`;
+  }
+
+  /* ── Sections ── */
+  const sections = {
+    "getting-started": () => `
+      <h2>Primeros pasos</h2>
+      <p>Spring Boot es un framework de Java que simplifica la creación de aplicaciones basadas en Spring, con configuración automática y servidor embebido.</p>
+
+      <h3>Crear un proyecto</h3>
+      <p>Usa <code>Spring Initializr</code> desde la web o la CLI para generar el proyecto.</p>
+      ${codeBlock("terminal", `<span class="cm"># Con Spring CLI</span>
+<span class="kw">spring</span> init <span class="str">--dependencies=web,data-jpa,h2</span> mi-app
+
+<span class="cm"># O con curl desde start.spring.io</span>
+<span class="kw">curl</span> <span class="str">https://start.spring.io/starter.zip</span> \\
+  <span class="str">-d dependencies=web,data-jpa,h2</span> \\
+  <span class="str">-d name=mi-app</span> \\
+  -o mi-app.zip`)}
+
+      <h3>Ejecutar la aplicación</h3>
+      ${codeBlock("terminal", `<span class="cm"># Con Maven</span>
+<span class="kw">./mvnw</span> spring-boot:run
+
+<span class="cm"># Con Gradle</span>
+<span class="kw">./gradlew</span> bootRun
+
+<span class="cm"># Compilar JAR ejecutable</span>
+<span class="kw">./mvnw</span> package
+<span class="kw">java</span> -jar target/mi-app-<span class="str">0.0.1-SNAPSHOT</span>.jar`)}
+      <p>La app arranca en <code>http://localhost:8080</code> por defecto.</p>
+
+      <h3>Dependencias comunes (pom.xml)</h3>
+      ${codeBlock("pom.xml", `<span class="kw">&lt;dependencies&gt;</span>
+  <span class="cm">&lt;!-- Web REST --&gt;</span>
+  <span class="kw">&lt;dependency&gt;</span>
+    <span class="nb">&lt;groupId&gt;</span>org.springframework.boot<span class="nb">&lt;/groupId&gt;</span>
+    <span class="nb">&lt;artifactId&gt;</span><span class="str">spring-boot-starter-web</span><span class="nb">&lt;/artifactId&gt;</span>
+  <span class="kw">&lt;/dependency&gt;</span>
+
+  <span class="cm">&lt;!-- JPA + Hibernate --&gt;</span>
+  <span class="kw">&lt;dependency&gt;</span>
+    <span class="nb">&lt;groupId&gt;</span>org.springframework.boot<span class="nb">&lt;/groupId&gt;</span>
+    <span class="nb">&lt;artifactId&gt;</span><span class="str">spring-boot-starter-data-jpa</span><span class="nb">&lt;/artifactId&gt;</span>
+  <span class="kw">&lt;/dependency&gt;</span>
+
+  <span class="cm">&lt;!-- Base de datos H2 (dev) --&gt;</span>
+  <span class="kw">&lt;dependency&gt;</span>
+    <span class="nb">&lt;groupId&gt;</span>com.h2database<span class="nb">&lt;/groupId&gt;</span>
+    <span class="nb">&lt;artifactId&gt;</span><span class="str">h2</span><span class="nb">&lt;/artifactId&gt;</span>
+    <span class="nb">&lt;scope&gt;</span>runtime<span class="nb">&lt;/scope&gt;</span>
+  <span class="kw">&lt;/dependency&gt;</span>
+
+  <span class="cm">&lt;!-- Lombok (opcional) --&gt;</span>
+  <span class="kw">&lt;dependency&gt;</span>
+    <span class="nb">&lt;groupId&gt;</span>org.projectlombok<span class="nb">&lt;/groupId&gt;</span>
+    <span class="nb">&lt;artifactId&gt;</span><span class="str">lombok</span><span class="nb">&lt;/artifactId&gt;</span>
+    <span class="nb">&lt;scope&gt;</span>provided<span class="nb">&lt;/scope&gt;</span>
+  <span class="kw">&lt;/dependency&gt;</span>
+<span class="kw">&lt;/dependencies&gt;</span>`)}
+
+      <div class="sb-tip">Spring Boot usa <strong>autoconfiguración</strong>: detecta las dependencias del classpath y configura beans automáticamente.</div>
+    `,
+
+    "project": () => `
+      <h2>Estructura del proyecto</h2>
+      <p>Convención estándar de un proyecto Spring Boot con Maven.</p>
+
+      ${codeBlock("plaintext", `src/
+├── main/
+│   ├── java/com/example/miapp/
+│   │   ├── MiAppApplication.java      <span class="cm">// Punto de entrada</span>
+│   │   ├── controller/                 <span class="cm">// Endpoints REST</span>
+│   │   ├── service/                    <span class="cm">// Lógica de negocio</span>
+│   │   ├── repository/                 <span class="cm">// Acceso a datos</span>
+│   │   ├── model/                      <span class="cm">// Entidades JPA</span>
+│   │   ├── dto/                        <span class="cm">// Data Transfer Objects</span>
+│   │   ├── config/                     <span class="cm">// Configuración de beans</span>
+│   │   └── exception/                  <span class="cm">// Manejo de errores</span>
+│   └── resources/
+│       ├── application.properties      <span class="cm">// Configuración</span>
+│       ├── application-dev.properties  <span class="cm">// Perfil dev</span>
+│       └── static/                     <span class="cm">// Archivos estáticos</span>
+└── test/
+    └── java/com/example/miapp/        <span class="cm">// Tests</span>`)}
+
+      <h3>Clase principal</h3>
+      ${codeBlock("MiAppApplication.java", `<span class="kw">package</span> com.example.miapp;
+
+<span class="kw">import</span> org.springframework.boot.<span class="tp">SpringApplication</span>;
+<span class="kw">import</span> org.springframework.boot.autoconfigure.<span class="tp">SpringBootApplication</span>;
+
+<span class="an">@SpringBootApplication</span>
+<span class="kw">public class</span> <span class="tp">MiAppApplication</span> {
+    <span class="kw">public static void</span> <span class="fn">main</span>(<span class="tp">String</span>[] args) {
+        <span class="tp">SpringApplication</span>.<span class="fn">run</span>(
+            <span class="tp">MiAppApplication</span>.class, args
+        );
+    }
+}`)}
+
+      <div class="sb-tip"><code>@SpringBootApplication</code> combina <code>@Configuration</code>, <code>@EnableAutoConfiguration</code> y <code>@ComponentScan</code> en una sola anotación.</div>
+    `,
+
+    "controllers": () => `
+      <h2>Controllers</h2>
+      <p>Los controladores manejan las peticiones HTTP y definen los endpoints REST de la API.</p>
+
+      <h3>REST Controller básico</h3>
+      ${codeBlock("UserController.java", `<span class="kw">package</span> com.example.miapp.controller;
+
+<span class="kw">import</span> org.springframework.web.bind.annotation.*;
+<span class="kw">import</span> lombok.<span class="tp">RequiredArgsConstructor</span>;
+<span class="kw">import</span> java.util.<span class="tp">List</span>;
+
+<span class="an">@RestController</span>
+<span class="an">@RequestMapping</span>(<span class="str">"/api/users"</span>)
+<span class="an">@RequiredArgsConstructor</span>
+<span class="kw">public class</span> <span class="tp">UserController</span> {
+
+    <span class="kw">private final</span> <span class="tp">UserService</span> userService;
+
+    <span class="an">@GetMapping</span>
+    <span class="kw">public</span> <span class="tp">List</span>&lt;<span class="tp">UserDTO</span>&gt; <span class="fn">getAll</span>() {
+        <span class="kw">return</span> userService.<span class="fn">findAll</span>();
+    }
+
+    <span class="an">@GetMapping</span>(<span class="str">"/{id}"</span>)
+    <span class="kw">public</span> <span class="tp">UserDTO</span> <span class="fn">getById</span>(
+            <span class="an">@PathVariable</span> <span class="tp">Long</span> id) {
+        <span class="kw">return</span> userService.<span class="fn">findById</span>(id);
+    }
+
+    <span class="an">@PostMapping</span>
+    <span class="an">@ResponseStatus</span>(<span class="tp">HttpStatus</span>.CREATED)
+    <span class="kw">public</span> <span class="tp">UserDTO</span> <span class="fn">create</span>(
+            <span class="an">@Valid</span> <span class="an">@RequestBody</span> <span class="tp">CreateUserDTO</span> dto) {
+        <span class="kw">return</span> userService.<span class="fn">create</span>(dto);
+    }
+
+    <span class="an">@PutMapping</span>(<span class="str">"/{id}"</span>)
+    <span class="kw">public</span> <span class="tp">UserDTO</span> <span class="fn">update</span>(
+            <span class="an">@PathVariable</span> <span class="tp">Long</span> id,
+            <span class="an">@Valid</span> <span class="an">@RequestBody</span> <span class="tp">UpdateUserDTO</span> dto) {
+        <span class="kw">return</span> userService.<span class="fn">update</span>(id, dto);
+    }
+
+    <span class="an">@DeleteMapping</span>(<span class="str">"/{id}"</span>)
+    <span class="an">@ResponseStatus</span>(<span class="tp">HttpStatus</span>.NO_CONTENT)
+    <span class="kw">public void</span> <span class="fn">delete</span>(
+            <span class="an">@PathVariable</span> <span class="tp">Long</span> id) {
+        userService.<span class="fn">delete</span>(id);
+    }
+}`)}
+
+      <h3>Parámetros de consulta y paginación</h3>
+      ${codeBlock("ProductController.java", `<span class="an">@GetMapping</span>(<span class="str">"/search"</span>)
+<span class="kw">public</span> <span class="tp">Page</span>&lt;<span class="tp">ProductDTO</span>&gt; <span class="fn">search</span>(
+        <span class="an">@RequestParam</span> <span class="tp">String</span> query,
+        <span class="an">@RequestParam</span>(defaultValue = <span class="str">"0"</span>) <span class="kw">int</span> page,
+        <span class="an">@RequestParam</span>(defaultValue = <span class="str">"10"</span>) <span class="kw">int</span> size) {
+
+    <span class="tp">Pageable</span> pageable = <span class="tp">PageRequest</span>.<span class="fn">of</span>(
+        page, size, <span class="tp">Sort</span>.<span class="fn">by</span>(<span class="str">"name"</span>)
+    );
+    <span class="kw">return</span> productService.<span class="fn">search</span>(query, pageable);
+}`)}
+
+      <h3>Manejo global de excepciones</h3>
+      ${codeBlock("GlobalExceptionHandler.java", `<span class="an">@RestControllerAdvice</span>
+<span class="kw">public class</span> <span class="tp">GlobalExceptionHandler</span> {
+
+    <span class="an">@ExceptionHandler</span>(<span class="tp">ResourceNotFoundException</span>.class)
+    <span class="an">@ResponseStatus</span>(<span class="tp">HttpStatus</span>.NOT_FOUND)
+    <span class="kw">public</span> <span class="tp">ErrorResponse</span> <span class="fn">handleNotFound</span>(
+            <span class="tp">ResourceNotFoundException</span> ex) {
+        <span class="kw">return new</span> <span class="tp">ErrorResponse</span>(
+            <span class="str">"NOT_FOUND"</span>, ex.<span class="fn">getMessage</span>()
+        );
+    }
+
+    <span class="an">@ExceptionHandler</span>(<span class="tp">MethodArgumentNotValidException</span>.class)
+    <span class="an">@ResponseStatus</span>(<span class="tp">HttpStatus</span>.BAD_REQUEST)
+    <span class="kw">public</span> <span class="tp">ErrorResponse</span> <span class="fn">handleValidation</span>(
+            <span class="tp">MethodArgumentNotValidException</span> ex) {
+        <span class="tp">Map</span>&lt;<span class="tp">String</span>, <span class="tp">String</span>&gt; errors = ex
+            .<span class="fn">getBindingResult</span>()
+            .<span class="fn">getFieldErrors</span>()
+            .stream()
+            .<span class="fn">collect</span>(<span class="tp">Collectors</span>.<span class="fn">toMap</span>(
+                <span class="tp">FieldError</span>::<span class="fn">getField</span>,
+                <span class="tp">FieldError</span>::<span class="fn">getDefaultMessage</span>
+            ));
+        <span class="kw">return new</span> <span class="tp">ErrorResponse</span>(
+            <span class="str">"VALIDATION_ERROR"</span>, errors
+        );
+    }
+}`)}
+    `,
+
+    "services": () => `
+      <h2>Services</h2>
+      <p>Los servicios contienen la lógica de negocio y actúan como intermediarios entre controllers y repositories.</p>
+
+      <h3>Servicio con inyección de dependencias</h3>
+      ${codeBlock("UserService.java", `<span class="kw">package</span> com.example.miapp.service;
+
+<span class="kw">import</span> org.springframework.stereotype.<span class="tp">Service</span>;
+<span class="kw">import</span> org.springframework.transaction.annotation.<span class="tp">Transactional</span>;
+<span class="kw">import</span> lombok.<span class="tp">RequiredArgsConstructor</span>;
+<span class="kw">import</span> java.util.<span class="tp">List</span>;
+
+<span class="an">@Service</span>
+<span class="an">@RequiredArgsConstructor</span>
+<span class="kw">public class</span> <span class="tp">UserService</span> {
+
+    <span class="kw">private final</span> <span class="tp">UserRepository</span> userRepo;
+
+    <span class="kw">public</span> <span class="tp">List</span>&lt;<span class="tp">UserDTO</span>&gt; <span class="fn">findAll</span>() {
+        <span class="kw">return</span> userRepo.<span class="fn">findAll</span>()
+            .stream()
+            .<span class="fn">map</span>(<span class="kw">this</span>::<span class="fn">toDTO</span>)
+            .<span class="fn">toList</span>();
+    }
+
+    <span class="kw">public</span> <span class="tp">UserDTO</span> <span class="fn">findById</span>(<span class="tp">Long</span> id) {
+        <span class="tp">User</span> user = userRepo.<span class="fn">findById</span>(id)
+            .<span class="fn">orElseThrow</span>(() -> <span class="kw">new</span>
+                <span class="tp">ResourceNotFoundException</span>(
+                    <span class="str">"User not found: "</span> + id));
+        <span class="kw">return</span> <span class="fn">toDTO</span>(user);
+    }
+
+    <span class="an">@Transactional</span>
+    <span class="kw">public</span> <span class="tp">UserDTO</span> <span class="fn">create</span>(<span class="tp">CreateUserDTO</span> dto) {
+        <span class="tp">User</span> user = <span class="tp">User</span>.<span class="fn">builder</span>()
+            .<span class="fn">name</span>(dto.<span class="fn">name</span>())
+            .<span class="fn">email</span>(dto.<span class="fn">email</span>())
+            .<span class="fn">build</span>();
+        <span class="kw">return</span> <span class="fn">toDTO</span>(userRepo.<span class="fn">save</span>(user));
+    }
+
+    <span class="an">@Transactional</span>
+    <span class="kw">public void</span> <span class="fn">delete</span>(<span class="tp">Long</span> id) {
+        <span class="kw">if</span> (!userRepo.<span class="fn">existsById</span>(id)) {
+            <span class="kw">throw new</span> <span class="tp">ResourceNotFoundException</span>(
+                <span class="str">"User not found: "</span> + id);
+        }
+        userRepo.<span class="fn">deleteById</span>(id);
+    }
+
+    <span class="kw">private</span> <span class="tp">UserDTO</span> <span class="fn">toDTO</span>(<span class="tp">User</span> u) {
+        <span class="kw">return new</span> <span class="tp">UserDTO</span>(
+            u.<span class="fn">getId</span>(),
+            u.<span class="fn">getName</span>(),
+            u.<span class="fn">getEmail</span>()
+        );
+    }
+}`)}
+
+      <div class="sb-tip"><code>@Transactional</code> asegura que toda la operación se ejecute en una transacción. Si falla algo, se hace rollback automático.</div>
+    `,
+
+    "repositories": () => `
+      <h2>Repositories</h2>
+      <p>Spring Data JPA genera la implementación automáticamente a partir de interfaces.</p>
+
+      <h3>Repository básico</h3>
+      ${codeBlock("UserRepository.java", `<span class="kw">package</span> com.example.miapp.repository;
+
+<span class="kw">import</span> org.springframework.data.jpa.repository.<span class="tp">JpaRepository</span>;
+<span class="kw">import</span> java.util.<span class="tp">List</span>;
+<span class="kw">import</span> java.util.<span class="tp">Optional</span>;
+
+<span class="kw">public interface</span> <span class="tp">UserRepository</span>
+    <span class="kw">extends</span> <span class="tp">JpaRepository</span>&lt;<span class="tp">User</span>, <span class="tp">Long</span>&gt; {
+
+    <span class="cm">// Spring genera la query por el nombre</span>
+    <span class="tp">Optional</span>&lt;<span class="tp">User</span>&gt; <span class="fn">findByEmail</span>(<span class="tp">String</span> email);
+
+    <span class="tp">List</span>&lt;<span class="tp">User</span>&gt; <span class="fn">findByNameContainingIgnoreCase</span>(
+        <span class="tp">String</span> name);
+
+    <span class="kw">boolean</span> <span class="fn">existsByEmail</span>(<span class="tp">String</span> email);
+
+    <span class="tp">List</span>&lt;<span class="tp">User</span>&gt; <span class="fn">findByActiveTrue</span>();
+}`)}
+
+      <h3>Queries personalizadas con JPQL</h3>
+      ${codeBlock("ProductRepository.java", `<span class="kw">public interface</span> <span class="tp">ProductRepository</span>
+    <span class="kw">extends</span> <span class="tp">JpaRepository</span>&lt;<span class="tp">Product</span>, <span class="tp">Long</span>&gt; {
+
+    <span class="an">@Query</span>(<span class="str">"""
+        SELECT p FROM Product p
+        WHERE p.price BETWEEN :min AND :max
+        AND p.active = true
+        ORDER BY p.price ASC
+    """</span>)
+    <span class="tp">List</span>&lt;<span class="tp">Product</span>&gt; <span class="fn">findByPriceRange</span>(
+        <span class="an">@Param</span>(<span class="str">"min"</span>) <span class="tp">BigDecimal</span> min,
+        <span class="an">@Param</span>(<span class="str">"max"</span>) <span class="tp">BigDecimal</span> max
+    );
+
+    <span class="an">@Query</span>(<span class="str">"SELECT p FROM Product p WHERE "</span> +
+           <span class="str">"LOWER(p.name) LIKE LOWER(CONCAT('%',:q,'%'))"</span>)
+    <span class="tp">Page</span>&lt;<span class="tp">Product</span>&gt; <span class="fn">search</span>(
+        <span class="an">@Param</span>(<span class="str">"q"</span>) <span class="tp">String</span> query,
+        <span class="tp">Pageable</span> pageable
+    );
+
+    <span class="an">@Modifying</span>
+    <span class="an">@Query</span>(<span class="str">"UPDATE Product p SET p.active = false "</span> +
+           <span class="str">"WHERE p.stock = 0"</span>)
+    <span class="kw">int</span> <span class="fn">deactivateOutOfStock</span>();
+}`)}
+
+      <div class="sb-tip">Los métodos <strong>derived queries</strong> como <code>findByNameContaining</code> se generan automáticamente. Para queries complejas usa <code>@Query</code> con JPQL.</div>
+    `,
+
+    "entities": () => `
+      <h2>Entities</h2>
+      <p>Las entidades JPA mapean clases Java a tablas de la base de datos.</p>
+
+      <h3>Entidad con relaciones</h3>
+      ${codeBlock("User.java", `<span class="kw">package</span> com.example.miapp.model;
+
+<span class="kw">import</span> jakarta.persistence.*;
+<span class="kw">import</span> lombok.*;
+<span class="kw">import</span> java.time.<span class="tp">LocalDateTime</span>;
+<span class="kw">import</span> java.util.<span class="tp">List</span>;
+
+<span class="an">@Entity</span>
+<span class="an">@Table</span>(name = <span class="str">"users"</span>)
+<span class="an">@Data</span>
+<span class="an">@Builder</span>
+<span class="an">@NoArgsConstructor</span>
+<span class="an">@AllArgsConstructor</span>
+<span class="kw">public class</span> <span class="tp">User</span> {
+
+    <span class="an">@Id</span>
+    <span class="an">@GeneratedValue</span>(strategy =
+        <span class="tp">GenerationType</span>.IDENTITY)
+    <span class="kw">private</span> <span class="tp">Long</span> id;
+
+    <span class="an">@Column</span>(nullable = <span class="kw">false</span>, length = <span class="val">100</span>)
+    <span class="kw">private</span> <span class="tp">String</span> name;
+
+    <span class="an">@Column</span>(nullable = <span class="kw">false</span>, unique = <span class="kw">true</span>)
+    <span class="kw">private</span> <span class="tp">String</span> email;
+
+    <span class="an">@Column</span>(name = <span class="str">"active"</span>)
+    <span class="kw">private boolean</span> active = <span class="kw">true</span>;
+
+    <span class="an">@OneToMany</span>(mappedBy = <span class="str">"author"</span>,
+               cascade = <span class="tp">CascadeType</span>.ALL,
+               fetch = <span class="tp">FetchType</span>.LAZY)
+    <span class="kw">private</span> <span class="tp">List</span>&lt;<span class="tp">Post</span>&gt; posts;
+
+    <span class="an">@CreationTimestamp</span>
+    <span class="kw">private</span> <span class="tp">LocalDateTime</span> createdAt;
+
+    <span class="an">@UpdateTimestamp</span>
+    <span class="kw">private</span> <span class="tp">LocalDateTime</span> updatedAt;
+}`)}
+
+      <h3>Relación ManyToOne</h3>
+      ${codeBlock("Post.java", `<span class="an">@Entity</span>
+<span class="an">@Table</span>(name = <span class="str">"posts"</span>)
+<span class="an">@Data</span> <span class="an">@Builder</span>
+<span class="an">@NoArgsConstructor</span> <span class="an">@AllArgsConstructor</span>
+<span class="kw">public class</span> <span class="tp">Post</span> {
+
+    <span class="an">@Id</span>
+    <span class="an">@GeneratedValue</span>(strategy =
+        <span class="tp">GenerationType</span>.IDENTITY)
+    <span class="kw">private</span> <span class="tp">Long</span> id;
+
+    <span class="an">@Column</span>(nullable = <span class="kw">false</span>)
+    <span class="kw">private</span> <span class="tp">String</span> title;
+
+    <span class="an">@Column</span>(columnDefinition = <span class="str">"TEXT"</span>)
+    <span class="kw">private</span> <span class="tp">String</span> content;
+
+    <span class="an">@ManyToOne</span>(fetch = <span class="tp">FetchType</span>.LAZY)
+    <span class="an">@JoinColumn</span>(name = <span class="str">"user_id"</span>,
+               nullable = <span class="kw">false</span>)
+    <span class="kw">private</span> <span class="tp">User</span> author;
+}`)}
+    `,
+
+    "dto": () => `
+      <h2>DTOs (Data Transfer Objects)</h2>
+      <p>Los DTOs separan la representación de la API de las entidades internas. Usa <code>record</code> de Java 16+ para DTOs inmutables.</p>
+
+      <h3>DTOs con Records</h3>
+      ${codeBlock("UserDTO.java", `<span class="kw">package</span> com.example.miapp.dto;
+
+<span class="cm">// DTO de respuesta</span>
+<span class="kw">public record</span> <span class="tp">UserDTO</span>(
+    <span class="tp">Long</span> id,
+    <span class="tp">String</span> name,
+    <span class="tp">String</span> email
+) {}`)}
+
+      ${codeBlock("CreateUserDTO.java", `<span class="kw">import</span> jakarta.validation.constraints.*;
+
+<span class="cm">// DTO de creación con validaciones</span>
+<span class="kw">public record</span> <span class="tp">CreateUserDTO</span>(
+
+    <span class="an">@NotBlank</span>(message = <span class="str">"El nombre es obligatorio"</span>)
+    <span class="an">@Size</span>(min = <span class="val">2</span>, max = <span class="val">100</span>)
+    <span class="tp">String</span> name,
+
+    <span class="an">@NotBlank</span>
+    <span class="an">@Email</span>(message = <span class="str">"Email no válido"</span>)
+    <span class="tp">String</span> email,
+
+    <span class="an">@Size</span>(min = <span class="val">8</span>, message = <span class="str">"Mínimo 8 caracteres"</span>)
+    <span class="tp">String</span> password
+) {}`)}
+
+      <h3>Mapper entre Entity y DTO</h3>
+      ${codeBlock("UserMapper.java", `<span class="an">@Component</span>
+<span class="kw">public class</span> <span class="tp">UserMapper</span> {
+
+    <span class="kw">public</span> <span class="tp">UserDTO</span> <span class="fn">toDTO</span>(<span class="tp">User</span> user) {
+        <span class="kw">return new</span> <span class="tp">UserDTO</span>(
+            user.<span class="fn">getId</span>(),
+            user.<span class="fn">getName</span>(),
+            user.<span class="fn">getEmail</span>()
+        );
+    }
+
+    <span class="kw">public</span> <span class="tp">User</span> <span class="fn">toEntity</span>(<span class="tp">CreateUserDTO</span> dto) {
+        <span class="kw">return</span> <span class="tp">User</span>.<span class="fn">builder</span>()
+            .<span class="fn">name</span>(dto.<span class="fn">name</span>())
+            .<span class="fn">email</span>(dto.<span class="fn">email</span>())
+            .<span class="fn">build</span>();
+    }
+}`)}
+
+      <div class="sb-tip">Los <strong>records</strong> de Java son ideales para DTOs: inmutables, con <code>equals()</code>, <code>hashCode()</code> y <code>toString()</code> generados automáticamente.</div>
+    `,
+
+    "config": () => `
+      <h2>Configuración</h2>
+      <p>Spring Boot se configura mediante <code>application.properties</code> o <code>application.yml</code> y clases <code>@Configuration</code>.</p>
+
+      <h3>application.properties</h3>
+      ${codeBlock("application.properties", `<span class="cm"># Servidor</span>
+<span class="fn">server.port</span>=<span class="val">8080</span>
+
+<span class="cm"># Base de datos</span>
+<span class="fn">spring.datasource.url</span>=<span class="str">jdbc:postgresql://localhost:5432/miapp</span>
+<span class="fn">spring.datasource.username</span>=<span class="str">postgres</span>
+<span class="fn">spring.datasource.password</span>=<span class="str">\${DB_PASSWORD}</span>
+
+<span class="cm"># JPA / Hibernate</span>
+<span class="fn">spring.jpa.hibernate.ddl-auto</span>=<span class="val">update</span>
+<span class="fn">spring.jpa.show-sql</span>=<span class="val">true</span>
+<span class="fn">spring.jpa.properties.hibernate.format_sql</span>=<span class="val">true</span>
+
+<span class="cm"># Perfiles</span>
+<span class="fn">spring.profiles.active</span>=<span class="val">dev</span>
+
+<span class="cm"># Logging</span>
+<span class="fn">logging.level.org.springframework.web</span>=<span class="val">DEBUG</span>
+<span class="fn">logging.level.com.example.miapp</span>=<span class="val">DEBUG</span>`)}
+
+      <h3>Clase de configuración con @Bean</h3>
+      ${codeBlock("WebConfig.java", `<span class="an">@Configuration</span>
+<span class="kw">public class</span> <span class="tp">WebConfig</span> {
+
+    <span class="an">@Bean</span>
+    <span class="kw">public</span> <span class="tp">WebMvcConfigurer</span> <span class="fn">corsConfigurer</span>() {
+        <span class="kw">return new</span> <span class="tp">WebMvcConfigurer</span>() {
+            <span class="an">@Override</span>
+            <span class="kw">public void</span> <span class="fn">addCorsMappings</span>(
+                    <span class="tp">CorsRegistry</span> registry) {
+                registry.<span class="fn">addMapping</span>(<span class="str">"/api/**"</span>)
+                    .<span class="fn">allowedOrigins</span>(<span class="str">"http://localhost:4200"</span>)
+                    .<span class="fn">allowedMethods</span>(<span class="str">"GET"</span>, <span class="str">"POST"</span>,
+                                    <span class="str">"PUT"</span>, <span class="str">"DELETE"</span>)
+                    .<span class="fn">allowCredentials</span>(<span class="kw">true</span>);
+            }
+        };
+    }
+}`)}
+
+      <h3>Propiedades personalizadas tipadas</h3>
+      ${codeBlock("AppProperties.java", `<span class="an">@ConfigurationProperties</span>(prefix = <span class="str">"app"</span>)
+<span class="kw">public record</span> <span class="tp">AppProperties</span>(
+    <span class="tp">String</span> name,
+    <span class="tp">String</span> version,
+    <span class="tp">Jwt</span> jwt
+) {
+    <span class="kw">public record</span> <span class="tp">Jwt</span>(
+        <span class="tp">String</span> secret,
+        <span class="kw">long</span> expirationMs
+    ) {}
+}
+
+<span class="cm">// application.properties:</span>
+<span class="cm">// app.name=MiApp</span>
+<span class="cm">// app.version=1.0</span>
+<span class="cm">// app.jwt.secret=mi-secreto</span>
+<span class="cm">// app.jwt.expiration-ms=86400000</span>`)}
+    `,
+
+    "security": () => `
+      <h2>Spring Security</h2>
+      <p>Configuración de seguridad para proteger endpoints con autenticación y autorización.</p>
+
+      <h3>Configuración de seguridad básica</h3>
+      ${codeBlock("SecurityConfig.java", `<span class="kw">package</span> com.example.miapp.config;
+
+<span class="kw">import</span> org.springframework.context.annotation.*;
+<span class="kw">import</span> org.springframework.security.config.annotation.web
+    .builders.<span class="tp">HttpSecurity</span>;
+<span class="kw">import</span> org.springframework.security.web.<span class="tp">SecurityFilterChain</span>;
+
+<span class="an">@Configuration</span>
+<span class="an">@EnableWebSecurity</span>
+<span class="an">@RequiredArgsConstructor</span>
+<span class="kw">public class</span> <span class="tp">SecurityConfig</span> {
+
+    <span class="kw">private final</span> <span class="tp">JwtAuthFilter</span> jwtFilter;
+
+    <span class="an">@Bean</span>
+    <span class="kw">public</span> <span class="tp">SecurityFilterChain</span> <span class="fn">filterChain</span>(
+            <span class="tp">HttpSecurity</span> http) <span class="kw">throws</span> <span class="tp">Exception</span> {
+        <span class="kw">return</span> http
+            .<span class="fn">csrf</span>(csrf -> csrf.<span class="fn">disable</span>())
+            .<span class="fn">sessionManagement</span>(sm -> sm
+                .<span class="fn">sessionCreationPolicy</span>(STATELESS))
+            .<span class="fn">authorizeHttpRequests</span>(auth -> auth
+                .<span class="fn">requestMatchers</span>(<span class="str">"/api/auth/**"</span>)
+                    .<span class="fn">permitAll</span>()
+                .<span class="fn">requestMatchers</span>(<span class="str">"/api/admin/**"</span>)
+                    .<span class="fn">hasRole</span>(<span class="str">"ADMIN"</span>)
+                .<span class="fn">anyRequest</span>().<span class="fn">authenticated</span>()
+            )
+            .<span class="fn">addFilterBefore</span>(jwtFilter,
+                <span class="tp">UsernamePasswordAuthenticationFilter</span>.class)
+            .<span class="fn">build</span>();
+    }
+
+    <span class="an">@Bean</span>
+    <span class="kw">public</span> <span class="tp">PasswordEncoder</span> <span class="fn">passwordEncoder</span>() {
+        <span class="kw">return new</span> <span class="tp">BCryptPasswordEncoder</span>();
+    }
+}`)}
+
+      <h3>Filtro JWT</h3>
+      ${codeBlock("JwtAuthFilter.java", `<span class="an">@Component</span>
+<span class="an">@RequiredArgsConstructor</span>
+<span class="kw">public class</span> <span class="tp">JwtAuthFilter</span>
+    <span class="kw">extends</span> <span class="tp">OncePerRequestFilter</span> {
+
+    <span class="kw">private final</span> <span class="tp">JwtService</span> jwtService;
+    <span class="kw">private final</span> <span class="tp">UserDetailsService</span> userDetails;
+
+    <span class="an">@Override</span>
+    <span class="kw">protected void</span> <span class="fn">doFilterInternal</span>(
+            <span class="tp">HttpServletRequest</span> req,
+            <span class="tp">HttpServletResponse</span> res,
+            <span class="tp">FilterChain</span> chain)
+            <span class="kw">throws</span> <span class="tp">Exception</span> {
+
+        <span class="tp">String</span> header = req.<span class="fn">getHeader</span>(<span class="str">"Authorization"</span>);
+
+        <span class="kw">if</span> (header == <span class="kw">null</span>
+                || !header.<span class="fn">startsWith</span>(<span class="str">"Bearer "</span>)) {
+            chain.<span class="fn">doFilter</span>(req, res);
+            <span class="kw">return</span>;
+        }
+
+        <span class="tp">String</span> token = header.<span class="fn">substring</span>(<span class="val">7</span>);
+        <span class="tp">String</span> email = jwtService
+            .<span class="fn">extractEmail</span>(token);
+
+        <span class="kw">if</span> (email != <span class="kw">null</span>) {
+            <span class="tp">UserDetails</span> user = userDetails
+                .<span class="fn">loadUserByUsername</span>(email);
+            <span class="kw">if</span> (jwtService.<span class="fn">isValid</span>(token, user)) {
+                <span class="tp">var</span> auth = <span class="kw">new</span>
+                    <span class="tp">UsernamePasswordAuthenticationToken</span>(
+                        user, <span class="kw">null</span>,
+                        user.<span class="fn">getAuthorities</span>());
+                <span class="tp">SecurityContextHolder</span>.<span class="fn">getContext</span>()
+                    .<span class="fn">setAuthentication</span>(auth);
+            }
+        }
+        chain.<span class="fn">doFilter</span>(req, res);
+    }
+}`)}
+
+      <div class="sb-tip">Para APIs REST sin estado, usa JWT con <code>SessionCreationPolicy.STATELESS</code>. No olvides deshabilitar CSRF en APIs sin cookies de sesión.</div>
+    `,
+
+    "testing": () => `
+      <h2>Testing</h2>
+      <p>Spring Boot incluye soporte integrado para tests unitarios y de integración.</p>
+
+      <h3>Test unitario de servicio</h3>
+      ${codeBlock("UserServiceTest.java", `<span class="kw">package</span> com.example.miapp.service;
+
+<span class="kw">import</span> org.junit.jupiter.api.*;
+<span class="kw">import</span> org.junit.jupiter.api.extension.*;
+<span class="kw">import</span> org.mockito.*;
+<span class="kw">import</span> org.mockito.junit.jupiter.*;
+<span class="kw">import static</span> org.assertj.core.api.<span class="tp">Assertions</span>.*;
+<span class="kw">import static</span> org.mockito.<span class="tp">Mockito</span>.*;
+
+<span class="an">@ExtendWith</span>(<span class="tp">MockitoExtension</span>.class)
+<span class="kw">class</span> <span class="tp">UserServiceTest</span> {
+
+    <span class="an">@Mock</span>
+    <span class="kw">private</span> <span class="tp">UserRepository</span> userRepo;
+
+    <span class="an">@InjectMocks</span>
+    <span class="kw">private</span> <span class="tp">UserService</span> userService;
+
+    <span class="an">@Test</span>
+    <span class="an">@DisplayName</span>(<span class="str">"findById devuelve el usuario"</span>)
+    <span class="kw">void</span> <span class="fn">findById_ReturnsUser</span>() {
+        <span class="cm">// Given</span>
+        <span class="tp">User</span> user = <span class="tp">User</span>.<span class="fn">builder</span>()
+            .<span class="fn">id</span>(<span class="val">1L</span>).<span class="fn">name</span>(<span class="str">"Abel"</span>)
+            .<span class="fn">email</span>(<span class="str">"abel@test.com"</span>)
+            .<span class="fn">build</span>();
+        <span class="fn">when</span>(userRepo.<span class="fn">findById</span>(<span class="val">1L</span>))
+            .<span class="fn">thenReturn</span>(<span class="tp">Optional</span>.<span class="fn">of</span>(user));
+
+        <span class="cm">// When</span>
+        <span class="tp">UserDTO</span> result = userService.<span class="fn">findById</span>(<span class="val">1L</span>);
+
+        <span class="cm">// Then</span>
+        <span class="fn">assertThat</span>(result.<span class="fn">name</span>())
+            .<span class="fn">isEqualTo</span>(<span class="str">"Abel"</span>);
+        <span class="fn">verify</span>(userRepo).<span class="fn">findById</span>(<span class="val">1L</span>);
+    }
+
+    <span class="an">@Test</span>
+    <span class="an">@DisplayName</span>(<span class="str">"findById lanza excepción"</span>)
+    <span class="kw">void</span> <span class="fn">findById_ThrowsWhenNotFound</span>() {
+        <span class="fn">when</span>(userRepo.<span class="fn">findById</span>(<span class="val">99L</span>))
+            .<span class="fn">thenReturn</span>(<span class="tp">Optional</span>.<span class="fn">empty</span>());
+
+        <span class="fn">assertThatThrownBy</span>(() ->
+            userService.<span class="fn">findById</span>(<span class="val">99L</span>))
+            .<span class="fn">isInstanceOf</span>(
+                <span class="tp">ResourceNotFoundException</span>.class);
+    }
+}`)}
+
+      <h3>Test de integración de controller</h3>
+      ${codeBlock("UserControllerIT.java", `<span class="an">@SpringBootTest</span>
+<span class="an">@AutoConfigureMockMvc</span>
+<span class="kw">class</span> <span class="tp">UserControllerIT</span> {
+
+    <span class="an">@Autowired</span>
+    <span class="kw">private</span> <span class="tp">MockMvc</span> mockMvc;
+
+    <span class="an">@Autowired</span>
+    <span class="kw">private</span> <span class="tp">ObjectMapper</span> objectMapper;
+
+    <span class="an">@Test</span>
+    <span class="kw">void</span> <span class="fn">createUser_Returns201</span>() <span class="kw">throws</span> <span class="tp">Exception</span> {
+        <span class="tp">CreateUserDTO</span> dto = <span class="kw">new</span> <span class="tp">CreateUserDTO</span>(
+            <span class="str">"Abel"</span>, <span class="str">"abel@test.com"</span>, <span class="str">"password123"</span>
+        );
+
+        mockMvc.<span class="fn">perform</span>(
+            <span class="fn">post</span>(<span class="str">"/api/users"</span>)
+                .<span class="fn">contentType</span>(<span class="tp">MediaType</span>.APPLICATION_JSON)
+                .<span class="fn">content</span>(objectMapper
+                    .<span class="fn">writeValueAsString</span>(dto)))
+            .<span class="fn">andExpect</span>(<span class="fn">status</span>().<span class="fn">isCreated</span>())
+            .<span class="fn">andExpect</span>(<span class="fn">jsonPath</span>(<span class="str">"$.name"</span>)
+                .<span class="fn">value</span>(<span class="str">"Abel"</span>))
+            .<span class="fn">andExpect</span>(<span class="fn">jsonPath</span>(<span class="str">"$.email"</span>)
+                .<span class="fn">value</span>(<span class="str">"abel@test.com"</span>));
+    }
+
+    <span class="an">@Test</span>
+    <span class="kw">void</span> <span class="fn">createUser_Returns400_WhenInvalid</span>()
+            <span class="kw">throws</span> <span class="tp">Exception</span> {
+        <span class="tp">CreateUserDTO</span> dto = <span class="kw">new</span> <span class="tp">CreateUserDTO</span>(
+            <span class="str">""</span>, <span class="str">"not-an-email"</span>, <span class="str">"123"</span>
+        );
+
+        mockMvc.<span class="fn">perform</span>(
+            <span class="fn">post</span>(<span class="str">"/api/users"</span>)
+                .<span class="fn">contentType</span>(<span class="tp">MediaType</span>.APPLICATION_JSON)
+                .<span class="fn">content</span>(objectMapper
+                    .<span class="fn">writeValueAsString</span>(dto)))
+            .<span class="fn">andExpect</span>(<span class="fn">status</span>().<span class="fn">isBadRequest</span>());
+    }
+}`)}
+
+      <div class="sb-tip">Usa <code>@SpringBootTest</code> + <code>@AutoConfigureMockMvc</code> para tests de integración que cargan el contexto completo. Para tests unitarios, usa <code>@ExtendWith(MockitoExtension.class)</code> sin levantar Spring.</div>
+    `,
+  };
+
+  /* ── Render ── */
+  function render(key) {
+    if (sections[key]) {
+      content.innerHTML = sections[key]();
+      bindCopyButtons();
+    }
+  }
+
+  /* ── Copy buttons ── */
+  function bindCopyButtons() {
+    content.querySelectorAll(".sb-copy-btn").forEach(btn => {
+      btn.addEventListener("click", () => {
+        const raw = decodeURIComponent(btn.dataset.code || "");
+        const text = raw.replace(/<[^>]+>/g, "");
+        navigator.clipboard.writeText(text).then(() => {
+          btn.textContent = "Copiado!";
+          btn.classList.add("copied");
+          setTimeout(() => {
+            btn.textContent = "Copiar";
+            btn.classList.remove("copied");
+          }, 1500);
+        });
+      });
+    });
+  }
+
+  /* ── Sidebar nav ── */
+  sidebar.addEventListener("click", (e) => {
+    const link = e.target.closest(".sb-link");
+    if (!link) return;
+    sidebar.querySelectorAll(".sb-link").forEach(l => l.classList.remove("active"));
+    link.classList.add("active");
+    render(link.dataset.section);
+  });
+
+  /* ── Init ── */
+  render("getting-started");
+})();
+</script>
